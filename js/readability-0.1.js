@@ -51,7 +51,7 @@ function grabArticle() {
 	
 	// REMOVES ALL STYLESHEETS ...
 	for (var k=0;k < document.styleSheets.length; k++) {
-		if (document.styleSheets[k].href != null && document.styleSheets[k].href.lastIndexOf("arc90.com/experiments/readability") == -1) {
+		if (document.styleSheets[k].href != null && document.styleSheets[k].href.lastIndexOf("readability") == -1) {
 			document.styleSheets[k].disabled = true;
 		}
 	}
