@@ -1,0 +1,142 @@
+@charset "utf-8";
+/* CSS Document */
+
+/*
+#readOverlay  {
+	background-image: none;	
+
+	
+	background: #eee;	
+	font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;
+
+}
+*/
+
+#readOverlay {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 250000;
+	width: 100%;
+}
+
+#readInner {
+	text-align: left;
+	line-height: 1.4em;	
+	margin: 1em auto;
+	max-width: 800px;
+
+}
+#readInner a {
+	color: blue;
+	text-decoration: underline; 
+}
+
+#readInner * {
+	margin-bottom: 16px;	
+	border: none;
+	background: none;
+}
+#readInner img {
+	float: left;
+	margin-right: 12px;
+	margin-bottom: 12px;
+}
+
+#readInner h1 {
+	display: block;
+	width: 100%;
+	border-bottom: 1px solid #333;
+	font-size: 1.2em;
+}
+#readInner  blockquote {
+	margin-left: 3em;
+	margin-right: 3em;
+}
+#readFooter {
+	display: block;
+	border-top: 1px solid  #333;
+	height: 360px :
+	margin-bottom: 260px;
+	text-align: center;
+}
+
+/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
+/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
+/* Size options */
+.size-small {
+	font-size: 12px;
+}
+.size-medium {
+	font-size: 18px;	
+}
+.size-large {
+	font-size: 26px;
+}
+.size-x-large {
+	font-size: 34px;
+}
+
+/* Style options */
+.style-novel {
+	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
+	background: #F4F3DB;
+	color: #222;
+}
+
+.style-ebook {
+	font-family:Arial, Helvetica, sans-serif;
+	background: #eee;
+	color: #333;
+}
+.style-ebook h1 {
+	font-family: "Arial Black", Gadget, sans-serif;
+	font-weight: normal;
+}
+
+.style-newspaper {
+	font-family:"Times New Roman", Times, serif;
+	background: #F7F7F7;
+	color: #222;
+}
+.style-newspaper h1 {
+	text-transform:capitalize;
+	font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.style-terminal {
+	font-family: "Lucida Console", Monaco, monospace;
+	background: #1D4E2C;
+	color: #C6FFC6;
+}
+
+/* Margin Options */
+.margin-x-wide {
+	width: 35%;
+}
+.margin-wide {
+	width: 55%;
+}
+.margin-medium {
+	width: 75%;
+}
+.margin-narrow {
+	width: 95%;
+}
+/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
+
+/* ------ DEBUG ------- */
+.bug-green {
+	background: #BBF9B0;
+	border: 4px solid green;
+}
+.bug-red {
+	background: red;
+}
+.bug-yellow {
+	background: #FFFF8E;	
+}
+.bug-blue {
+	background: #BFDFFF;	
+}
