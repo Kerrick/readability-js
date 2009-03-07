@@ -188,7 +188,7 @@ function killDivs ( e ) {
 }
 
 function killBreaks ( e ) {
-	e.innerHTML = e.innerHTML.replace(/(<br\s*\/?>\s*){1,}/,'<br />');
+	e.innerHTML = e.innerHTML.replace(/(<br\s*\/?>(\s|&nbsp;?)*){1,}/g,'<br />');
 	return e;
 }
 
