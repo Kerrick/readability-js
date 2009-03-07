@@ -92,11 +92,9 @@ function grabArticle() {
 		*/
 	}
 
-	allNodes = document.getElementsByTagName("*");
-	for(nodeIndex = 0; nodeIndex < allNodes.length; nodeIndex++)
+	/* Assignment from index for performance. See http://www.peachpit.com/articles/article.aspx?p=31567&seqNum=5 */
+	for(nodeIndex = 0; (node = document.getElementsByTagName('*')[nodeIndex]); nodeIndex++)
 	{
-		node = allNodes[nodeIndex];
-		
 		if(typeof node.readability != 'undefined')
 		{
 			dbg('Found a node with a content score of ' + node.readability.contentScore);
@@ -157,6 +155,9 @@ function getCharCount ( e,s ) {
 function cleanStyles( e ) {
     e = e || document;
     var cur = e.firstChild;
+
+	// Remove any root styles
+	e.removeAttribute('style');
 
     // Go until there are no more child nodes
     while ( cur != null ) {
