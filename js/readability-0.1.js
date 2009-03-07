@@ -47,7 +47,7 @@ function grabArticle() {
 	
 	// Replace all doubled-up <BR> tags with <P> tags, and remove fonts.
 	var pattern =  new RegExp ("<br/?>[ \r\n\s]*<br/?>", "g");
-	document.body.innerHTML = document.body.innerHTML.replace(pattern, "</p><p>").replace(/<\/?font[^>]*>/, '');
+	document.body.innerHTML = document.body.innerHTML.replace(pattern, "</p><p>").replace(/<\/?font[^>]*>/g, '');
 	
 	// Grab the title from the <title> tag and inject it as the title.
 	articleTitle.innerHTML = document.title;
