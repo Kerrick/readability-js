@@ -81,15 +81,6 @@ function grabArticle() {
 
 		/* Add points for any commas within this paragraph */
 		parentNode.readability.contentScore += getCharCount(allParagraphs[j]);
-		
-		/* The old way of determining fitness:
-		var tempParas = allParagraphs[j].parentNode.getElementsByTagName("p");
-	
-		if ( tempParas.length > topDivCount && getCharCount(allParagraphs[j].parentNode) >= tempParas.length ) {
-			topDivCount = tempParas.length;
-			topDiv = allParagraphs[j].parentNode;
-		}
-		*/
 	}
 
 	/* Assignment from index for performance. See http://www.peachpit.com/articles/article.aspx?p=31567&seqNum=5 */
@@ -122,7 +113,8 @@ function grabArticle() {
 
 	cleanStyles(topDiv);					// Removes all style attributes
 	topDiv = killDivs(topDiv);				// Goes in and removes DIV's that have more non <p> stuff than <p> stuff
-	
+	topDiv = killBreaks(topDiv);            // Removes any consecutive <br />'s into just one <br /> 
+
 	// Cleans out junk from the topDiv just in case:
 	topDiv = clean(topDiv, "form");
 	topDiv = clean(topDiv, "object");
@@ -174,8 +166,9 @@ function killDivs ( e ) {
 	var divsList = e.getElementsByTagName( "div" );
 	var curDivLength = divsList.length;
 	
-	// Gather counts for other typical elements embedded within :
-	for (var i=0; i < curDivLength; i ++) {
+	// Gather counts for other typical elements embedded within.
+	// Traverse backwards so we can remove nodes at the same time without effecting the traversal.
+	for (var i=curDivLength-1; i >= 0; i--) {
 		var p = divsList[i].getElementsByTagName("p").length;
 		var img = divsList[i].getElementsByTagName("img").length;
 		var li = divsList[i].getElementsByTagName("li").length;
@@ -187,10 +180,15 @@ function killDivs ( e ) {
 			// And the number of non-paragraph elements is more than paragraphs 
 			// or other ominous signs :
 			if ( img > p || li > p || a > p || p == 0 || embed > 0) {
-				divsList[i].style.display = "none";
+				divsList[i].parentNode.removeChild(divsList[i]);
 			}
 		}
 	}
+	return e;
+}
+
+function killBreaks ( e ) {
+	e.innerHTML = e.innerHTML.replace(/(<br\s*\/?>\s*){1,}/,'<br />');
 	return e;
 }
 
