@@ -12,6 +12,13 @@
 	
 	objinnerDiv.appendChild(grabArticle());		// Get the article and place it inside the inner Div
 	objOverlay.appendChild(objinnerDiv);		// Insert the inner div into the overlay
+
+	// For totally hosed HTML, add body node that can't be found because of bad HTML or something.
+	if(document.body == null)
+	{
+		body = document.createElement("body");
+		document.body = body;
+	}
 	
 	// This removes everything else on the page. Requires a page refresh to undo it.
 	// I tried the damn overlay on top - but had rendering issues:
@@ -21,31 +28,83 @@
 	document.body.insertBefore(objOverlay, document.body.firstChild);
 })()
 
+/* Remove this and any dbg calls before release to bring down file size. */
+function dbg(text)
+{
+	if(typeof console != 'undefined')
+		console.log(text);
+}
+
 function grabArticle() {
 	var allParagraphs = document.getElementsByTagName("p");
 	var topDivCount = 0;
-	var topDiv;
+	var topDiv = null;
 	var topDivParas;
 	
 	var articleContent = document.createElement("DIV");
 	var articleTitle = document.createElement("H1");
 	var articleFooter = document.createElement("DIV");
 	
-	// Replace all doubled-up <BR> tags with <P> tags :
+	// Replace all doubled-up <BR> tags with <P> tags, and remove fonts.
 	var pattern =  new RegExp ("<br/?>[ \r\n\s]*<br/?>", "g");
-	document.body.innerHTML = document.body.innerHTML.replace(pattern, "</p><p>");
+	document.body.innerHTML = document.body.innerHTML.replace(pattern, "</p><p>").replace(/<\/?font[^>]*>/, '');
 	
 	// Grab the title from the <title> tag and inject it as the title.
 	articleTitle.innerHTML = document.title;
 	articleContent.appendChild(articleTitle);
 	
-	// Study all the paragraphs and find the chunk that has the most <p>'s and keep it:
+	// Study all the paragraphs and find the chunk that has the best score.
+	// A score is determined by things like: Number of <p>'s, commas, special classes, etc.
 	for (var j=0; j	< allParagraphs.length; j++) {
+		parentNode = allParagraphs[j].parentNode;
+
+		/* Initialize readability data */
+		if(typeof parentNode.readability == 'undefined')
+		{
+			parentNode.readability = {"contentScore": 0};			
+
+			// Look for a special classname
+			if(parentNode.className.match(/(comment|meta)/))
+				parentNode.readability.contentScore -= 50;
+			else if(parentNode.className.match(/(hentry|entry[-]?(content|text|body)|article[-]?(content|text|body))/))
+				parentNode.readability.contentScore += 50;
+
+			// Look for a special ID
+			if(parentNode.className.match(/(comment|meta)/))
+				parentNode.readability.contentScore -= 50;
+			else if(parentNode.className.match(/(hentry|entry[-]?(content|text)|article[-]?(text|content))/))
+				parentNode.readability.contentScore += 50;
+		}
+
+		/* Add a point for the paragraph found */
+		parentNode.readability.contentScore++;
+
+		/* Add points for any commas within this paragraph */
+		parentNode.readability.contentScore += getCharCount(allParagraphs[j]);
+		
+		/* The old way of determining fitness:
 		var tempParas = allParagraphs[j].parentNode.getElementsByTagName("p");
 	
 		if ( tempParas.length > topDivCount && getCharCount(allParagraphs[j].parentNode) >= tempParas.length ) {
 			topDivCount = tempParas.length;
 			topDiv = allParagraphs[j].parentNode;
+		}
+		*/
+	}
+
+	allNodes = document.getElementsByTagName("*");
+	for(nodeIndex = 0; nodeIndex < allNodes.length; nodeIndex++)
+	{
+		node = allNodes[nodeIndex];
+		
+		if(typeof node.readability != 'undefined')
+		{
+			dbg('Found a node with a content score of ' + node.readability.contentScore);
+			if(topDiv == null || node.readability.contentScore > topDiv.readability.contentScore)
+			{
+				dbg('Found a more fit node. Setting topDiv');				
+				topDiv = node;
+			}
 		}
 	}
 	
