@@ -67,19 +67,21 @@ function grabArticle() {
 			if(parentNode.className.match(/(comment|meta)/))
 				parentNode.readability.contentScore -= 50;
 			else if(parentNode.className.match(/(hentry|entry[-]?(content|text|body)|article[-]?(content|text|body))/))
-				parentNode.readability.contentScore += 50;
+				parentNode.readability.contentScore += 25;
 
 			// Look for a special ID
-			if(parentNode.className.match(/(comment|meta)/))
+			if(parentNode.id.match(/(comment|meta)/))
 				parentNode.readability.contentScore -= 50;
-			else if(parentNode.className.match(/(hentry|entry[-]?(content|text)|article[-]?(text|content))/))
-				parentNode.readability.contentScore += 50;
+			else if(parentNode.id.match(/(hentry|entry[-]?(content|text)|article[-]?(text|content))/))
+				parentNode.readability.contentScore += 25;
 		}
 
 		/* Add a point for the paragraph found */
-		parentNode.readability.contentScore++;
+		if(getInnerText(allParagraphs[j]).length > 10)
+			parentNode.readability.contentScore++;
 
 		/* Add points for any commas within this paragraph */
+		dbg("Current paragraph has " + getCharCount(allParagraphs[j]) + " commas.");
 		parentNode.readability.contentScore += getCharCount(allParagraphs[j]);
 	}
 
@@ -91,7 +93,7 @@ function grabArticle() {
 			dbg('Found a node with a content score of ' + node.readability.contentScore);
 			if(topDiv == null || node.readability.contentScore > topDiv.readability.contentScore)
 			{
-				dbg('Found a more fit node. Setting topDiv');				
+				dbg('Found a more fit node. Setting topDiv.' + node.className);				
 				topDiv = node;
 			}
 		}
@@ -118,7 +120,7 @@ function grabArticle() {
 	// Cleans out junk from the topDiv just in case:
 	topDiv = clean(topDiv, "form");
 	topDiv = clean(topDiv, "object");
-	topDiv = clean(topDiv, "table");
+	topDiv = clean(topDiv, "table", 250);
 	topDiv = clean(topDiv, "h1");
 	topDiv = clean(topDiv, "h2");
 	topDiv = clean(topDiv, "iframe");
@@ -133,15 +135,19 @@ function grabArticle() {
 	return articleContent;
 }
 
+// Get the inner text of a node - cross browser compatibly.
+function getInnerText(e)
+{
+	if (navigator.appName == "Microsoft Internet Explorer")
+		return e.innerText;
+	else
+		return e.textContent;
+}
+
 // Get character count
 function getCharCount ( e,s ) {
     s = s || ",";
-	if (navigator.appName == "Microsoft Internet Explorer") {
-		return parentContent = e.innerText.split(',').length;
-	}
-	else {
-		return parentContent = e.textContent.split(',').length;
-	}
+	return getInnerText(e).split(s).length;
 }
 
 function cleanStyles( e ) {
