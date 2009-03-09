@@ -28,13 +28,6 @@
 	document.body.insertBefore(objOverlay, document.body.firstChild);
 })()
 
-/* Remove this and any dbg calls before release to bring down file size. */
-function dbg(text)
-{
-	if(typeof console != 'undefined')
-		console.log(text);
-}
-
 function grabArticle() {
 	var allParagraphs = document.getElementsByTagName("p");
 	var topDivCount = 0;
@@ -58,7 +51,7 @@ function grabArticle() {
 	for (var j=0; j	< allParagraphs.length; j++) {
 		parentNode = allParagraphs[j].parentNode;
 
-		/* Initialize readability data */
+		// Initialize readability data
 		if(typeof parentNode.readability == 'undefined')
 		{
 			parentNode.readability = {"contentScore": 0};			
@@ -76,42 +69,29 @@ function grabArticle() {
 				parentNode.readability.contentScore += 25;
 		}
 
-		/* Add a point for the paragraph found */
+		// Add a point for the paragraph found
 		if(getInnerText(allParagraphs[j]).length > 10)
 			parentNode.readability.contentScore++;
 
-		/* Add points for any commas within this paragraph */
-		dbg("Current paragraph has " + getCharCount(allParagraphs[j]) + " commas.");
+		// Add points for any commas within this paragraph
 		parentNode.readability.contentScore += getCharCount(allParagraphs[j]);
 	}
 
-	/* Assignment from index for performance. See http://www.peachpit.com/articles/article.aspx?p=31567&seqNum=5 */
+	// Assignment from index for performance. See http://www.peachpit.com/articles/article.aspx?p=31567&seqNum=5 
 	for(nodeIndex = 0; (node = document.getElementsByTagName('*')[nodeIndex]); nodeIndex++)
-	{
-		if(typeof node.readability != 'undefined')
-		{
-			dbg('Found a node with a content score of ' + node.readability.contentScore);
-			if(topDiv == null || node.readability.contentScore > topDiv.readability.contentScore)
-			{
-				dbg('Found a more fit node. Setting topDiv.' + node.className);				
-				topDiv = node;
-			}
-		}
-	}
+		if(typeof node.readability != 'undefined' && (topDiv == null || node.readability.contentScore > topDiv.readability.contentScore))
+			topDiv = node;
 	
 	// REMOVES ALL STYLESHEETS ...
-	for (var k=0;k < document.styleSheets.length; k++) {
-		if (document.styleSheets[k].href != null && document.styleSheets[k].href.lastIndexOf("readability") == -1) {
+	for (var k=0;k < document.styleSheets.length; k++)
+		if (document.styleSheets[k].href != null && document.styleSheets[k].href.lastIndexOf("readability") == -1)
 			document.styleSheets[k].disabled = true;
-		}
-	}
+
 	// Remove all style tags in head (not doing this on IE) :
 	var styleTags = document.getElementsByTagName("style");
-	for (var j=0;j < styleTags.length; j++) {
-		if (navigator.appName != "Microsoft Internet Explorer") {
+	for (var j=0;j < styleTags.length; j++)
+		if (navigator.appName != "Microsoft Internet Explorer")
 			styleTags[j].textContent = "";
-		}		
-	}
 
 	cleanStyles(topDiv);					// Removes all style attributes
 	topDiv = killDivs(topDiv);				// Goes in and removes DIV's that have more non <p> stuff than <p> stuff
