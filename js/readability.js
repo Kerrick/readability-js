@@ -133,9 +133,9 @@ function grabArticle() {
 	articleFooter.id = "readFooter";
 	articleFooter.innerHTML = "\
 		<a href='http://www.arc90.com'><img src='http://lab.arc90.com/experiments/readability/images/footer.png'></a>\
-		<div style='float: right; line-height: 1; text-align: right; font-size:12px; margin-top: 5px'>\
-			<a href='#' onclick='return restoreDocument()'>Back to Original</a><br />\
-			v" + readabilityVersion + " &nbsp&bull&nbsp; <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>Report an Issue</a>\
+                <div class='footer-right' >\
+                        <a href='#' onclick='return restoreDocument()'>Reload Page &raquo;</a>\
+                        <span class='version'>Readability version " + readabilityVersion + "</span>\
 		</div>\
 	";
 	
