@@ -81,6 +81,12 @@ function grabArticle() {
 	for(nodeIndex = 0; (node = document.getElementsByTagName('*')[nodeIndex]); nodeIndex++)
 		if(typeof node.readability != 'undefined' && (topDiv == null || node.readability.contentScore > topDiv.readability.contentScore))
 			topDiv = node;
+
+	if(topDiv == null)
+	{
+	  topDiv = document.createElement('div');
+	  topDiv.innerHTML = 'Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href="http://code.google.com/p/arc90labs-readability/issues/entry">let us know by submitting an issue.</a>';
+	}
 	
 	// REMOVES ALL STYLESHEETS ...
 	for (var k=0;k < document.styleSheets.length; k++)
@@ -134,8 +140,13 @@ function cleanStyles( e ) {
     e = e || document;
     var cur = e.firstChild;
 
-	// Remove any root styles
-	e.removeAttribute('style');
+	// If we had a bad node, there's not much we can do.
+	if(!e)
+		return;
+
+	// Remove any root styles, if we're able.
+	if(typeof e.removeAttribute == 'function')
+		e.removeAttribute('style');
 
     // Go until there are no more child nodes
     while ( cur != null ) {
