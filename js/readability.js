@@ -1,9 +1,13 @@
+var readabilityVersion = "0.3";
+
 (function(){
 	var objOverlay = document.createElement("div");
 	var objinnerDiv = document.createElement("div");
 
 	objOverlay.id = "readOverlay";
 	objinnerDiv.id = "readInner";
+
+	document.body.readability = {"contentScore": 0, originalHTML: document.body.innerHTML.toString()};
 	
 	// Apply user-selected styling:
 	document.body.className = readStyle;
@@ -19,14 +23,26 @@
 		body = document.createElement("body");
 		document.body = body;
 	}
-	
-	// This removes everything else on the page. Requires a page refresh to undo it.
-	// I tried the damn overlay on top - but had rendering issues:
+
 	document.body.innerHTML = "";
 	
 	// Inserts the new content :
 	document.body.insertBefore(objOverlay, document.body.firstChild);
 })()
+
+function restoreDocument() {
+	document.body.innerHTML = document.body.readability.originalHTML;
+	for (var k=0;k < document.styleSheets.length; k++)
+		if (document.styleSheets[k].href != null)
+			document.styleSheets[k].disabled = (document.styleSheets[k].href.lastIndexOf("readability") != -1);
+
+	// Enable all style tags in head:
+	var styleTags = document.getElementsByTagName("style");
+	for (var j=0;j < styleTags.length; j++)
+		styleTags[j].disabled = false;
+
+	return false;
+}
 
 function grabArticle() {
 	var allParagraphs = document.getElementsByTagName("p");
@@ -57,13 +73,13 @@ function grabArticle() {
 			parentNode.readability = {"contentScore": 0};			
 
 			// Look for a special classname
-			if(parentNode.className.match(/(comment|meta)/))
+			if(parentNode.className.match(/(comment|meta|footer|footnote)/))
 				parentNode.readability.contentScore -= 50;
 			else if(parentNode.className.match(/(hentry|entry[-]?(content|text|body)|article[-]?(content|text|body))/))
 				parentNode.readability.contentScore += 25;
 
 			// Look for a special ID
-			if(parentNode.id.match(/(comment|meta)/))
+			if(parentNode.id.match(/(comment|meta|footer|footnote)/))
 				parentNode.readability.contentScore -= 50;
 			else if(parentNode.id.match(/(hentry|entry[-]?(content|text)|article[-]?(text|content))/))
 				parentNode.readability.contentScore += 25;
@@ -96,8 +112,10 @@ function grabArticle() {
 	// Remove all style tags in head (not doing this on IE) :
 	var styleTags = document.getElementsByTagName("style");
 	for (var j=0;j < styleTags.length; j++)
-		if (navigator.appName != "Microsoft Internet Explorer")
-			styleTags[j].textContent = "";
+		styleTags[j].disabled = true;
+//		if (navigator.appName != "Microsoft Internet Explorer")
+//			styleTags[j].textContent = "";
+
 
 	cleanStyles(topDiv);					// Removes all style attributes
 	topDiv = killDivs(topDiv);				// Goes in and removes DIV's that have more non <p> stuff than <p> stuff
@@ -113,7 +131,13 @@ function grabArticle() {
 	
 	// Add the footer and contents:
 	articleFooter.id = "readFooter";
-	articleFooter.innerHTML = "<a href='http://www.arc90.com'><img src='http://lab.arc90.com/experiments/readability/images/footer.png'></a>";
+	articleFooter.innerHTML = "\
+		<a href='http://www.arc90.com'><img src='http://lab.arc90.com/experiments/readability/images/footer.png'></a>\
+		<div style='float: right; line-height: 1; text-align: right; font-size:12px; margin-top: 5px'>\
+			<a href='#' onclick='return restoreDocument()'>Back to Original</a><br />\
+			v" + readabilityVersion + " &nbsp&bull&nbsp; <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>Report an Issue</a>\
+		</div>\
+	";
 	
 	articleContent.appendChild(topDiv);
 	articleContent.appendChild(articleFooter);
