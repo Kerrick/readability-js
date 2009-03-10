@@ -59,6 +59,16 @@
 	border-top: 1px solid  #333;
 	text-align: center;
 }
+div.footer-right {
+	float: right;
+	line-height: 1;
+	text-align: right;
+	font-size: .75em;
+	margin-top: 18px
+}
+span.version {
+	display: none;	
+}
 
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
