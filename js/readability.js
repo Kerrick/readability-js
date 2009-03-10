@@ -1,4 +1,5 @@
 var readabilityVersion = "0.3";
+var readabilityRemovedStyles = [];
 
 (function(){
 	var objOverlay = document.createElement("div");
@@ -39,10 +40,16 @@ function restoreDocument() {
 			document.styleSheets[k].disabled = (document.styleSheets[k].href.lastIndexOf("readability") != -1);
 
 	// Enable all style tags in head:
+	for(var styleIndex = 0; styleIndex < readabilityRemovedStyles.length; styleIndex++)
+	{
+		document.getElementsByTagName('head')[0].appendChild(readabilityRemovedStyles[styleIndex]);
+	}
+	/*
 	var styleTags = document.getElementsByTagName("style");
 	for (var j=0;j < styleTags.length; j++)
 		styleTags[j].disabled = false;
-
+	*/
+	
 	return false;
 }
 
@@ -108,9 +115,14 @@ function grabArticle() {
 	
 	// REMOVES ALL STYLESHEETS ...
 	for (var k=0;k < document.styleSheets.length; k++)
+	{
 		if (document.styleSheets[k].href != null && document.styleSheets[k].href.lastIndexOf("readability") == -1)
-			document.styleSheets[k].disabled = true;
-
+		{
+			readabilityRemovedStyles.push(document.styleSheets[k].ownerNode);
+			document.styleSheets[k].ownerNode.parentNode.removeChild(document.styleSheets[k].ownerNode);
+		}
+	}
+	
 	// Remove all style tags in head (not doing this on IE) :
 	var styleTags = document.getElementsByTagName("style");
 	for (var j=0;j < styleTags.length; j++)
