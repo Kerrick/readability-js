@@ -1,5 +1,4 @@
 var readabilityVersion = "0.3";
-var readabilityRemovedStyles = [];
 
 (function(){
 	var objOverlay = document.createElement("div");
@@ -7,10 +6,6 @@ var readabilityRemovedStyles = [];
 
 	objOverlay.id = "readOverlay";
 	objinnerDiv.id = "readInner";
-
-	// If we've already called readability once, leave the original content there.
-	if(typeof document.body.readability == 'undefined')
-		document.body.readability = {"contentScore": 0, originalHTML: document.body.innerHTML.toString()};
 	
 	// Apply user-selected styling:
 	document.body.className = readStyle;
@@ -32,26 +27,6 @@ var readabilityRemovedStyles = [];
 	// Inserts the new content :
 	document.body.insertBefore(objOverlay, document.body.firstChild);
 })()
-
-function restoreDocument() {
-	document.body.innerHTML = document.body.readability.originalHTML;
-	for (var k=0;k < document.styleSheets.length; k++)
-		if (document.styleSheets[k].href != null)
-			document.styleSheets[k].disabled = (document.styleSheets[k].href.lastIndexOf("readability") != -1);
-
-	// Enable all style tags in head:
-	for(var styleIndex = 0; styleIndex < readabilityRemovedStyles.length; styleIndex++)
-	{
-		document.getElementsByTagName('head')[0].appendChild(readabilityRemovedStyles[styleIndex]);
-	}
-	/*
-	var styleTags = document.getElementsByTagName("style");
-	for (var j=0;j < styleTags.length; j++)
-		styleTags[j].disabled = false;
-	*/
-	
-	return false;
-}
 
 function grabArticle() {
 	var allParagraphs = document.getElementsByTagName("p");
@@ -113,23 +88,11 @@ function grabArticle() {
 	  topDiv.innerHTML = 'Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href="http://code.google.com/p/arc90labs-readability/issues/entry">let us know by submitting an issue.</a>';
 	}
 	
-	// REMOVES ALL STYLESHEETS ...
-	for (var k=0;k < document.styleSheets.length; k++)
-	{
-		if (document.styleSheets[k].href != null && document.styleSheets[k].href.lastIndexOf("readability") == -1)
-		{
-			readabilityRemovedStyles.push(document.styleSheets[k].ownerNode);
-			document.styleSheets[k].ownerNode.parentNode.removeChild(document.styleSheets[k].ownerNode);
-		}
-	}
-	
 	// Remove all style tags in head (not doing this on IE) :
 	var styleTags = document.getElementsByTagName("style");
 	for (var j=0;j < styleTags.length; j++)
-		styleTags[j].disabled = true;
-//		if (navigator.appName != "Microsoft Internet Explorer")
-//			styleTags[j].textContent = "";
-
+		if (navigator.appName != "Microsoft Internet Explorer")
+			styleTags[j].textContent = "";
 
 	cleanStyles(topDiv);					// Removes all style attributes
 	topDiv = killDivs(topDiv);				// Goes in and removes DIV's that have more non <p> stuff than <p> stuff
@@ -148,7 +111,7 @@ function grabArticle() {
 	articleFooter.innerHTML = "\
 		<a href='http://www.arc90.com'><img src='http://lab.arc90.com/experiments/readability/images/footer.png'></a>\
                 <div class='footer-right' >\
-                        <a href='#' onclick='return restoreDocument()'>Reload Page &raquo;</a>\
+                        <a href='#' onclick='return window.location.reload()'>Reload Page &raquo;</a>\
                         <span class='version'>Readability version " + readabilityVersion + "</span>\
 		</div>\
 	";
