@@ -7,7 +7,9 @@ var readabilityVersion = "0.3";
 	objOverlay.id = "readOverlay";
 	objinnerDiv.id = "readInner";
 
-	document.body.readability = {"contentScore": 0, originalHTML: document.body.innerHTML.toString()};
+	// If we've already called readability once, leave the original content there.
+	if(typeof document.body.readability == 'undefined')
+		document.body.readability = {"contentScore": 0, originalHTML: document.body.innerHTML.toString()};
 	
 	// Apply user-selected styling:
 	document.body.className = readStyle;
