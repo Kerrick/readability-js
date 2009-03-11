@@ -156,44 +156,18 @@ div#margin {
 	color: #C6FFC6;
 }
 
-.style-slate {
-	font-family: "Gill Sans", Calibri, Trebuchet, sans-serif;
-	background: #262626;
-	color: #6A6969;
-	font-weight: lighter;
-	letter-spacing: .1em;
-}
-
-.style-slate #articleContent {
-	text-align: left;
-}
-
-.style-slate hr {
-	background-color: #666;
-	color: #666;
-	height: 1px;
-	border-width: 0;
-}
-
-.style-slate h1 {
-	font-variant: small-caps;
-	font-weight: lighter;
-	letter-spacing: .15em;
-	text-align: left;
-}
-
 /* Margin Options */
 .margin-x-wide {
-	width: 385px;
+	width: 35%;
 }
 .margin-wide {
-	width: 435px;
+	width: 55%;
 }
 .margin-medium {
-	width: 580px;
+	width: 75%;
 }
 .margin-narrow {
-	width: 760px;
+	width: 95%;
 }
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
