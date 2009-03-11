@@ -59,13 +59,13 @@ function grabArticle() {
 			// Look for a special classname
 			if(parentNode.className.match(/(comment|meta|footer|footnote)/))
 				parentNode.readability.contentScore -= 50;
-			else if(parentNode.className.match(/((^|\\s)(post|hentry|entry[-]?(content|text|body)|article[-]?(content|text|body))(\\s|$))/))
+			else if(parentNode.className.match(/((^|\\s)(post|hentry|entry[-]?(content|text|body)?|article[-]?(content|text|body)?)(\\s|$))/))
 				parentNode.readability.contentScore += 25;
 
 			// Look for a special ID
 			if(parentNode.id.match(/(comment|meta|footer|footnote)/))
 				parentNode.readability.contentScore -= 50;
-			else if(parentNode.id.match(/((^|\\s)(post|hentry|entry[-]?(content|text|body)|article[-]?(content|text|body))(\\s|$))/))
+			else if(parentNode.id.match(/^(post|hentry|entry[-]?(content|text|body)?|article[-]?(content|text|body)?)$/))
 				parentNode.readability.contentScore += 25;
 		}
 
