@@ -1,9 +1,12 @@
-var readabilityVersion = "0.3";
+var readabilityVersion = "0.4";
+var emailSrc = 'http://lab.arc90.com/experiments/readability/email.php';
+var iframeLoads = 0;
 
 (function(){
 	var objOverlay = document.createElement("div");
 	var objinnerDiv = document.createElement("div");
-
+	var articleTools = document.createElement("DIV");
+	
 	objOverlay.id = "readOverlay";
 	objinnerDiv.id = "readInner";
 	
@@ -12,7 +15,20 @@ var readabilityVersion = "0.3";
 	objOverlay.className = readStyle;
 	objinnerDiv.className = readMargin + " " + readSize;
 	
+	// Set up tools widget 
+	
+	// NOTE THE IMAGE URL'S HERE !!!!!!!!!!!!!!!!!
+	// NOTE THE IMAGE URL'S HERE !!!!!!!!!!!!!!!!!
+	// NOTE THE IMAGE URL'S HERE !!!!!!!!!!!!!!!!!
+	articleTools.id = "readTools";
+	articleTools.innerHTML = "\
+		<a href='#' onclick='return window.location.reload()'><img src='http://lab.arc90.com/experiments/readability/images/read-refresh.png' title='Reload original page'></a>\
+		<a href='#' onclick='javascript:window.print();'><img src='http://lab.arc90.com/experiments/readability/images/read-print.png' title='Print page'></a>\
+		<a href='#' onclick='emailBox(); return false;'><img src='http://lab.arc90.com/experiments/readability/images/read-email.png' title='Email page'></a>\
+	";
+
 	objinnerDiv.appendChild(grabArticle());		// Get the article and place it inside the inner Div
+	objOverlay.appendChild(articleTools);
 	objOverlay.appendChild(objinnerDiv);		// Insert the inner div into the overlay
 
 	// For totally hosed HTML, add body node that can't be found because of bad HTML or something.
@@ -113,25 +129,24 @@ function grabArticle() {
 	topDiv = clean(topDiv, "h2");
 	topDiv = clean(topDiv, "iframe");
 	
+
 	// Add the footer and contents:
 	articleFooter.id = "readFooter";
 	articleFooter.innerHTML = "\
 		<a href='http://www.arc90.com'><img src='http://lab.arc90.com/experiments/readability/images/footer.png'></a>\
                 <div class='footer-right' >\
-                        <a href='#' onclick='return window.location.reload()'>Reload Page &raquo;</a>\
                         <span class='version'>Readability version " + readabilityVersion + "</span>\
 		</div>\
 	";
-	
+
 	articleContent.appendChild(topDiv);
 	articleContent.appendChild(articleFooter);
-
+	
 	return articleContent;
 }
 
 // Get the inner text of a node - cross browser compatibly.
-function getInnerText(e)
-{
+function getInnerText(e) {
 	if (navigator.appName == "Microsoft Internet Explorer")
 		return e.innerText;
 	else
@@ -210,3 +225,30 @@ function clean(e, tags, minWords) {
 	return e;
 }
 
+function emailBox() {
+    var emailContainer = document.getElementById('email-container');
+    if(null != emailContainer)
+    {
+        return;
+    }
+
+    var emailContainer = document.createElement('div');
+    emailContainer.setAttribute('id', 'email-container');
+    emailContainer.innerHTML = '<iframe src="'+emailSrc + '?pageUrl='+escape(window.location)+'&pageTitle='+escape(document.title)+'" scrolling="no" onload="removeFrame()" style="width:480px; height: 460px; border: 0;"></iframe>';
+
+    document.body.appendChild(emailContainer);
+}
+
+function removeFrame()
+{
+    ++iframeLoads;
+    if(iframeLoads >= 6)
+    {
+        var emailContainer = document.getElementById('email-container');
+        if(null != emailContainer) {
+            emailContainer.parentNode.removeChild(emailContainer);
+        }
+        // reset the count
+        iframeLoads = 0;
+    }
+}

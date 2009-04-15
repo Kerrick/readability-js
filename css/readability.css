@@ -3,38 +3,31 @@
 
 /*
 #readOverlay  {
-	background-image: none;	
-
-	
-	background: #eee;	
+	background-image: none;
+	background: #eee;
 	font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;
 
 }
 */
-
 #readOverlay {
 	display: block;
 	position: absolute;
 	top: 0;
 	left: 0;
-	z-index: 250000;
 	width: 100%;
 }
-
 #readInner {
 	text-align: left;
-	line-height: 1.4em;	
+	line-height: 1.4em;
 	margin: 1em auto;
 	max-width: 800px;
-
 }
 #readInner a {
 	color: blue;
-	text-decoration: underline; 
+	text-decoration: underline;
 }
-
 #readInner * {
-	margin-bottom: 16px;	
+	margin-bottom: 16px;
 	border: none;
 	background: none;
 }
@@ -43,20 +36,19 @@
 	margin-right: 12px;
 	margin-bottom: 12px;
 }
-
 #readInner h1 {
 	display: block;
 	width: 100%;
 	border-bottom: 1px solid #333;
 	font-size: 1.2em;
 }
-#readInner  blockquote {
+#readInner blockquote {
 	margin-left: 3em;
 	margin-right: 3em;
 }
 #readFooter {
 	display: block;
-	border-top: 1px solid  #333;
+	border-top: 1px solid #333;
 	text-align: center;
 }
 div.footer-right {
@@ -67,17 +59,36 @@ div.footer-right {
 	margin-top: 18px
 }
 span.version {
-	display: none;	
+	display: none;
 }
 
+/* Article Tools */
+#readTools {
+	width: 34px;
+	height: 150px;
+	position: fixed;
+	z-index: 100;
+	top: 10px;
+	left: 10px;
+}
+#readTools a {
+	margin-bottom: 8px;
+	display: block;
+}
+#readTools a img {
+	border: none;	
+}
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
+
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
+
 /* Size options */
+
 .size-small {
 	font-size: 12px;
 }
 .size-medium {
-	font-size: 18px;	
+	font-size: 18px;
 }
 .size-large {
 	font-size: 26px;
@@ -85,14 +96,13 @@ span.version {
 .size-x-large {
 	font-size: 34px;
 }
-
 /* Style options */
+
 .style-novel {
 	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
 	background: #F4F3DB;
 	color: #222;
 }
-
 .style-ebook {
 	font-family:Arial, Helvetica, sans-serif;
 	background: #eee;
@@ -102,24 +112,22 @@ span.version {
 	font-family: "Arial Black", Gadget, sans-serif;
 	font-weight: normal;
 }
-
 .style-newspaper {
 	font-family:"Times New Roman", Times, serif;
-	background: #F7F7F7;
+	background: #FFF;
 	color: #222;
 }
 .style-newspaper h1 {
 	text-transform:capitalize;
 	font-family: Georgia, "Times New Roman", Times, serif;
 }
-
 .style-terminal {
 	font-family: "Lucida Console", Monaco, monospace;
 	background: #1D4E2C;
 	color: #C6FFC6;
 }
-
 /* Margin Options */
+
 .margin-x-wide {
 	width: 35%;
 }
@@ -135,6 +143,7 @@ span.version {
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
 
 /* ------ DEBUG ------- */
+
 .bug-green {
 	background: #BBF9B0;
 	border: 4px solid green;
@@ -143,8 +152,24 @@ span.version {
 	background: red;
 }
 .bug-yellow {
-	background: #FFFF8E;	
+	background: #FFFF8E;
 }
 .bug-blue {
-	background: #BFDFFF;	
+	background: #BFDFFF;
+}
+
+/* ---------------- EMAIL POP UP --------------------- */
+
+#email-container{
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    margin: 0 0 0 -240px;
+    padding: 0;
+    width: 480px;
+    height: 460px;
+    border: solid 3px #666;
+    background-color: #fff;
+    z-index: 100 !important;
+    overflow: hidden;
 }
