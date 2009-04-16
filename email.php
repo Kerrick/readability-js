@@ -28,11 +28,13 @@
 
         //FILTER DATA
 
-        $from   = $filters->filter($_POST['from']);
-        $to     = $filters->filter($_POST['to']);
-        $to     = array_map('trim', split(',', $to));
-        $note   = $filters->filter($_POST['note']);
-        $key    = $filters->filter($_POST['key']);
+        $from       = $filters->filter($_POST['from']);
+        $to         = $filters->filter($_POST['to']);
+        $to         = array_map('trim', split(',', $to));
+        $note       = $filters->filter($_POST['note']);
+        $key        = $filters->filter($_POST['key']);
+        $pageUrl    = $filters->filter($_POST['pageUrl']);
+        $pageTitle  = $filters->filter($_POST['pageTitle']);
 
         if(!Readability::validateSecureKey($key))
         {
@@ -77,7 +79,7 @@
             $mailer = new Zend_Mail_Transport_Smtp('smtp.googlemail.com', Array(
                 'auth'      => 'login',
                 'username'  => 'readability@arc90.com',
-                'password'  => 'arc90inc',
+                'password'  => '*******',
                 'ssl'       => 'ssl',
                 'port'      => 465,
             ));
@@ -105,7 +107,7 @@
                 $mail->addTo($toAddress);
             }
 
-            $mail->setSubject("Arc90 Readability: {$pageTitle}");
+            $mail->setSubject("Sent via Readability: {$pageTitle}");
 
             try
             {
@@ -232,7 +234,7 @@
 
         public static function hasValidParams()
         {
-            $requiredParams = array('from', 'to', 'note', 'key');
+            $requiredParams = array('from', 'to', 'note', 'key', 'pageTitle', 'pageUrl');
             $sentParams = array_keys($_POST);
             foreach($requiredParams as $required)
             {
@@ -371,7 +373,7 @@
             <h2>Email Page</h2>
 
             <?php if($page == 'form'){ ?>
-            <form action="" method="post" accept-charset="utf-8" id="send-email-form">
+            <form action="./email.php" method="post" accept-charset="utf-8" id="send-email-form">
                 <div class="section">
                     <label for="from">From :</label>
                     <input type="text" name="from" id="from" value="<?php echo Readability::getParam('from') ?>" <?php echo Readability::getErrorClass('from', $errors); ?> />
