@@ -74,9 +74,24 @@ span.version {
 #readTools a {
 	margin-bottom: 8px;
 	display: block;
+    opacity: .4;
+    filter:alpha(opacity=40);
+    text-indent: -99999px;
+    height: 34px;
 }
-#readTools a img {
-	border: none;	
+
+#email-page{
+    background: url(http://lab.arc90.com/experiments/readability/images/read-email.png) no-repeat left top;
+}
+#reload-page{
+    background: url(http://lab.arc90.com/experiments/readability/images/read-refresh.png) no-repeat left top;
+}
+#print-page{
+    background: url(http://lab.arc90.com/experiments/readability/images/read-print.png) no-repeat left top;
+}
+#readTools a:hover{
+    opacity: 1;
+    filter:alpha(opacity=100);
 }
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
 
