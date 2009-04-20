@@ -22,9 +22,9 @@ var iframeLoads = 0;
 	// NOTE THE IMAGE URL'S HERE !!!!!!!!!!!!!!!!!
 	articleTools.id = "readTools";
 	articleTools.innerHTML = "\
-		<a href='#' onclick='return window.location.reload()'><img src='http://lab.arc90.com/experiments/readability/images/read-refresh.png' title='Reload original page'></a>\
-		<a href='#' onclick='javascript:window.print();'><img src='http://lab.arc90.com/experiments/readability/images/read-print.png' title='Print page'></a>\
-		<a href='#' onclick='emailBox(); return false;'><img src='http://lab.arc90.com/experiments/readability/images/read-email.png' title='Email page'></a>\
+		<a href='#' onclick='return window.location.reload()' title='Reload original page' id='reload-page'>Reload Original Page</a>\
+		<a href='#' onclick='javascript:window.print();' title='Print page' id='print-page'>Print Page</a>\
+		<a href='#' onclick='emailBox(); return false;' title='Email page' id='email-page'>Email Page</a>\
 	";
 
 	objinnerDiv.appendChild(grabArticle());		// Get the article and place it inside the inner Div
