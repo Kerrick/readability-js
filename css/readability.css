@@ -72,6 +72,7 @@ span.version {
 	left: 10px;
 }
 #readTools a {
+    overflow: hidden;
 	margin-bottom: 8px;
 	display: block;
     opacity: .4;
@@ -181,8 +182,8 @@ span.version {
     left: 50%;
     margin: 0 0 0 -240px;
     padding: 0;
-    width: 480px;
-    height: 460px;
+    width: 500px;
+    height: 490px;
     border: solid 3px #666;
     background-color: #fff;
     z-index: 100 !important;

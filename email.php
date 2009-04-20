@@ -1,5 +1,5 @@
 <?php
-    set_include_path( get_include_path() . PATH_SEPARATOR . 'lib');
+    set_include_path( get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/lib');
     session_start();
 
     require_once 'Zend/Filter.php';
@@ -29,6 +29,8 @@
         //FILTER DATA
 
         $from       = $filters->filter($_POST['from']);
+        $fromName   = $filters->filter($_POST['name']);
+        $fromName   = !empty($fromName) ? $fromName : $from;
         $to         = $filters->filter($_POST['to']);
         $to         = array_map('trim', split(',', $to));
         $note       = $filters->filter($_POST['note']);
@@ -72,6 +74,7 @@
         {
             // store the from address so it's saved for future use
             setcookie("from", $from, time()+3600*24*7*4, "/");
+            setcookie("name", $fromName, time()+3600*24*7*4, "/");
 
             require_once 'Zend/Mail.php';
             require_once 'Zend/Mail/Transport/Smtp.php';
@@ -79,7 +82,7 @@
             $mailer = new Zend_Mail_Transport_Smtp('smtp.googlemail.com', Array(
                 'auth'      => 'login',
                 'username'  => 'readability@arc90.com',
-                'password'  => '*******',
+                'password'  => '********',
                 'ssl'       => 'ssl',
                 'port'      => 465,
             ));
@@ -91,7 +94,10 @@
             $body = '<body>';
             $body .= '<div style="font-size: 15px;">';
             $body .= '<p>This page was sent to you by: '.$from.'</p>';
-            $body .= '<p>Message from sender: </p><p><blockquote>'.stripslashes($note).'</blockquote></p>';
+            if(!empty($note))
+            {
+                $body .= '<p>Message from sender: </p><p><blockquote>'.stripslashes($note).'</blockquote></p>';
+            }
             $body .= '<p>Just click this link: <a href="'.$pageUrl.'">'.$pageTitle.'</a></p>';
             $body .= '<hr />';
             $body .= '<p style="font-size: 90%;">Sent from <a href="http://lab.arc90.com/experiments/readability/">Readability</a> | An <a href="http://www.arc90.com">Arc90</a> lab experiment<p>';
@@ -100,7 +106,8 @@
 
             $mail = new Zend_Mail();
             $mail->setBodyHtml($body);
-            $mail->setFrom($from);
+            $mail->setFrom($from, $fromName);
+            $mail->addHeader('Reply-To', $from);
 
             foreach($to as $toAddress)
             {
@@ -234,7 +241,7 @@
 
         public static function hasValidParams()
         {
-            $requiredParams = array('from', 'to', 'note', 'key', 'pageTitle', 'pageUrl');
+            $requiredParams = array('from', 'name', 'to', 'note', 'key', 'pageTitle', 'pageUrl');
             $sentParams = array_keys($_POST);
             foreach($requiredParams as $required)
             {
@@ -277,8 +284,8 @@
                 font-size: 14px;
                 margin: 0;
                 padding: 0;
-                width: 480px;
-                height: 450px;
+                width: 500px;
+                height: 490px;
                 font-family: times, serif;
                 background-color: #fff;
             }
@@ -296,13 +303,13 @@
                 padding-right: 10px;
                 display: block;
                 float: left;
-                width: 100px;
+                width: 130px;
                 text-align: right;
             }
             input,
             textarea{
                 padding: 5px;
-                width: 330px;
+                width: 320px;
                 font-family: times, serif;
                 font-size: 14px;
                 border: solid 1px #999;
@@ -325,7 +332,7 @@
             }
             .helper,
             .details{
-                margin-left: 110px; /* add label width + label padding-right */
+                margin-left: 120px; /* add label width + label padding-right */
             }
             .section{
                 margin-top: 15px;
@@ -360,11 +367,16 @@
                 bottom: 10px;
             }
             #complete{
+                margin-top: 120px;
+                text-align: center;
                 padding: 20px;
             }
             #complete p{
                 margin: 0 0 10px;
                 font-size: 16px;
+            }
+            #complete img{
+                margin-top: 100px;
             }
         </style>
     </head>
@@ -375,7 +387,11 @@
             <?php if($page == 'form'){ ?>
             <form action="./email.php" method="post" accept-charset="utf-8" id="send-email-form">
                 <div class="section">
-                    <label for="from">From :</label>
+                    <label for="name">Your Name :</label>
+                    <input type="text" name="name" id="name" value="<?php echo Readability::getParam('name') ?>" />
+                </div>
+                <div class="section">
+                    <label for="from">Your Email :</label>
                     <input type="text" name="from" id="from" value="<?php echo Readability::getParam('from') ?>" <?php echo Readability::getErrorClass('from', $errors); ?> />
                     <?php if(Readability::isError('from', $errors)){ ?>
                     <p class="helper error">
@@ -384,7 +400,7 @@
                     <?php } ?>
                 </div>
                 <div class="section">
-                    <label for="to">To :</label>
+                    <label for="to">Recipients :</label>
                     <input type="text" name="to" id="to" value="<?php echo Readability::getParam('to') ?>" <?php echo Readability::getErrorClass('to', $errors); ?> />
                     <?php if(Readability::isError('to', $errors)){ ?>
                     <p class="helper error">
@@ -392,7 +408,7 @@
                     </p>
                     <?php } ?>
                     <p class="helper">
-                        Seperate multiple recipients with commas.
+                        Seperate multiple <em>email addresses</em> with commas.
                     </p>
                 </div>
                 <div class="section">
@@ -417,11 +433,14 @@
             <?php }else if($page == "complete"){ ?>
             <div id="complete">
                 <p>
-                    Thanks for using Readability!
-                </p>
-                <p>
                     A link to this page has been sent to <?php echo Readability::emailAsLinks($to) ?>
                 </p>
+                <p>
+                    Thanks for using Readability.
+                </p>
+                <div>
+                    <img src="http://davehauenstein.com/readabilityTest/images/footer-thanks.png" alt="Readability" />
+                </div>
             </div>
             <?php } ?>
         </div>

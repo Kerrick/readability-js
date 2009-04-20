@@ -1,5 +1,5 @@
 var readabilityVersion = "0.4";
-var emailSrc = 'http://lab.arc90.com/experiments/readability/email.php';
+var emailSrc = 'http://davehauenstein.com/readabilityTest/email.php';
 var iframeLoads = 0;
 
 (function(){
@@ -234,7 +234,7 @@ function emailBox() {
 
     var emailContainer = document.createElement('div');
     emailContainer.setAttribute('id', 'email-container');
-    emailContainer.innerHTML = '<iframe src="'+emailSrc + '?pageUrl='+escape(window.location)+'&pageTitle='+escape(document.title)+'" scrolling="no" onload="removeFrame()" style="width:480px; height: 460px; border: 0;"></iframe>';
+    emailContainer.innerHTML = '<iframe src="'+emailSrc + '?pageUrl='+escape(window.location)+'&pageTitle='+escape(document.title)+'" scrolling="no" onload="removeFrame()" style="width:500px; height: 490px; border: 0;"></iframe>';
 
     document.body.appendChild(emailContainer);
 }
