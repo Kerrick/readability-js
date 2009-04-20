@@ -1,5 +1,5 @@
 var readabilityVersion = "0.4";
-var emailSrc = 'http://davehauenstein.com/readabilityTest/email.php';
+var emailSrc = 'http://davehauenstein.com/readability/email.php';
 var iframeLoads = 0;
 
 (function(){
