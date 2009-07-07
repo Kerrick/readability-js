@@ -1,105 +1,114 @@
 @charset "utf-8";
 /* CSS Document */
-
-/*
-#readOverlay  {
-	background-image: none;
-	background: #eee;
-	font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;
-
-}
-*/
 #readOverlay {
 	display: block;
+	left: 0;
 	position: absolute;
 	top: 0;
-	left: 0;
 	width: 100%;
 }
 #readInner {
-	text-align: left;
 	line-height: 1.4em;
 	margin: 1em auto;
 	max-width: 800px;
+	text-align: left;
+	width: 800px;
 }
 #readInner a {
 	color: blue;
 	text-decoration: underline;
 }
-#readInner * {
-	margin-bottom: 16px;
-	border: none;
-	background: none;
+#readInner pre {
+	white-space: pre-wrap;
 }
-#readInner img {
-	float: left;
-	margin-right: 12px;
-	margin-bottom: 12px;
+#readOverlay #readInner pre.normalPre {
+	font-size: 14px;
+	line-height: 1.4em;
+	overflow: auto;
+	white-space: pre-wrap;
+}
+/* custom - PRE content (will revisit)
+#readInner code, #readInner pre {
+	font-family: "Courier New", Courier, monospace;
+}
+#readInner pre {
+	background-color: #FFF;
+	border: #000 1px inset;
+	font-size: 110%;
+	max-height: 250px;
+	overflow: auto;
+	margin: 0;
+	padding: 6px 0;
+	overflow-x: auto;
+	width: 100%;
+}
+*/
+#readInner * {
+	background: none;
+	border: none;
+	margin-bottom: 16px;
+	text-align: left;
 }
 #readInner h1 {
-	display: block;
-	width: 100%;
 	border-bottom: 1px solid #333;
+	display: block;
 	font-size: 1.2em;
+	width: 100%;
 }
 #readInner blockquote {
 	margin-left: 3em;
 	margin-right: 3em;
 }
 #readFooter {
-	display: block;
 	border-top: 1px solid #333;
+}
+#readFooter, #readFooter div, #readFooter a {
+	margin: 0;
+	padding: 0;
 	text-align: center;
-	clear: both;
 }
-div.footer-right {
-	float: right;
-	line-height: 1;
-	text-align: right;
-	font-size: .75em;
-	margin-top: 18px
-}
-span.version {
-	display: none;
+#readability-version {
+	font-size: 12px;
+	font-weight: bold;
 }
 
 /* Article Tools */
 #readTools {
-	width: 34px;
 	height: 150px;
-	position: fixed;
-	z-index: 100;
-	top: 10px;
 	left: 10px;
+	position: fixed;
+	top: 10px;
+	width: 34px;
+	z-index: 100;
 }
 #readTools a {
-    overflow: hidden;
-	margin-bottom: 8px;
 	display: block;
-    opacity: .4;
-    filter:alpha(opacity=40);
-    text-indent: -99999px;
-    height: 34px;
+	filter: alpha(opacity=40);
+	height: 34px;
+	margin-bottom: 8px;
+	opacity: .4;
+	overflow: hidden;
+	text-indent: -99999px;
 }
 
-#email-page{
-    background: url(http://lab.arc90.com/experiments/readability/images/read-email.png) no-repeat left top;
+#email-page {
+	background: url(http://lab.arc90.com/experiments/readability/images/read-email.png) no-repeat left top;
 }
-#reload-page{
-    background: url(http://lab.arc90.com/experiments/readability/images/read-refresh.png) no-repeat left top;
+#reload-page {
+	background: url(http://lab.arc90.com/experiments/readability/images/read-refresh.png) no-repeat left top;
 }
-#print-page{
-    background: url(http://lab.arc90.com/experiments/readability/images/read-print.png) no-repeat left top;
+#print-page {
+	background: url(http://lab.arc90.com/experiments/readability/images/read-print.png) no-repeat left top;
 }
-#readTools a:hover{
-    opacity: 1;
-    filter:alpha(opacity=100);
+#readTools a:hover {
+	filter: alpha(opacity=100);
+	opacity: 1;
 }
+
+
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
 
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-
-/* Size options */
+/* ------ Size Options ------- */
 
 .size-small {
 	font-size: 12px;
@@ -113,37 +122,39 @@ span.version {
 .size-x-large {
 	font-size: 34px;
 }
-/* Style options */
+
+/* ------ Style Options ------- */
 
 .style-novel {
-	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
 	background: #F4F3DB;
 	color: #222;
+	font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 }
 .style-ebook {
-	font-family:Arial, Helvetica, sans-serif;
-	background: #eee;
+	background: #EEE;
 	color: #333;
+	font-family: Arial, Helvetica, sans-serif;
 }
 .style-ebook h1 {
 	font-family: "Arial Black", Gadget, sans-serif;
 	font-weight: normal;
 }
 .style-newspaper {
-	font-family:"Times New Roman", Times, serif;
 	background: #FFF;
 	color: #222;
+	font-family: "Times New Roman", Times, serif;
 }
 .style-newspaper h1 {
-	text-transform:capitalize;
 	font-family: Georgia, "Times New Roman", Times, serif;
+	text-transform: capitalize;
 }
 .style-terminal {
-	font-family: "Lucida Console", Monaco, monospace;
 	background: #1D4E2C;
 	color: #C6FFC6;
+	font-family: "Lucida Console", Monaco, monospace;
 }
-/* Margin Options */
+
+/* ------ Margin Options ------- */
 
 .margin-x-wide {
 	width: 35%;
@@ -157,9 +168,11 @@ span.version {
 .margin-narrow {
 	width: 95%;
 }
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
 
-/* ------ DEBUG ------- */
+/* ---------------- END USER-CONFIGURABLE STYLING --------------------- */
+
+
+/* ---------------- DEBUG --------------------- */
 
 .bug-green {
 	background: #BBF9B0;
@@ -175,18 +188,19 @@ span.version {
 	background: #BFDFFF;
 }
 
+
 /* ---------------- EMAIL POP UP --------------------- */
 
-#email-container{
-    position: fixed;
-    top: 60px;
-    left: 50%;
-    margin: 0 0 0 -240px;
-    padding: 0;
-    width: 500px;
-    height: 490px;
-    border: solid 3px #666;
-    background-color: #fff;
-    z-index: 100 !important;
-    overflow: hidden;
+#email-container {
+	background-color: #fff;
+	border: solid 3px #666;
+	height: 490px;
+	left: 50%;
+	margin: 0 0 0 -240px;
+	overflow: hidden;
+	padding: 0;
+	position: fixed;
+	top: 60px;
+	width: 500px;
+	z-index: 100 !important;
 }

@@ -1,254 +1,724 @@
-var readabilityVersion = "0.4";
-var emailSrc = 'http://davehauenstein.com/readability/email.php';
-var iframeLoads = 0;
+var readabilityVersion = "v1.0.0.1";
+var emailSrc = "http://proto1.arc90.com/readability/email.php";
+var highestScore = -1;
+var malformedContent = false;
 
 (function(){
-	var objOverlay = document.createElement("div");
-	var objinnerDiv = document.createElement("div");
-	var articleTools = document.createElement("DIV");
+	// some sites use plugins (jCarousel) that when Readability removes scripts 
+	// or does something funky it causes an alert to appear every few seconds, 
+	// to avoid this we'll override the alert and timer methods, we won't need 
+	// them, yet consider a better approach
+	window.alert = function(message) {};
+	window.setInterval = function(method, timeout) {};
+	window.setTimeout = function(method, timeout) {};
 	
-	objOverlay.id = "readOverlay";
-	objinnerDiv.id = "readInner";
+	var overlayContainer = document.createElement("DIV");
+	var articleTitle = document.createElement("H1");
+	var contentContainer = document.createElement("DIV");
+	var articleFooter = document.createElement("DIV");
+	var toolBar = document.createElement("DIV");
 	
-	// Apply user-selected styling:
+	overlayContainer.id = "readOverlay";
+	contentContainer.id = "readInner";
+	
+	// apply user-selected styling
 	document.body.className = readStyle;
-	objOverlay.className = readStyle;
-	objinnerDiv.className = readMargin + " " + readSize;
+	overlayContainer.className = readStyle;
+	contentContainer.className = readMargin + " " + readSize;
 	
-	// Set up tools widget 
+	// set up the toolbar widget
+	toolBar.id = "readTools";
+	toolBar.innerHTML = '<a href="#" onclick="return window.location.reload();" title="Reload original page" id="reload-page">Reload Original Page</a>' + 
+		'<a href="#" onclick="javascript:window.print();" title="Print page" id="print-page">Print Page</a>' + 
+		'<a href="#" onclick="emailBox();return false;" title="Email page" id="email-page">Email Page</a>';
 	
-	// NOTE THE IMAGE URL'S HERE !!!!!!!!!!!!!!!!!
-	// NOTE THE IMAGE URL'S HERE !!!!!!!!!!!!!!!!!
-	// NOTE THE IMAGE URL'S HERE !!!!!!!!!!!!!!!!!
-	articleTools.id = "readTools";
-	articleTools.innerHTML = "\
-		<a href='#' onclick='return window.location.reload()' title='Reload original page' id='reload-page'>Reload Original Page</a>\
-		<a href='#' onclick='javascript:window.print();' title='Print page' id='print-page'>Print Page</a>\
-		<a href='#' onclick='emailBox(); return false;' title='Email page' id='email-page'>Email Page</a>\
-	";
-
-	objinnerDiv.appendChild(grabArticle());		// Get the article and place it inside the inner Div
-	objOverlay.appendChild(articleTools);
-	objOverlay.appendChild(objinnerDiv);		// Insert the inner div into the overlay
-
-	// For totally hosed HTML, add body node that can't be found because of bad HTML or something.
-	if(document.body == null)
-	{
-		body = document.createElement("body");
-		document.body = body;
-	}
-
+	// we'll use the page title as our title, unfortunately not all sites use 
+	// this well, so we might want to consider say stripping an H1 tag
+	articleTitle.innerHTML = document.title;
+	contentContainer.appendChild(articleTitle);
+	
+	// parse the article content and add it to the new content container
+	contentContainer.appendChild(parseContent());
+	
+	// FIXME: footer image has both arc90 and readability logos, they should 
+	// 		  each have their own unique link (issue 59) 
+	// 		  http://code.google.com/p/arc90labs-readability/issues/detail?id=59
+	// 
+	// add the footer and contents
+	articleFooter.id = "readFooter";
+	articleFooter.innerHTML = '<div><a href="http://www.arc90.com"><img src="http://lab.arc90.com/experiments/readability/images/footer.png" width="308" height="66" /></a></div>' + 
+		'<div id="readability-version">' + readabilityVersion + '</div>';
+	contentContainer.appendChild(articleFooter);
+	
+	// add the toolbar and then the conent container to our body
+	overlayContainer.appendChild(toolBar);
+	overlayContainer.appendChild(contentContainer);
+	
+	// for totally hosed HTML, add body node that can"t be found because of bad HTML or something
+	if (!document.body) 
+		document.body = document.createElement("body");
+	
+	document.body.id = "";
 	document.body.innerHTML = "";
 	
-	// Inserts the new content :
-	document.body.insertBefore(objOverlay, document.body.firstChild);
-})()
+	// with all previous body content removed, add our new overlay/main container
+	document.body.insertBefore(overlayContainer, document.body.firstChild);
+})();
 
-function grabArticle() {
-	var allParagraphs = document.getElementsByTagName("p");
-	var topDivCount = 0;
-	var topDiv = null;
-	var topDivParas;
+
+function determineContentScore(score, parent, element) 
+{
+	// TODO: should set as a global var since badKeywords are used elsewhere
+	var goodKeywords = ["article", "body", "content", "entry", "hentry", "post", "story", "text"];
+	var semiGoodKeywords = ["area", "container", "inner", "main"];
+	var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "toolbar", "tools", "trackback", "widget"];
+	
+	// we'll be doing a case insensitive compare
+	var className = parent.className.toLowerCase();
+	var id = parent.id.toLowerCase();
+	
+	// increment the score if the content might be what we are looking for
+	for (var i = 0; i < goodKeywords.length; i++) 
+	{
+		if (className.indexOf(goodKeywords[i]) >= 0) 
+			score++;
+		
+		if (id.indexOf(goodKeywords[i]) >= 0) 
+			score++;
+	}
+	
+	// TODO: would like to improve the content scoring algorithm here 
+	// to not have to use so many for loops
+	
+	// at least a single good keyword was found indiciating we may have found our 
+	// content container but we have other keywords that don't necessarily have to 
+	// do with content but when used in conjuction with the good keywords we want 
+	// to increment our score
+	if (score >= 1) 
+	{
+		// increment the score if the content might be what we are looking for
+		for (var i = 0; i < semiGoodKeywords.length; i++) 
+		{
+			if (className.indexOf(semiGoodKeywords[i]) >= 0) 
+				score++;
+			
+			if (id.indexOf(semiGoodKeywords[i]) >= 0) 
+				score++;
+		}
+	}
+	
+	// decrement the score if the content is not what we are looking for
+	for (var j = 0; j < badKeywords.length; j++) 
+	{
+		if (className.indexOf(badKeywords[j]) >= 0) 
+			score = score - 15;
+		
+		if (id.indexOf(badKeywords[j]) >= 0) 
+			score = score - 15;
+	}
+	
+	// TODO: verify that 20 seems an acceptable minimum, consider 15
+	// 
+	// Add a point for the paragraph found
+	if (element.tagName.toLowerCase() == "p" && getWordCount(element) > 20) //|| (score == 0 && getText(element).length > 10)) 
+		score++;
+	
+	// FIXME: not sure yet if this will be included, this would break 
+	// pages that use multiple containers for content, or we could tweak 
+	// the acceptable minimum... but that would have to be set quite 
+	// high, for now we'll leave it out
+	//
+	// Add points for any words within this paragraph
+	//if (score > 0 && malformedContent) 
+	//	score += getWordCount(element);
+	
+	// keep track of the highest score we've come across
+	if (score > highestScore) 
+		highestScore = score;
+	
+	return score;
+}
+
+
+function parseContent() {
+	// replace all doubled-up <BR> tags with <P> tags, and remove fonts
+	//var pattern = new RegExp("<br/?>[ \r\n\s]*<br/?>", "gi");
+	//document.body.innerHTML = document.body.innerHTML.replace(pattern, "</p><p>").replace(/<\/?font[^>]*>/gi, "");
+	document.body.innerHTML = document.body.innerHTML.replace(/<br\/?>\s*<br\/?>/gi, "<p />").replace(/<\/?font[^>]*>/gi, "");
+	
+	/*
+	
+	// was part of the PRE based content parsing but tweaking below 
+	// could resolve the bad regex above replacing double br tags 
+	// with an empty paragraph
+	
+	var html = document.body.innerHTML;
+	var firstTime = true;
+	
+	while (html.indexOf('\n\n') >= 0) 
+	{
+		if (firstTime) 
+		{
+			html = html.replace('\n\n', '<p>'); // first item
+			firstTime = false;
+		}
+		
+		if (html.indexOf('\n\n') == html.lastIndexOf('\n\n')) 
+			html = html.replace('\n\n', '</p>'); // last item
+		else 
+			html = html.replace('\n\n', '</p><p>'); // every item in between
+	}
+	
+	document.body.innerHTML = html;
+	*/
 	
 	var articleContent = document.createElement("DIV");
-	var articleTitle = document.createElement("H1");
-	var articleFooter = document.createElement("DIV");
+	var paragraphs = document.getElementsByTagName("P");
+	var contentBlocks = [];
 	
-	// Replace all doubled-up <BR> tags with <P> tags, and remove fonts.
-	var pattern =  new RegExp ("<br/?>[ \r\n\s]*<br/?>", "g");
-	document.body.innerHTML = document.body.innerHTML.replace(pattern, "</p><p>").replace(/<\/?font[^>]*>/g, '');
 	
-	// Grab the title from the <title> tag and inject it as the title.
-	articleTitle.innerHTML = document.title;
-	articleContent.appendChild(articleTitle);
+	// DEBUG
+	console.log(paragraphs.length + " Paragraphs found");
 	
-	// Study all the paragraphs and find the chunk that has the best score.
-	// A score is determined by things like: Number of <p>'s, commas, special classes, etc.
-	for (var j=0; j	< allParagraphs.length; j++) {
-		parentNode = allParagraphs[j].parentNode;
-
-		// Initialize readability data
-		if(typeof parentNode.readability == 'undefined')
-		{
-			parentNode.readability = {"contentScore": 0};			
-
-			// Look for a special classname
-			if(parentNode.className.match(/(comment|meta|footer|footnote)/))
-				parentNode.readability.contentScore -= 50;
-			else if(parentNode.className.match(/((^|\\s)(post|hentry|entry[-]?(content|text|body)?|article[-]?(content|text|body)?)(\\s|$))/))
-				parentNode.readability.contentScore += 25;
-
-			// Look for a special ID
-			if(parentNode.id.match(/(comment|meta|footer|footnote)/))
-				parentNode.readability.contentScore -= 50;
-			else if(parentNode.id.match(/^(post|hentry|entry[-]?(content|text|body)?|article[-]?(content|text|body)?)$/))
-				parentNode.readability.contentScore += 25;
-		}
-
-		// Add a point for the paragraph found
-		if(getInnerText(allParagraphs[j]).length > 10)
-			parentNode.readability.contentScore++;
-
-		// Add points for any commas within this paragraph
-		parentNode.readability.contentScore += getCharCount(allParagraphs[j]);
-	}
-
-	// Assignment from index for performance. See http://www.peachpit.com/articles/article.aspx?p=31567&seqNum=5 
-	for(nodeIndex = 0; (node = document.getElementsByTagName('*')[nodeIndex]); nodeIndex++)
-		if(typeof node.readability != 'undefined' && (topDiv == null || node.readability.contentScore > topDiv.readability.contentScore))
-			topDiv = node;
-
-	if(topDiv == null)
+	
+	/*
+	// PRE based content parsing only! 
+	// this was only an EXPERIMENT, need to be revisited
+	
+	var pres = document.getElementsByTagName("PRE");
+	for (var i = 0; i < pres.length; i++) 
 	{
-	  topDiv = document.createElement('div');
-	  topDiv.innerHTML = 'Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href="http://code.google.com/p/arc90labs-readability/issues/entry">let us know by submitting an issue.</a>';
+		var pre = pres[i];
+		
+		var content = document.createElement("DIV");
+		
+		var text = pre.textContent;
+		var firstTime = true;
+		
+		while (text.indexOf('\n\n') >= 0) 
+		{
+			if (firstTime) 
+			{
+				text = text.replace('\n\n', '<p>'); // first item
+				firstTime = false;
+			}
+			else 
+			{
+				if (text.indexOf('\n\n') == text.lastIndexOf('\n\n')) 
+					text = text.replace('\n\n', '</p>'); // last item
+				else 
+					text = text.replace('\n\n', '</p><p>'); // every item in between
+			}
+		}
+		
+		content.innerHTML = text.replace(/={10,}/g, "====================");
+		
+		paragraphs = content.getElementsByTagName("P");
+		
+		var preElements = [];
+		for (var j = 0; j < paragraphs.length; j++) 
+		{
+			p = paragraphs[j];
+			
+			breaks = p.getElementsByTagName("BR");
+			
+			if (p.innerHTML.indexOf("\t") == -1 && p.innerHTML.indexOf("  ") == -1 && breaks.length >= 1) 
+			{
+				p.innerHTML = p.innerHTML.replace(/<br\/?>/gi, " ");
+			}
+			
+			console.log("tabs: " + p.innerHTML.split("\t").length + " -- " + p.innerHTML.split(/\s{2,}/g).length + " -- " + p.innerHTML.substr(0, 35))
+			
+			numTabs = p.innerHTML.split("\t").length + p.innerHTML.split(/ {3,}/g).length;
+			
+			if (numTabs > 3) 
+			{
+				preElements.push(p);
+			}
+		}
+		
+		for (var k = 0; k < preElements.length; k++) 
+		{
+			var p = preElements[k];
+			
+			var newPre = document.createElement("PRE");
+			newPre.innerHTML = p.innerHTML.replace(/<br\/>/gi, "\n");
+			newPre.className = "normalPre";
+			
+			p.parentNode.replaceChild(newPre, p);
+		}
+		
+		content.innerHTML = content.innerHTML.replace(/<p>[ \r\n\s]*<p>/gi, "<p>");
+		
+		contentBlocks.push(content);
+	}
+	*/
+	
+	// wow.. talk about a bad site, no paragraphs found so we'll attempt to 
+	// parse content from div's and set our malformedContent flag
+	if (paragraphs.length == 0) 
+	{
+		paragraphs = document.getElementsByTagName("DIV");
+		
+		malformedContent = true;
 	}
 	
-	// REMOVES ALL STYLESHEETS ...
-	for (var k=0;k < document.styleSheets.length; k++) {
-		if (document.styleSheets[k].href != null && document.styleSheets[k].href.lastIndexOf("readability") == -1) {
-			document.styleSheets[k].disabled = true;
+	for (var i = 0; i < paragraphs.length; i++) 
+	{
+		var parentNode = paragraphs[i].parentNode;
+		
+		// if the parent happens to be a form element, accessing properties 
+		// such as id or className don't work, or rather it attempts to access 
+		// children so we need to make sure we only deal with string values, 
+		// also if the parent element is the body then its ignored
+		if (parentNode.tagName.toLowerCase() == "body" || typeof parentNode.id != "string" || typeof parentNode.className != "string") 
+			continue;
+		
+		// initialize readability score data
+		if (typeof parentNode.readability == "undefined") 
+			parentNode.readability = {"contentScore": 0};
+		
+		parentNode.readability.contentScore = determineContentScore(parentNode.readability.contentScore, parentNode, paragraphs[i]);
+		
+		// looks like we have possible content candidates, add it
+		if (parentNode.readability.contentScore > 0) 
+		{
+			// DEBUG
+			console.log(parentNode.tagName + " id: " + parentNode.id + " -- class: " + parentNode.className + " -- score: " + parentNode.readability.contentScore);
+			
+			// careful, only add parent element once!
+			if (contentBlocks.indexOf(parentNode) == -1) 
+				contentBlocks.push(parentNode);
 		}
 	}
-
-	// Remove all style tags in head (not doing this on IE) :
-	var styleTags = document.getElementsByTagName("style");
-	for (var j=0;j < styleTags.length; j++)
-		if (navigator.appName != "Microsoft Internet Explorer")
-			styleTags[j].textContent = "";
-
-	cleanStyles(topDiv);					// Removes all style attributes
-	topDiv = killDivs(topDiv);				// Goes in and removes DIV's that have more non <p> stuff than <p> stuff
-	topDiv = killBreaks(topDiv);            // Removes any consecutive <br />'s into just one <br /> 
-
-	// Cleans out junk from the topDiv just in case:
-	topDiv = clean(topDiv, "form");
-	topDiv = clean(topDiv, "object");
-	topDiv = clean(topDiv, "table", 250);
-	topDiv = clean(topDiv, "h1");
-	topDiv = clean(topDiv, "h2");
-	topDiv = clean(topDiv, "iframe");
 	
-
-	// Add the footer and contents:
-	articleFooter.id = "readFooter";
-	articleFooter.innerHTML = "\
-		<a href='http://www.arc90.com'><img src='http://lab.arc90.com/experiments/readability/images/footer.png'></a>\
-                <div class='footer-right' >\
-                        <span class='version'>Readability version " + readabilityVersion + "</span>\
-		</div>\
-	";
-
-	articleContent.appendChild(topDiv);
-	articleContent.appendChild(articleFooter);
+	/*
+	// TODO: need to revisit parsing strictly tables/divs content only
+	if (contentBlocks.length == 0) 
+	{
+		var paragraphs = document.getElementsByTagName("tbody");
+		
+		for (var i = 0; i < paragraphs.length; i++) 
+		{
+			var parentNode = paragraphs[i].parentNode;
+			
+			// Initialize readability data
+			if (typeof parentNode.readability == "undefined")
+			{
+				parentNode.readability = {"contentScore": determineContentScore(parentNode, paragraphs[i])};
+				
+				if (parentNode.readability.contentScore > 0) 
+				{
+					console.log(parentNode.tagName + " id: " + parentNode.id + " -- class: " + parentNode.className + " -- score: " + parentNode.readability.contentScore);
+					
+					if (contentBlocks.indexOf(parentNode) == -1) 
+						contentBlocks.push(parentNode);
+				}
+			}
+		}
+	}
+	*/
+	
+	removeScripts();
+	removeStylesheets();
+	removeStyles();
+	
+	
+	// DEBUG
+	console.log("ContentBlocks: " + contentBlocks.length + " -- HighestScore: " + highestScore);
+	
+	
+	// remove all content elements that aren't of the highest score
+	var numContentBlocks = contentBlocks.length - 1;
+	for (var m = numContentBlocks; m >= 0; m--) 
+	{
+		var contentElement = contentBlocks[m];
+		
+		
+		// DEBUG
+		//console.log("id: " + contentElement.id + " -- class: " + contentElement.className + " -- result: " + ((highestScore < 20 && contentElement.readability.contentScore < highestScore) || (contentElement.readability.contentScore < 20)).toString().toUpperCase());
+		
+		
+		// FIXME: had trouble writing the if/else if as a single if or statement
+		// FIXME: not sure the minimum score is correct, need to test against wide 
+		// 		  range of content, particularly content divided in 2+ containers
+		
+		// sometimes our content won't reach such a high score so here we look for an 
+		// acceptable minimum, if our highest score didn't go above twenty remove all 
+		// but the highest
+		if (highestScore < 20 && contentElement.readability.contentScore < highestScore) 
+		{
+			contentBlocks.splice(m, 1);
+		} //otherwise we only remove content blocks that have scored less than that minimum
+		else if (highestScore > 20 && contentElement.readability.contentScore < 20) 
+		{
+			contentBlocks.splice(m, 1);
+		}
+	}
+	
+	
+	// with many content containers we need to verify that some 
+	// aren't descendants of others otherwise we'll get multiple output
+	if (contentBlocks.length > 1) 
+	{
+		// remove all content elements that are descandants of another
+		var numContentBlocks = contentBlocks.length - 1;
+		for (var m = numContentBlocks; m >= 0; m--) 
+		{
+			var contentElement = contentBlocks[m];
+			
+			/**
+			 * hasAnyAncestor should work better overall but some sites 
+			 * have so many div's up the hierarchy with lots of good keywords 
+			 * its hard to keep those out, for those sites 
+			 * (http://www.azstarnet.com/news/290815) hasAnyDescendant works 
+			 * best so will need to consider changing and QA heavily.
+			 */
+			if (hasAnyDescendant(contentElement, contentBlocks)) 
+				contentBlocks.splice(m, 1);
+		}
+	}
+	
+	
+	// DEBUG
+	console.log("ContentBlocks: " + contentBlocks.length);
+	
+	
+	for (var m = 0; m < contentBlocks.length; m++) 
+	{
+		var contentElement = contentBlocks[m];
+		
+		removeElementStyles(contentElement);
+		
+		// remove any consecutive <br />'s into just one <br />
+		removeBreaks(contentElement);
+		
+		// this cleanup should only happen if paragraphs were found since 
+		// malformed content suggests div's are used to maintain content
+		if (!malformedContent) 
+		{
+			// goes in and removes DIV's that have more non <p> stuff than <p> stuff
+			removeNonContentElement(contentElement, "div");
+		}
+		
+		//removeNonContentElement(contentElement, "ul");
+		
+		// clean out anymore possible junk
+		removeElementByMinWords(contentElement, "form");
+		removeElementByMinWords(contentElement, "object");
+		removeElementByMinWords(contentElement, "table", 250);
+		removeElementByMinWords(contentElement, "h1");
+		removeElementByMinWords(contentElement, "h2");
+		removeElementByMinWords(contentElement, "iframe");
+		
+		articleContent.appendChild(contentElement);
+	}
+	
+	// Readability has failed you.. show msg that content was not found
+	if (contentBlocks.length == 0) 
+	{
+		articleContent = document.createElement("DIV");
+		articleContent.innerHTML = 'Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href="http://code.google.com/p/arc90labs-readability/issues/entry">let us know by submitting an issue.</a>';
+	}
 	
 	return articleContent;
 }
 
-// Get the inner text of a node - cross browser compatibly.
-function getInnerText(e) {
-	if (navigator.appName == "Microsoft Internet Explorer")
-		return e.innerText;
-	else
-		return e.textContent;
-}
 
-// Get character count
-function getCharCount ( e,s ) {
-    s = s || ",";
-	return getInnerText(e).split(s).length;
-}
 
-function cleanStyles( e ) {
-    e = e || document;
-    var cur = e.firstChild;
+//--------------------------------------------------------------------------
+//
+//  ContentParserUtils
+//
+//--------------------------------------------------------------------------
 
-	// If we had a bad node, there's not much we can do.
-	if(!e)
-		return;
-
-	// Remove any root styles, if we're able.
-	if(typeof e.removeAttribute == 'function')
-		e.removeAttribute('style');
-
-    // Go until there are no more child nodes
-    while ( cur != null ) {
-		if ( cur.nodeType == 1 ) {
-			// Remove style attribute(s) :
-			cur.removeAttribute("style");
-			cleanStyles( cur );
+/**
+ * Removes any elements of the provided tag name from the specified element 
+ * if it doesn't contain the minimum amount of words.
+ * 
+ * @param element The element.
+ * @param tagName The tag name of the elements to be retrieved from within 
+ * the provided element.
+ * @param minWords The minimum number of words.
+ */
+function removeElementByMinWords(element, tagName, minWords) 
+{
+	// default minimum if none is provided
+	minWords = minWords || 1000000; // FIXME: not sure why such a higher number!
+	
+	var elements = element.getElementsByTagName(tagName);
+	var numElements = elements.length - 1;
+	
+	for (var i = numElements; i >= 0; i--) 
+	{
+		var target = elements[i];
+		
+		// the text content doesn't meet our requirements so remove it
+		if (getWordCount(target) < minWords) 
+		{
+			target.parentNode.removeChild(target);
 		}
-		cur = cur.nextSibling;
 	}
 }
 
-function killDivs ( e ) {
-	var divsList = e.getElementsByTagName( "div" );
-	var curDivLength = divsList.length;
+/**
+ * Removes any instances of the provided non-content element from the 
+ * specified root element if it passes a few tests. First, if a single 
+ * bad keyword is found or second less than 25 words exist within.
+ * 
+ * @param element The element.
+ * @param tagName The tag name of the elements to be retrieved from within 
+ * the provided element.
+ */
+function removeNonContentElement(element, tagName) 
+{
+	var elements = element.getElementsByTagName(tagName);
+	var numElements = elements.length - 1;
 	
-	// Gather counts for other typical elements embedded within.
-	// Traverse backwards so we can remove nodes at the same time without effecting the traversal.
-	for (var i=curDivLength-1; i >= 0; i--) {
-		var p = divsList[i].getElementsByTagName("p").length;
-		var img = divsList[i].getElementsByTagName("img").length;
-		var li = divsList[i].getElementsByTagName("li").length;
-		var a = divsList[i].getElementsByTagName("a").length;
-		var embed = divsList[i].getElementsByTagName("embed").length;
-
-	// If the number of commas is less than 10 (bad sign) ...
-	if ( getCharCount(divsList[i]) < 10) {
-			// And the number of non-paragraph elements is more than paragraphs 
-			// or other ominous signs :
-			if ( img > p || li > p || a > p || p == 0 || embed > 0) {
-				divsList[i].parentNode.removeChild(divsList[i]);
+	// gather counts for other typical elements embedded within and then traverse 
+	// backwards so we can remove elements at the same time without effecting the traversal
+	for (var i = numElements; i >= 0; i--) 
+	{
+		var descendant = elements[i];
+		var p = descendant.getElementsByTagName("p").length;
+		var img = descendant.getElementsByTagName("img").length;
+		var li = descendant.getElementsByTagName("li").length;
+		var a = descendant.getElementsByTagName("a").length;
+		var embed = descendant.getElementsByTagName("embed").length;
+		
+		var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "toolbar", "tools", "trackback", "widget"];
+		
+		// should improve this but for if the element has a single bad keyword remove it
+		for (var j = 0; j < badKeywords.length; j++) 
+		{
+			if (descendant.id.toLowerCase().indexOf(badKeywords[j]) >= 0 || descendant.className.toLowerCase().indexOf(badKeywords[j]) >= 0) 
+			{
+				descendant.parentNode.removeChild(descendant);
+				descendant = null;
+				break;
+			}
+		}
+		
+		// found a bad keyword so the element has been removed, continue to the next one
+		if (!descendant) 
+			continue;
+		
+		// we have fewer than 25 words.. bad sign..
+		if (getWordCount(descendant) < 25) 
+		{
+			// the number of non-paragraph elements is more than actual 
+			// paragraphs or other ominous signs (:) and elements
+			if (img > p || li >= p || a >= p || p == 0 || embed > 0) 
+			{
+				descendant.parentNode.removeChild(descendant);
 			}
 		}
 	}
-	return e;
 }
 
-function killBreaks ( e ) {
-	e.innerHTML = e.innerHTML.replace(/(<br\s*\/?>(\s|&nbsp;?)*){1,}/g,'<br />');
-	return e;
+//--------------------------------------------------------------------------
+//
+//  ElementUtils
+//
+//--------------------------------------------------------------------------
+
+/**
+ * Returns the word count for the specified element.
+ * 
+ * @param element The element.
+ * 
+ * @returns A count indicating the number of words
+ */
+function getWordCount(element) 
+{
+	// normalize replaces consecutive spacing with a single space, 
+	// by then triming, we can safely split on a space for a count
+	return trim(normalize(getText(element))).split(" ").length;
 }
 
-function clean(e, tags, minWords) {
-	var targetList = e.getElementsByTagName( tags );
-	minWords = minWords || 1000000;
+/**
+ * Returns the text content of the specified element.
+ * 
+ * @param element The element from which to retrieve its text content.
+ * 
+ * @return The string content of the specified element.
+ */
+function getText(element) 
+{
+	return (typeof element.textContent != "undefined") 
+				? element.textContent 
+				: element.innerText;
+}
 
-	for (var y=0; y < targetList.length; y++) {
-		// If the text content isn't laden with words, remove the child:
-		if (getCharCount(targetList[y], " ") < minWords) {
-			targetList[y].parentNode.removeChild(targetList[y]);
+/**
+ * Determines if the specified element has one of the provided array of 
+ * ancestors and if so returns true.
+ * 
+ * @param element The element.
+ * @param ancestors An array of possible ancestors.
+ * 
+ * @returns True if the element has one of the provided ancestors, 
+ * false if it does not.
+ */
+function hasAnyAncestor(element, ancestors) 
+{
+	var parent = element.parentNode;
+	
+	while (parent != null) 
+	{
+		// ancestor found!
+		if (ancestors.indexOf(parent) >= 0) 
+			return true;
+		
+		parent = parent.parentNode;
+	}
+	
+	return false;
+}
+
+/**
+ * Determines if the specified element has one of the provided array of 
+ * descendants and if so returns true.
+ * 
+ * @param element The element.
+ * @param descendants An array of possible descendants.
+ * 
+ * @returns True if the element has one of the provided descendants, 
+ * false if it does not.
+ */
+function hasAnyDescendant(element, descendants) 
+{
+	var elements = element.getElementsByTagName("*");
+	
+	for (var i = 0; i < elements.length; i++) 
+	{
+		// descendant found!
+		if (descendants.indexOf(elements[i]) >= 0) 
+			return true;
+	}
+	
+	return false;
+}
+
+/**
+ * Replaces consecutive spaces with a single space.
+ */
+function normalize(text) 
+{
+	return (text || "").replace(/\s{2,}/g, " ");
+}
+
+/**
+ * Replaces consecutive br tags with a single br tag from the specified element.
+ * 
+ * @param element The element containing consecutive br tags.
+ */
+function removeBreaks(element) 
+{
+	element.innerHTML = element.innerHTML.replace(/(<br[^>]*\/?>(\s|&nbsp;?)*){1,}/gi, "<br />");
+}
+
+/**
+ * Removes any styles on the specified element.
+ * 
+ * @param element The element containing the styles to be removed.
+ */
+function removeElementStyles(element) 
+{
+	// bad node, there's not much we can do
+	if (!element) 
+		return;
+	
+	// remove any root styles, if we're able
+	if (typeof element.removeAttribute == "function") 
+		element.removeAttribute("style");
+	
+	// prepare to remove styles on all children and siblings
+	var childElement = element.firstChild;
+	
+    while (childElement) 
+    {
+		if (childElement.nodeType == 1) 
+		{
+			childElement.removeAttribute("style");
+			
+			// remove styles recursively
+			removeElementStyles(childElement);
+		}
+		
+		childElement = childElement.nextSibling;
+	}
+}
+
+/**
+ * Removes all inline or external referencing scripts.
+ */
+function removeScripts() 
+{
+	var scripts = document.getElementsByTagName("SCRIPT");
+	var numScripts = scripts.length - 1;
+	
+	for (var n = numScripts; n >= 0; n--) 
+	{
+		var script = scripts[n];
+		
+		// remove inline or external referencing scripts (that aren't Readability related)
+		if (!script.src || (script.src && script.src.indexOf("readability") == -1)) 
+		{
+			script.parentNode.removeChild(scripts[n]);
 		}
 	}
-	return e;
 }
 
-function emailBox() {
-    var emailContainer = document.getElementById('email-container');
-    if(null != emailContainer)
-    {
-        return;
-    }
-
-    var emailContainer = document.createElement('div');
-    emailContainer.setAttribute('id', 'email-container');
-    emailContainer.innerHTML = '<iframe src="'+emailSrc + '?pageUrl='+escape(window.location)+'&pageTitle='+escape(document.title)+'" scrolling="no" onload="removeFrame()" style="width:500px; height: 490px; border: 0;"></iframe>';
-
-    document.body.appendChild(emailContainer);
-}
-
-function removeFrame()
+/**
+ * Removes all inline styles.
+ */
+function removeStyles() 
 {
-    ++iframeLoads;
-    if(iframeLoads >= 6)
-    {
-        var emailContainer = document.getElementById('email-container');
-        if(null != emailContainer) {
-            emailContainer.parentNode.removeChild(emailContainer);
-        }
-        // reset the count
-        iframeLoads = 0;
-    }
+	var styleTags = document.getElementsByTagName("STYLE");
+	
+	for (var j = 0; j < styleTags.length; j++) 
+	{
+		var style = styleTags[j];
+		
+		// TODO: need to verify that clearing out innerText works in IE 
+		// might want to consider removing from parent
+		if (style.textContent) 
+		{
+			style.textContent = "";
+		} 
+		else 
+		{
+			style.innerText = "";
+		}
+	}
+}
+
+/**
+ * Removes all linked stylesheets.
+ */
+function removeStylesheets() 
+{
+	// TODO: need to do more research, not sure if disabling is enough 
+	// for cross browser compatibility, might consider removal via parent 
+	// just as done in the removeScripts method
+	for (var k = 0; k < document.styleSheets.length; k++) 
+	{
+		if (document.styleSheets[k].href != null && document.styleSheets[k].href.lastIndexOf("readability") == -1) 
+		{
+			document.styleSheets[k].disabled = true;
+		}
+	}
+}
+
+/**
+ * Removes whitespace from the front and the end of the specified string.
+ * 
+ * @param text The String whose beginning and ending whitespace will be removed.
+ * 
+ * @returns A String with whitespace removed from the begining and end
+ */
+function trim(text) 
+{
+	return (text || "").replace(/^\s+|\s+$/g, "");
 }

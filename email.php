@@ -262,7 +262,7 @@
         <script type="text/javascript" charset="utf-8">
             window.onload = function(){
                 document.getElementById('cancel-email').onclick = function(){
-                    window.location = 'http://davehauenstein.com/readability/close.html';
+                    window.location = 'http://lab.arc90.com/experiments/readability/close.html';
                     return false;
                 };
                 document.getElementById('send-email').onclick = function(){
@@ -271,9 +271,13 @@
                 };
             };
             <?php if($page == "complete"){ ?>
-            timer = setTimeout(function(){
-                window.location = 'close.html';
-            }, 3000);
+            var timer = setTimeout(redirectToClosingPage, 3000);
+            
+            function redirectToClosingPage() 
+            {
+            	clearTimeout(timer);
+            	window.location = 'close.html';
+            }
             <?php } ?>
         </script>
         <style type="text/css" media="screen">
