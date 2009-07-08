@@ -508,7 +508,7 @@ function removeNonContentElement(element, tagName)
 		{
 			// the number of non-paragraph elements is more than actual 
 			// paragraphs or other ominous signs (:) and elements
-			if (img > p || li >= p || a >= p || p == 0 || embed > 0) 
+			if (img > p || li > p || a > p || p == 0 || embed > 0) 
 			{
 				descendant.parentNode.removeChild(descendant);
 			}
