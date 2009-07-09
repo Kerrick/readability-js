@@ -1,7 +1,18 @@
-var readabilityVersion = "v1.0.0.1";
+var readabilityVersion = "1.0.0.1";
 var emailSrc = "http://proto1.arc90.com/readability/email.php";
 var highestScore = -1;
 var malformedContent = false;
+
+// for now we want to hold on to our debugging, but if a browser doesn't 
+// support it, we'll create a console.log() method that does nothing
+if (typeof console == 'undefined') 
+{
+	var console = {};
+	
+	console.log = function(msg) {
+		return;
+	};
+}
 
 (function(){
 	// some sites use plugins (jCarousel) that when Readability removes scripts 
@@ -141,36 +152,8 @@ function determineContentScore(score, parent, element)
 
 
 function parseContent() {
-	// replace all doubled-up <BR> tags with <P> tags, and remove fonts
-	//var pattern = new RegExp("<br/?>[ \r\n\s]*<br/?>", "gi");
-	//document.body.innerHTML = document.body.innerHTML.replace(pattern, "</p><p>").replace(/<\/?font[^>]*>/gi, "");
-	document.body.innerHTML = document.body.innerHTML.replace(/<br\/?>\s*<br\/?>/gi, "<p />").replace(/<\/?font[^>]*>/gi, "");
-	
-	/*
-	
-	// was part of the PRE based content parsing but tweaking below 
-	// could resolve the bad regex above replacing double br tags 
-	// with an empty paragraph
-	
-	var html = document.body.innerHTML;
-	var firstTime = true;
-	
-	while (html.indexOf('\n\n') >= 0) 
-	{
-		if (firstTime) 
-		{
-			html = html.replace('\n\n', '<p>'); // first item
-			firstTime = false;
-		}
-		
-		if (html.indexOf('\n\n') == html.lastIndexOf('\n\n')) 
-			html = html.replace('\n\n', '</p>'); // last item
-		else 
-			html = html.replace('\n\n', '</p><p>'); // every item in between
-	}
-	
-	document.body.innerHTML = html;
-	*/
+	// replace all doubled-up <BR> tags with <P> tags, and remove inline fonts
+	document.body.innerHTML = document.body.innerHTML.replace(/<br[^>]*>\s*<br[^>]*>/gi, "<p />").replace(/<\/?font[^>]*>/gi, "");
 	
 	var articleContent = document.createElement("DIV");
 	var paragraphs = document.getElementsByTagName("P");
@@ -615,7 +598,8 @@ function normalize(text)
  */
 function removeBreaks(element) 
 {
-	element.innerHTML = element.innerHTML.replace(/(<br[^>]*\/?>(\s|&nbsp;?)*){1,}/gi, "<br />");
+	// FIXME: the regex doesn't seem to pick up consecutive br tags, need to revisit
+	element.innerHTML = element.innerHTML.replace(/((<br[^>]*>)[\s]*(<br[^>]*>)){1,}/gi, "<br />");
 }
 
 /**
@@ -681,15 +665,16 @@ function removeStyles()
 	{
 		var style = styleTags[j];
 		
-		// TODO: need to verify that clearing out innerText works in IE 
-		// might want to consider removing from parent
 		if (style.textContent) 
 		{
 			style.textContent = "";
 		} 
 		else 
 		{
-			style.innerText = "";
+			// most browsers support textContent but IE has its own way but it 
+			// seems that Firefox supports both, check link for last example
+			// http://www.phpied.com/the-star-hack-in-ie8-and-dynamic-stylesheets/
+			style.styleSheet.cssText = "";
 		}
 	}
 }
@@ -701,12 +686,16 @@ function removeStylesheets()
 {
 	// TODO: need to do more research, not sure if disabling is enough 
 	// for cross browser compatibility, might consider removal via parent 
-	// just as done in the removeScripts method
+	// just as done in the removeScripts method, but will need to retrieve 
+	// all LINK tags and make sure rel attr is "stylesheet" or that its 
+	// type attr is "text/css"
 	for (var k = 0; k < document.styleSheets.length; k++) 
 	{
-		if (document.styleSheets[k].href != null && document.styleSheets[k].href.lastIndexOf("readability") == -1) 
+		var styleSheet = document.styleSheets[k];
+		
+		if (styleSheet.href != null && styleSheet.href.lastIndexOf("readability") == -1) 
 		{
-			document.styleSheets[k].disabled = true;
+			styleSheet.disabled = true;
 		}
 	}
 }

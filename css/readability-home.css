@@ -1,24 +1,19 @@
 @charset "utf-8";
-/* CSS Document */
 
 body {
 	background: #1E4E74;	
 	color: #ddd;
 }
-
 img {
-border: none;
+	border: none;
 }
-
 #container {
-	margin-top: 10px;
-	margin-right:auto;
-	margin-left:auto;
-	width: 980px;
-	height: 1125px;
-	padding: 10px;
 	background: url(../images/readability.png) no-repeat;
+	height: 1125px;
+	margin: 10px auto 0 auto;
 	overflow: hidden;
+	padding: 10px;
+	width: 980px;
 }
 #footer {
 	margin-top: 46px;
@@ -35,45 +30,51 @@ border: none;
 }
 #kindlingAd a {
 	color: #fff;
+	display: block;
 	font-size: 12px;
 	text-decoration: none;
-	display: block;
 }
 #kindlingAd p {
 	margin: 4px 40px 0 0;
 }
-
 a.www-link {
 	margin: 0 8px 0 30px;
 }
-
 #arc90 {
 	display: block;
-	text-align: right;
 	margin-top: 60px;
+	text-align: right;
 }
-
+#arc90 img {
+	margin-right: 10px;
+}
+#arc90 a.twitter {
+	border-bottom: 1px solid #fff;
+	color: #ddd;
+	font-size: .8em;
+	font-weight: bolder;
+	margin-top: 10px;
+	text-decoration: none;
+}
 #settings {
-	margin-top: 193px;
-	padding: 0 1.5em;
 	display: block;
-	width: 900px;
 	height: 160px;
+	margin-top: 162px;
+	padding: 0 1.5em;
+	width: 900px;
 }
-
 div.settings-box, div#bookmarklet {
 	float: left;
 }
 div#bookmarklet {
-	width: 200px;
-	margin-top: 24px;
 	margin-left: 140px;
-	text-align: center;	
+	margin-top: 24px;
+	text-align: center;
+	width: 200px;
 }
-
 div#style {
-	width: 175px;
 	margin-left: 20px;
+	width: 175px;
 }
 div#size {
 	width: 165px;	
@@ -81,10 +82,9 @@ div#size {
 div#margin {
 	width: 160px;	
 }
-
 .settings-box label {
-	margin-left: .5em;
 	cursor: pointer;
+	margin-left: .5em;
 }
 .settings-box p {
 	margin: .1em 0;	
@@ -94,22 +94,30 @@ div#margin {
 }
 #example {
 	display: block;
-	margin-left: 30px;
-	margin-top: 24px;
-	width: 888px;
-	height: 454px;
+	height: 455px;
 	left: 30px;
-	padding: 1em 2em;
+	margin-left: 30px;
+	margin-top: 28px;
 	overflow: auto;
+	padding: 1em 2em;
+	width: 888px;
 }
 #articleContent {
-	text-align: left;
 	line-height: 1.4em;	
 	margin: 1em auto;
 }
+/* LOCK IN H1 SIZING */
+#articleContent h1 {
+	display: block;
+	font-size: 1.2em !important;
+	text-transform: capitalize;
+}
+
+
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-/* Size options */
+
+/* ------ Size Options ------- */
+
 .size-small {
 	font-size: 12px;
 }
@@ -123,40 +131,39 @@ div#margin {
 	font-size: 34px;
 }
 
-/* Style options */
+/* ------ Style Options ------- */
+
 .style-novel {
-	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
 	background: #F4F3DB;
 	color: #222;
+	font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 }
-
 .style-ebook {
-	font-family:Arial, Helvetica, sans-serif;
-	background: #eee;
+	background: #EEE;
 	color: #333;
+	font-family: Arial, Helvetica, sans-serif;
 }
 .style-ebook h1 {
 	font-family: "Arial Black", Gadget, sans-serif;
 	font-weight: normal;
 }
-
 .style-newspaper {
-	font-family:"Times New Roman", Times, serif;
 	background: #F7F7F7;
 	color: #222;
+	font-family: "Times New Roman", Times, serif;
 }
 .style-newspaper h1 {
-	text-transform:capitalize;
 	font-family: Georgia, "Times New Roman", Times, serif;
+	text-transform: capitalize;
 }
-
 .style-terminal {
-	font-family: "Lucida Console", Monaco, monospace;
 	background: #1D4E2C;
 	color: #C6FFC6;
+	font-family: "Lucida Console", Monaco, monospace;
 }
 
-/* Margin Options */
+/* ------ Margin Options ------- */
+
 .margin-x-wide {
 	width: 35%;
 }
@@ -169,18 +176,3 @@ div#margin {
 .margin-narrow {
 	width: 95%;
 }
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-
-
-
-/* LOCK IN H1 SIZING */
-#articleContent h1 {
-	font-size: 1.2em !important;
-	display: block;
-	text-transform:capitalize;
-}
-#articleContent {
-	line-height: 1.4em;	
-}
-
