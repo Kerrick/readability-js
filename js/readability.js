@@ -82,7 +82,7 @@ function determineContentScore(score, parent, element)
 	// TODO: should set as a global var since badKeywords are used elsewhere
 	var goodKeywords = ["article", "body", "content", "entry", "hentry", "post", "story", "text"];
 	var semiGoodKeywords = ["area", "container", "inner", "main"];
-	var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "toolbar", "tools", "trackback", "widget"];
+	var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "toolbar", "tools", "trackback", "widget"];
 	
 	// we'll be doing a case insensitive compare
 	var className = parent.className.toLowerCase();
@@ -469,7 +469,7 @@ function removeNonContentElement(element, tagName)
 		var a = descendant.getElementsByTagName("a").length;
 		var embed = descendant.getElementsByTagName("embed").length;
 		
-		var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "toolbar", "tools", "trackback", "widget"];
+		var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "toolbar", "tools", "trackback", "widget"];
 		
 		// should improve this but for if the element has a single bad keyword remove it
 		for (var j = 0; j < badKeywords.length; j++) 

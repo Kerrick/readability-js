@@ -9,7 +9,7 @@
 }
 #readInner {
 	line-height: 1.4em;
-	margin: 1em auto;
+	margin: 0 auto;
 	max-width: 800px;
 	text-align: left;
 	width: 800px;
@@ -28,22 +28,20 @@
 	line-height: 1.4em;
 	overflow: auto;
 	white-space: pre-wrap;
-}
+}*/
 #readInner code, #readInner pre {
 	font-family: "Courier New", Courier, monospace;
 }
 #readInner pre {
-	background-color: #FFF;
-	border: #000 1px inset;
-	font-size: 110%;
-	max-height: 250px;
-	overflow: auto;
+	font-size: 16px;
+	line-height: 1.2em;
 	margin: 0;
-	padding: 6px 0;
+	max-height: 250px;
+	overflow: auto;	
 	overflow-x: auto;
+	padding: 5px 0;
 	width: 100%;
 }
-*/
 #readInner * {
 	background: none;
 	border: none;
@@ -145,7 +143,7 @@
 	font-weight: normal;
 }
 .style-newspaper {
-	background: #FFF;
+	background: #F7F7F7;
 	color: #222;
 	font-family: "Times New Roman", Times, serif;
 }
