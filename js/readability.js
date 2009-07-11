@@ -82,7 +82,7 @@ function determineContentScore(score, parent, element)
 	// TODO: should set as a global var since badKeywords are used elsewhere
 	var goodKeywords = ["article", "body", "content", "entry", "hentry", "post", "story", "text"];
 	var semiGoodKeywords = ["area", "container", "inner", "main"];
-	var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "toolbar", "tools", "trackback", "widget"];
+	var badKeywords = ["ad", "captcha", "classified", "comment", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "toolbar", "tools", "trackback", "widget"];
 	
 	// we'll be doing a case insensitive compare
 	var className = parent.className.toLowerCase();
@@ -469,18 +469,48 @@ function removeNonContentElement(element, tagName)
 		var a = descendant.getElementsByTagName("a").length;
 		var embed = descendant.getElementsByTagName("embed").length;
 		
-		var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "toolbar", "tools", "trackback", "widget"];
-		
-		// should improve this but for if the element has a single bad keyword remove it
-		for (var j = 0; j < badKeywords.length; j++) 
+		/*
+		// no basic elements were found at all
+		if (a == 0 && embed == 0 & img == 0 && li == 0 && p == 0) 
 		{
-			if (descendant.id.toLowerCase().indexOf(badKeywords[j]) >= 0 || descendant.className.toLowerCase().indexOf(badKeywords[j]) >= 0) 
+			// retrieve all children to see if it contains any elements
+			var children = descendant.getElementsByTagName("*");
+			var containsOnlyText = true;
+			
+			for (var j = 0; j < children.length; j++) 
 			{
-				descendant.parentNode.removeChild(descendant);
-				descendant = null;
-				break;
+				var child = children[j];
+				
+				// element type found so we don't have an element (e.g. DIV) with just text
+				if (child.nodeType == 1) 
+				{
+					containsOnlyText = false;
+					break;
+				}
 			}
-		}
+			
+			// 
+			if (!containsOnlyText) 
+			{
+				descendant.parentNode.removeChild(descendant);	
+			}			
+			continue;
+		} 
+		else 
+		{*/
+			var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "crumbs", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "tag", "toolbar", "tools", "trackback", "widget"];
+			
+			// should improve this but for if the element has a single bad keyword remove it
+			for (var j = 0; j < badKeywords.length; j++) 
+			{
+				if (descendant.id.toLowerCase().indexOf(badKeywords[j]) >= 0 || descendant.className.toLowerCase().indexOf(badKeywords[j]) >= 0) 
+				{
+					descendant.parentNode.removeChild(descendant);
+					descendant = null;
+					break;
+				}
+			}
+		/*}*/
 		
 		// found a bad keyword so the element has been removed, continue to the next one
 		if (!descendant) 
