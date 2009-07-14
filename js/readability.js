@@ -493,12 +493,13 @@ function removeNonContentElement(element, tagName)
 			if (!containsOnlyText) 
 			{
 				descendant.parentNode.removeChild(descendant);	
-			}			
+			}
+			
 			continue;
 		} 
 		else 
 		{*/
-			var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "crumbs", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "tag", "toolbar", "tools", "trackback", "widget"];
+			var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "crumbs", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "tag", "toolbar", "tools", "trackback", "tweetback", "widget"];
 			
 			// should improve this but for if the element has a single bad keyword remove it
 			for (var j = 0; j < badKeywords.length; j++) 
@@ -536,20 +537,6 @@ function removeNonContentElement(element, tagName)
 //--------------------------------------------------------------------------
 
 /**
- * Returns the word count for the specified element.
- * 
- * @param element The element.
- * 
- * @returns A count indicating the number of words
- */
-function getWordCount(element) 
-{
-	// normalize replaces consecutive spacing with a single space, 
-	// by then triming, we can safely split on a space for a count
-	return trim(normalize(getText(element))).split(" ").length;
-}
-
-/**
  * Returns the text content of the specified element.
  * 
  * @param element The element from which to retrieve its text content.
@@ -561,6 +548,20 @@ function getText(element)
 	return (typeof element.textContent != "undefined") 
 				? element.textContent 
 				: element.innerText;
+}
+
+/**
+ * Returns the word count for the specified element.
+ * 
+ * @param element The element.
+ * 
+ * @returns A count indicating the number of words
+ */
+function getWordCount(element) 
+{
+	// normalize replaces consecutive spacing with a single space, 
+	// by then triming, we can safely split on a space for a count
+	return trim(normalize(getText(element))).split(" ").length;
 }
 
 /**
@@ -647,6 +648,10 @@ function removeElementStyles(element)
 	if (typeof element.removeAttribute == "function") 
 		element.removeAttribute("style");
 	
+	
+	// TODO: do not use firstChild and nextSibling, use childNodes array instead
+	
+	
 	// prepare to remove styles on all children and siblings
 	var childElement = element.firstChild;
 	
@@ -654,7 +659,9 @@ function removeElementStyles(element)
     {
 		if (childElement.nodeType == 1) 
 		{
-			childElement.removeAttribute("style");
+			// remove any root styles, if we're able
+			if (typeof element.removeAttribute == "function") 
+				childElement.removeAttribute("style");
 			
 			// remove styles recursively
 			removeElementStyles(childElement);
@@ -672,14 +679,14 @@ function removeScripts()
 	var scripts = document.getElementsByTagName("SCRIPT");
 	var numScripts = scripts.length - 1;
 	
-	for (var n = numScripts; n >= 0; n--) 
+	for (var i = numScripts; i >= 0; i--) 
 	{
-		var script = scripts[n];
+		var script = scripts[i];
 		
 		// remove inline or external referencing scripts (that aren't Readability related)
 		if (!script.src || (script.src && script.src.indexOf("readability") == -1)) 
 		{
-			script.parentNode.removeChild(scripts[n]);
+			script.parentNode.removeChild(script);
 		}
 	}
 }
@@ -689,22 +696,34 @@ function removeScripts()
  */
 function removeStyles() 
 {
-	var styleTags = document.getElementsByTagName("STYLE");
+	var styles = document.getElementsByTagName("STYLE");
+	var startIndex = styles.length - 1;
 	
-	for (var j = 0; j < styleTags.length; j++) 
+	for (var i = startIndex; i >= 0; i--) 
 	{
-		var style = styleTags[j];
+		var style = styles[i];
 		
-		if (style.textContent) 
+		// we prefer to remove the tag completely but if not able we'll clear it
+		if (style.parentNode) 
 		{
-			style.textContent = "";
-		} 
+			style.parentNode.removeChild(style);
+		}
 		else 
 		{
-			// most browsers support textContent but IE has its own way but it 
-			// seems that Firefox supports both, check link for last example
-			// http://www.phpied.com/the-star-hack-in-ie8-and-dynamic-stylesheets/
-			style.styleSheet.cssText = "";
+			if (style.textContent) 
+			{
+				style.textContent = "";
+			} 
+			else 
+			{
+				// most browsers support textContent but IE has its own way but it 
+				// seems that Firefox supports both, check link for last example
+				// http://www.phpied.com/the-star-hack-in-ie8-and-dynamic-stylesheets/
+				// note that if the style tag contains no text content, then 
+				// no styleSheet object is defined either
+				if (style.styleSheet) 
+					style.styleSheet.cssText = "";
+			}
 		}
 	}
 }
