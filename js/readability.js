@@ -51,14 +51,9 @@ if (typeof console == 'undefined')
 	// parse the article content and add it to the new content container
 	contentContainer.appendChild(parseContent());
 	
-	// FIXME: footer image has both arc90 and readability logos, they should 
-	// 		  each have their own unique link (issue 59) 
-	// 		  http://code.google.com/p/arc90labs-readability/issues/detail?id=59
-	// 
 	// add the footer and contents
 	articleFooter.id = "readFooter";
-	articleFooter.innerHTML = '<div><a href="http://www.arc90.com"><img src="http://lab.arc90.com/experiments/readability/images/footer.png" width="308" height="66" /></a></div>' + 
-		'<div id="readability-version">' + readabilityVersion + '</div>';
+	articleFooter.innerHTML = '<div><a href="http://lab.arc90.com/experiments/readability/"><img src="http://lab.arc90.com/experiments/readability/images/footer-readability.png" width="201" height="66" /></a><a href="http://www.arc90.com/"><img src="http://lab.arc90.com/experiments/readability/images/footer-arc90.png" width="108" height="66" /></a></div><div><a href="http://www.twitter.com/arc90" class="footer-twitterLink">Follow us on Twitter &raquo;</a></div><div id="readability-version">' + readabilityVersion + '</div>';
 	contentContainer.appendChild(articleFooter);
 	
 	// add the toolbar and then the conent container to our body

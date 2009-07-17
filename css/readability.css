@@ -11,7 +11,6 @@
 	line-height: 1.4em;
 	margin: 0 auto;
 	max-width: 800px;
-	text-align: left;
 	width: 800px;
 }
 #readInner a {
@@ -46,7 +45,6 @@
 	background: none;
 	border: none;
 	margin-bottom: 16px;
-	text-align: left;
 }
 #readInner h1 {
 	border-bottom: 1px solid #333;
@@ -102,6 +100,9 @@
 	margin: 0;
 	padding: 0;
 	text-align: center;
+}
+#readFooter a.footer-twitterLink {
+	font-size: 11px;
 }
 #readability-version {
 	font-size: 12px;
