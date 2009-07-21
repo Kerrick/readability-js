@@ -129,6 +129,9 @@ function determineContentScore(score, parent, element)
 	if (element.tagName.toLowerCase() == "p" && getWordCount(element) > 20) //|| (score == 0 && getText(element).length > 10)) 
 		score++;
 	
+	//if (getWordCount(element) > 30) 
+	//	score++;
+	
 	// FIXME: not sure yet if this will be included, this would break 
 	// pages that use multiple containers for content, or we could tweak 
 	// the acceptable minimum... but that would have to be set quite 
@@ -148,8 +151,8 @@ function determineContentScore(score, parent, element)
 
 function parseContent() {
 	// replace all doubled-up <BR> tags with <P> tags, and remove inline fonts
-	document.body.innerHTML = document.body.innerHTML.replace(/<br[^>]*>\s*<br[^>]*>/gi, "<p />").replace(/<\/?font[^>]*>/gi, "");
-	
+	document.body.innerHTML = document.body.innerHTML.replace(/<br[^>]*>\s|&nbsp;*<br[^>]*>/gi, "<p />").replace(/<\/?font[^>]*>/gi, "");
+	console.log(document.body.innerHTML.substring(0, 600));
 	var articleContent = document.createElement("DIV");
 	var paragraphs = document.getElementsByTagName("P");
 	var contentBlocks = [];
