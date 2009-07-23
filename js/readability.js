@@ -129,6 +129,8 @@ function determineContentScore(score, parent, element)
 	if (element.tagName.toLowerCase() == "p" && getWordCount(element) > 20) //|| (score == 0 && getText(element).length > 10)) 
 		score++;
 	
+	console.log(element.tagName.toLowerCase() + " " + getWordCount(element));
+	
 	//if (getWordCount(element) > 30) 
 	//	score++;
 	
@@ -152,7 +154,7 @@ function determineContentScore(score, parent, element)
 function parseContent() {
 	// replace all doubled-up <BR> tags with <P> tags, and remove inline fonts
 	document.body.innerHTML = document.body.innerHTML.replace(/<br[^>]*>\s|&nbsp;*<br[^>]*>/gi, "<p />").replace(/<\/?font[^>]*>/gi, "");
-	console.log(document.body.innerHTML.substring(0, 600));
+	
 	var articleContent = document.createElement("DIV");
 	var paragraphs = document.getElementsByTagName("P");
 	var contentBlocks = [];
@@ -248,11 +250,13 @@ function parseContent() {
 	{
 		var parentNode = paragraphs[i].parentNode;
 		
+		// TODO: originally the if/continue statement below checked if the parent 
+		// 		was the body tag and if it was continued on.. why?
+		
 		// if the parent happens to be a form element, accessing properties 
 		// such as id or className don't work, or rather it attempts to access 
-		// children so we need to make sure we only deal with string values, 
-		// also if the parent element is the body then its ignored
-		if (parentNode.tagName.toLowerCase() == "body" || typeof parentNode.id != "string" || typeof parentNode.className != "string") 
+		// children so we need to make sure we only deal with string values
+		if (typeof parentNode.id != "string" || typeof parentNode.className != "string") 
 			continue;
 		
 		// initialize readability score data
