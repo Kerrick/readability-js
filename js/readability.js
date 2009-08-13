@@ -39,7 +39,7 @@ if (typeof console == 'undefined')
 	
 	// set up the toolbar widget
 	toolBar.id = "readTools";
-	toolBar.innerHTML = '<a href="#" onclick="return window.location.reload();" title="Reload original page" id="reload-page">Reload Original Page</a>' + 
+	toolBar.innerHTML = '<a href="#" onclick="window.location.reload();return false;" title="Reload original page" id="reload-page">Reload Original Page</a>' + 
 		'<a href="#" onclick="javascript:window.print();" title="Print page" id="print-page">Print Page</a>' + 
 		'<a href="#" onclick="emailBox();return false;" title="Email page" id="email-page">Email Page</a>';
 	
