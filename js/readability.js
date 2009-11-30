@@ -26,7 +26,7 @@ if (typeof console == 'undefined')
 		contentContainer = document.createElement("DIV"), 
 		articleFooter = document.createElement("DIV"), 
 		toolBar = document.createElement("DIV"), 
-		readabilityVersion = "1.0.0.1", 
+		readabilityVersion = "1.0.0.3", 
 		emailSrc = "http://proto1.arc90.com/readability/email.php";
 	
 	overlayContainer.id = "readOverlay";
