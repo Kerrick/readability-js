@@ -1,5 +1,3 @@
-var readabilityVersion = "1.0.0.1";
-var emailSrc = "http://proto1.arc90.com/readability/email.php";
 var highestScore = -1;
 var malformedContent = false;
 
@@ -23,11 +21,13 @@ if (typeof console == 'undefined')
 	window.setInterval = function(method, timeout) {};
 	window.setTimeout = function(method, timeout) {};
 	
-	var overlayContainer = document.createElement("DIV");
-	var articleTitle = document.createElement("H1");
-	var contentContainer = document.createElement("DIV");
-	var articleFooter = document.createElement("DIV");
-	var toolBar = document.createElement("DIV");
+	var overlayContainer = document.createElement("DIV"), 
+		articleTitle = document.createElement("H1"), 
+		contentContainer = document.createElement("DIV"), 
+		articleFooter = document.createElement("DIV"), 
+		toolBar = document.createElement("DIV"), 
+		readabilityVersion = "1.0.0.1", 
+		emailSrc = "http://proto1.arc90.com/readability/email.php";
 	
 	overlayContainer.id = "readOverlay";
 	contentContainer.id = "readInner";
@@ -75,16 +75,17 @@ if (typeof console == 'undefined')
 function determineContentScore(score, parent, element) 
 {
 	// TODO: should set as a global var since badKeywords are used elsewhere
-	var goodKeywords = ["article", "body", "content", "entry", "hentry", "post", "story", "text"];
-	var semiGoodKeywords = ["area", "container", "inner", "main"];
-	var badKeywords = ["ad", "captcha", "classified", "comment", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "toolbar", "tools", "trackback", "widget"];
-	
-	// we'll be doing a case insensitive compare
-	var className = parent.className.toLowerCase();
-	var id = parent.id.toLowerCase();
+	var goodKeywords = ["article", "body", "content", "entry", "hentry", "post", "story", "text"], 
+		semiGoodKeywords = ["area", "container", "inner", "main"], 
+		badKeywords = ["ad", "captcha", "classified", "comment", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "toolbar", "tools", "trackback", "widget"], 
+		className = parent.className.toLowerCase(), // we'll be doing a case insensitive compare
+		id = parent.id.toLowerCase(), // we'll be doing a case insensitive compare
+		i = goodKeywords.length, 
+		j = semiGoodKeywords.length, 
+		k = badKeywords.length;
 	
 	// increment the score if the content might be what we are looking for
-	for (var i = 0; i < goodKeywords.length; i++) 
+	while (i--) 
 	{
 		if (className.indexOf(goodKeywords[i]) >= 0) 
 			score++;
@@ -103,7 +104,7 @@ function determineContentScore(score, parent, element)
 	if (score >= 1) 
 	{
 		// increment the score if the content might be what we are looking for
-		for (var i = 0; i < semiGoodKeywords.length; i++) 
+		while (j--) 
 		{
 			if (className.indexOf(semiGoodKeywords[i]) >= 0) 
 				score++;
@@ -114,7 +115,7 @@ function determineContentScore(score, parent, element)
 	}
 	
 	// decrement the score if the content is not what we are looking for
-	for (var j = 0; j < badKeywords.length; j++) 
+	while (k--) 
 	{
 		if (className.indexOf(badKeywords[j]) >= 0) 
 			score = score - 15;
@@ -129,6 +130,7 @@ function determineContentScore(score, parent, element)
 	if (element.tagName.toLowerCase() == "p" && getWordCount(element) > 20) //|| (score == 0 && getText(element).length > 10)) 
 		score++;
 	
+	// DEBUG
 	console.log(element.tagName.toLowerCase() + " " + getWordCount(element));
 	
 	//if (getWordCount(element) > 30) 
@@ -155,9 +157,9 @@ function parseContent() {
 	// replace all doubled-up <BR> tags with <P> tags, and remove inline fonts
 	document.body.innerHTML = document.body.innerHTML.replace(/<br[^>]*>\s|&nbsp;*<br[^>]*>/gi, "<p />").replace(/<\/?font[^>]*>/gi, "");
 	
-	var articleContent = document.createElement("DIV");
-	var paragraphs = document.getElementsByTagName("P");
-	var contentBlocks = [];
+	var articleContent = document.createElement("DIV"), 
+		paragraphs = document.getElementsByTagName("P"), 
+		contentBlocks = [];
 	
 	
 	// DEBUG
@@ -237,8 +239,8 @@ function parseContent() {
 	}
 	*/
 	
-	// wow.. talk about a bad site, no paragraphs found so we'll attempt to 
-	// parse content from div's and set our malformedContent flag
+	// no paragraphs found so we'll attempt to parse content from 
+	// div's and set our malformedContent flag
 	if (paragraphs.length == 0) 
 	{
 		paragraphs = document.getElementsByTagName("DIV");
@@ -246,7 +248,9 @@ function parseContent() {
 		malformedContent = true;
 	}
 	
-	for (var i = 0; i < paragraphs.length; i++) 
+	var i = paragraphs.length;
+	
+	while (i--) 
 	{
 		var parentNode = paragraphs[i].parentNode;
 		
@@ -313,9 +317,10 @@ function parseContent() {
 	console.log("ContentBlocks: " + contentBlocks.length + " -- HighestScore: " + highestScore);
 	
 	
+	var m = contentBlocks.length;
+	
 	// remove all content elements that aren't of the highest score
-	var numContentBlocks = contentBlocks.length - 1;
-	for (var m = numContentBlocks; m >= 0; m--) 
+	while (m--) 
 	{
 		var contentElement = contentBlocks[m];
 		
@@ -331,11 +336,11 @@ function parseContent() {
 		// sometimes our content won't reach such a high score so here we look for an 
 		// acceptable minimum, if our highest score didn't go above twenty remove all 
 		// but the highest
-		if (highestScore < 20 && contentElement.readability.contentScore < highestScore) 
+		if (highestScore < 20 && contentElement.readability && contentElement.readability.contentScore < highestScore) 
 		{
 			contentBlocks.splice(m, 1);
 		} //otherwise we only remove content blocks that have scored less than that minimum
-		else if (highestScore > 20 && contentElement.readability.contentScore < 20) 
+		else if (highestScore > 20 && contentElement.readability && contentElement.readability.contentScore < 20) 
 		{
 			contentBlocks.splice(m, 1);
 		}
@@ -346,11 +351,12 @@ function parseContent() {
 	// aren't descendants of others otherwise we'll get multiple output
 	if (contentBlocks.length > 1) 
 	{
+		var n = contentBlocks.length;
+		
 		// remove all content elements that are descandants of another
-		var numContentBlocks = contentBlocks.length - 1;
-		for (var m = numContentBlocks; m >= 0; m--) 
+		while (n--) 
 		{
-			var contentElement = contentBlocks[m];
+			var contentElement = contentBlocks[n];
 			
 			/**
 			 * hasAnyAncestor should work better overall but some sites 
@@ -360,7 +366,7 @@ function parseContent() {
 			 * best so will need to consider changing and QA heavily.
 			 */
 			if (hasAnyDescendant(contentElement, contentBlocks)) 
-				contentBlocks.splice(m, 1);
+				contentBlocks.splice(n, 1);
 		}
 	}
 	
@@ -369,9 +375,11 @@ function parseContent() {
 	console.log("ContentBlocks: " + contentBlocks.length);
 	
 	
-	for (var m = 0; m < contentBlocks.length; m++) 
+	var p = contentBlocks.length;
+	
+	while (p--) 
 	{
-		var contentElement = contentBlocks[m];
+		var contentElement = contentBlocks[p];
 		
 		removeElementStyles(contentElement);
 		
@@ -431,10 +439,10 @@ function removeElementByMinWords(element, tagName, minWords)
 	// default minimum if none is provided
 	minWords = minWords || 1000000; // FIXME: not sure why such a higher number!
 	
-	var elements = element.getElementsByTagName(tagName);
-	var numElements = elements.length - 1;
+	var elements = element.getElementsByTagName(tagName), 
+		i = elements.length;
 	
-	for (var i = numElements; i >= 0; i--) 
+	while (i--) 
 	{
 		var target = elements[i];
 		
@@ -457,19 +465,23 @@ function removeElementByMinWords(element, tagName, minWords)
  */
 function removeNonContentElement(element, tagName) 
 {
-	var elements = element.getElementsByTagName(tagName);
-	var numElements = elements.length - 1;
+	var elements = element.getElementsByTagName(tagName), 
+		i = elements.length;
 	
 	// gather counts for other typical elements embedded within and then traverse 
 	// backwards so we can remove elements at the same time without effecting the traversal
-	for (var i = numElements; i >= 0; i--) 
+	while (i--) 
 	{
-		var descendant = elements[i];
-		var p = descendant.getElementsByTagName("p").length;
-		var img = descendant.getElementsByTagName("img").length;
-		var li = descendant.getElementsByTagName("li").length;
-		var a = descendant.getElementsByTagName("a").length;
-		var embed = descendant.getElementsByTagName("embed").length;
+		var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "crumbs", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "tag", "toolbar", "tools", "trackback", "tweetback", "widget"], 
+			descendant = elements[i], 
+			descendantId = descendant.id.toLowerCase(), 
+			descendantClassName = descendant.className.toLowerCase(), 
+			p = descendant.getElementsByTagName("p").length, 
+			img = descendant.getElementsByTagName("img").length, 
+			li = descendant.getElementsByTagName("li").length, 
+			a = descendant.getElementsByTagName("a").length, 
+			embed = descendant.getElementsByTagName("embed").length;
+		
 		
 		/*
 		// no basic elements were found at all
@@ -501,12 +513,12 @@ function removeNonContentElement(element, tagName)
 		} 
 		else 
 		{*/
-			var badKeywords = ["ad", "captcha", "classified", "clear", "comment", "crumbs", "footer", "footnote", "leftcolumn", "listing", "menu", "meta", "module", "nav", "navbar", "rightcolumn", "sidebar", "sponsor", "tab", "tag", "toolbar", "tools", "trackback", "tweetback", "widget"];
+			var j = badKeywords.length;
 			
 			// should improve this but for if the element has a single bad keyword remove it
-			for (var j = 0; j < badKeywords.length; j++) 
+			while (j--) 
 			{
-				if (descendant.id.toLowerCase().indexOf(badKeywords[j]) >= 0 || descendant.className.toLowerCase().indexOf(badKeywords[j]) >= 0) 
+				if (descendantId.indexOf(badKeywords[j]) >= 0 || descendantClassName.indexOf(badKeywords[j]) >= 0) 
 				{
 					descendant.parentNode.removeChild(descendant);
 					descendant = null;
@@ -604,9 +616,10 @@ function hasAnyAncestor(element, ancestors)
  */
 function hasAnyDescendant(element, descendants) 
 {
-	var elements = element.getElementsByTagName("*");
+	var elements = element.getElementsByTagName("*"), 
+		i = elements.length;
 	
-	for (var i = 0; i < elements.length; i++) 
+	while (i--) 
 	{
 		// descendant found!
 		if (descendants.indexOf(elements[i]) >= 0) 
@@ -614,6 +627,19 @@ function hasAnyDescendant(element, descendants)
 	}
 	
 	return false;
+}
+
+/**
+ * Returns true if the value given is defined. Otherwise returns false.
+ * 
+ * @param value The value to determine if defined.
+ * 
+ * @return True if the value given is defined, false if it does not.
+ */
+function isDefined(value) 
+{
+	var undefined;
+	return value !== undefined;
 }
 
 /**
@@ -678,10 +704,10 @@ function removeElementStyles(element)
  */
 function removeScripts() 
 {
-	var scripts = document.getElementsByTagName("SCRIPT");
-	var numScripts = scripts.length - 1;
+	var scripts = document.getElementsByTagName("SCRIPT"), 
+		i = scripts.length;
 	
-	for (var i = numScripts; i >= 0; i--) 
+	while (i--) 
 	{
 		var script = scripts[i];
 		
@@ -698,10 +724,10 @@ function removeScripts()
  */
 function removeStyles() 
 {
-	var styles = document.getElementsByTagName("STYLE");
-	var startIndex = styles.length - 1;
+	var styles = document.getElementsByTagName("STYLE"), 
+		i = styles.length;
 	
-	for (var i = startIndex; i >= 0; i--) 
+	while (i--) 
 	{
 		var style = styles[i];
 		
@@ -735,16 +761,18 @@ function removeStyles()
  */
 function removeStylesheets() 
 {
+	var i = document.styleSheets.length;
+	
 	// TODO: need to do more research, not sure if disabling is enough 
 	// for cross browser compatibility, might consider removal via parent 
 	// just as done in the removeScripts method, but will need to retrieve 
 	// all LINK tags and make sure rel attr is "stylesheet" or that its 
 	// type attr is "text/css"
-	for (var k = 0; k < document.styleSheets.length; k++) 
+	while (i--) 
 	{
-		var styleSheet = document.styleSheets[k];
+		var styleSheet = document.styleSheets[i];
 		
-		if (styleSheet.href != null && styleSheet.href.lastIndexOf("readability") == -1) 
+		if (styleSheet.href && styleSheet.href.lastIndexOf("readability") == -1) 
 		{
 			styleSheet.disabled = true;
 		}
