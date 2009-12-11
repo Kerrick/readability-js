@@ -64,7 +64,7 @@ a.footer-twitterLink {
 	float: left;
 	font-size: 11px;
 	margin-left: 228px;
-	margin-top: -30px;
+	margin-top: -32px;
 }
 span.version {
 	display: none;
@@ -150,6 +150,35 @@ span.version {
 	background: #1D4E2C;
 	color: #C6FFC6;
 }
+
+/* Begin Typekit Styles */
+
+.style-classy {
+	font-family: sans-serif;
+	background-color: #FDFDFD;
+	color: #434343;
+}
+
+.style-classy #readInner a {
+	color: #8F674B;
+	text-decoration: none;
+}
+
+.style-post {
+	font-family: "Droid Sans", "Arial", sans-serif;
+	background-color: #FFF;
+	color: #222;
+}
+
+.style-post h1 {
+	font-family: "League Gothic";
+	font-size: 53px;
+	letter-spacing: 2px;
+	line-height: 1.4;
+	text-align: center;
+	text-transform: uppercase;
+}
+
 /* Margin Options */
 
 .margin-x-wide {

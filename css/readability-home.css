@@ -40,31 +40,21 @@ border: none;
 	display: block;
 }
 #kindlingAd p {
-	margin: 4px 76px 0 0;
+	margin: 4px 40px 0 0;
 }
 
 a.www-link {
 	margin: 0 8px 0 30px;
 }
+
 #arc90 {
 	display: block;
 	text-align: right;
 	margin-top: 60px;
 }
-#arc90 img {
-	margin-right: 10px;
-}
-#arc90 a.twitter {
-	color: #ddd;
-	text-decoration: none;
-	font-size: .8em;
-	font-weight: bolder;
-	margin-top: 10px;
-	border-bottom: 1px solid #fff;
-}
 
 #settings {
-	margin-top: 162px;
+	margin-top: 193px;
 	padding: 0 1.5em;
 	display: block;
 	width: 900px;
@@ -107,7 +97,7 @@ div#margin {
 	margin-left: 30px;
 	margin-top: 24px;
 	width: 888px;
-	height: 458px;
+	height: 454px;
 	left: 30px;
 	padding: 1em 2em;
 	overflow: auto;
@@ -166,6 +156,36 @@ div#margin {
 	color: #C6FFC6;
 }
 
+/* Begin Typekit Styles */
+
+.style-classy {
+	font-family: "Adobe Caslon Pro",georgia,garamond,times,serif;
+	background-color: #FDFDFD;
+	color: #434343;
+}
+
+.style-classy #readInner a {
+	color: #8F674B;
+	text-decoration: none;
+}
+
+.style-post {
+	font-family: "Droid Sans", "Arial", sans-serif;
+	background-color: #FFF;
+	color: #222;
+}
+
+.style-post #articleContent h1 {
+	font-family: "League Gothic";
+	font-size: 2.4em;
+	letter-spacing: 2px;
+	line-height: 1;
+	text-align: center;
+	text-transform: uppercase;
+	margin-bottom: 0;
+	font-weight: normal;
+}
+
 /* Margin Options */
 .margin-x-wide {
 	width: 35%;
@@ -186,7 +206,7 @@ div#margin {
 
 /* LOCK IN H1 SIZING */
 #articleContent h1 {
-	font-size: 1.2em !important;
+	font-size: 1.2em;
 	display: block;
 	text-transform:capitalize;
 }
