@@ -15,23 +15,28 @@ var readability = {
 	version:     '0.5',
 	emailSrc:    'http://proto1.arc90.com/readability/email.php',
 	iframeLoads: 0,
-	frameHack:   false, /* The frame hack is to workaround a firefox bug where if you
-						   pull content out of a frame and stick it into the parent element, the scrollbar won't appear.
-						   So we fake a scrollbar in the wrapping div.
-						 */
+	frameHack:   false, /**
+	                     * The frame hack is to workaround a firefox bug where if you
+						 * pull content out of a frame and stick it into the parent element, the scrollbar won't appear.
+						 * So we fake a scrollbar in the wrapping div.
+						**/
+	bodyCache:  null,   /* Cache the body HTML in case we need to re-use it later */
 	
 	/**
 	 * All of the regular expressions in use within readability.
 	 * Defined up here so we don't instantiate them repeatedly in loops.
 	 **/
 	regexps: {
-		unlikelyCandidatesRe: /comment|combx|meta|foot|menu|nav|header|rss|sidebar|sponsor|shoutbox/i,
+		unlikelyCandidatesRe:   /comment|combx|meta|foot|menu|nav|header|rss|sidebar|sponsor|shoutbox/i,
 		okMaybeItsACandidateRe: /body|article|and|main|column/i,
-		positiveRe: /post|hentry|entry|body|content|text|article|pagination|page/i,
-		negativeRe: /comment|media|meta|scroll|footer|footnote|foot|combx|link|promo|sponsor|tags|shoutbox/i,
-		divToPElementsRe: /<(div|ul|ol|p|img|dl|pre|blockquote|table)/i,
-		replaceBrsRe: /(<br[^>]*>[ \n\r\t]*){2,}/gi,
-		replaceFontsRe: /<(\/?)font[^>]*>/gi
+		positiveRe:             /post|hentry|entry|body|content|text|article|pagination|page/i,
+		negativeRe:             /comment|media|meta|scroll|footer|footnote|foot|combx|link|promo|sponsor|tags|shoutbox/i,
+		divToPElementsRe:       /<(div|ul|ol|p|img|dl|pre|blockquote|table)/i,
+		replaceBrsRe:           /(<br[^>]*>[ \n\r\t]*){2,}/gi,
+		replaceFontsRe:         /<(\/?)font[^>]*>/gi,
+		trimRe:                 /^\s+|\s+$/g,
+		normalizeRe:            /\s{2,}/g,
+		killBreaksRe:           /(<br\s*\/?>(\s|&nbsp;?)*){1,}/g
 	},
 
 	/**
@@ -46,7 +51,12 @@ var readability = {
 	 *
 	 * @return void
 	 **/
-	init: function() {
+	init: function(preserveUnlikelyCandidates) {
+		preserveUnlikelyCandidates = (typeof preserveUnlikelyCandidates == 'undefined') ? false : preserveUnlikelyCandidates;
+
+		if(document.body)
+			readability.bodyCache = document.body.innerHTML;
+		
 		readability.prepDocument();
 		
 		/* Build readability's DOM tree */
@@ -54,8 +64,19 @@ var readability = {
 		var innerDiv       = document.createElement("DIV");
 		var articleTools   = readability.getArticleTools();
 		var articleTitle   = readability.getArticleTitle();
-		var articleContent = readability.grabArticle();
+		var articleContent = readability.grabArticle(preserveUnlikelyCandidates);
 		var articleFooter  = readability.getArticleFooter();
+
+		/**
+		 * If we attempted to strip unlikely candidates on the first run through, and we ended up with no content,
+		 * that may mean we stripped out the actual content so we couldn't parse it. So re-run init while preserving
+		 * unlikely candidates to have a better shot at getting our content out properly.
+		**/
+		if(!preserveUnlikelyCandidates && readability.getInnerText(articleContent, false) == "")
+		{
+			document.body.innerHTML = readability.bodyCache;
+			return readability.init(true);
+		}
 
 		overlay.id              = "readOverlay";
 		innerDiv.id             = "readInner";
@@ -269,7 +290,7 @@ var readability = {
 		var articleParagraphs = articleContent.getElementsByTagName('p');
 		for(i = articleParagraphs.length-1; i >= 0; i--)
 		{
-			if(readability.getInnerText(articleParagraphs[i]) == '')
+			if(readability.getInnerText(articleParagraphs[i], false) == '')
 			{
 				articleParagraphs[i].parentNode.removeChild(articleParagraphs[i]);
 			}
@@ -291,6 +312,40 @@ var readability = {
 	**/
 	initializeNode: function (node) {
 		node.readability = {"contentScore": 0};			
+
+		switch(node.tagName) {
+			case 'DIV':
+				node.readability.contentScore += 5;
+				break;
+
+			case 'PRE':
+			case 'TD':
+			case 'BLOCKQUOTE':
+				node.readability.contentScore += 3;
+				break;
+				
+			case 'ADDRESS':
+			case 'OL':
+			case 'UL':
+			case 'DL':
+			case 'DD':
+			case 'DT':
+			case 'LI':
+			case 'FORM':
+				node.readability.contentScore -= 3;
+				break;
+
+			case 'H1':
+			case 'H2':
+			case 'H3':
+			case 'H4':
+			case 'H5':
+			case 'H6':
+			case 'TH':
+				node.readability.contentScore -= 5;
+				break;
+		}
+
 
 		if (typeof(node.className) == 'string' && node.className != "")
 		{
@@ -318,7 +373,7 @@ var readability = {
 	 *
 	 * @return Element
 	**/
-	grabArticle: function () {
+	grabArticle: function (preserveUnlikelyCandidates) {
 		/**
 		 * First, node prepping. Trash nodes that look cruddy (like ones with the class name "comment", etc), and turn divs
 		 * into P tags where they have been used inappropriately (as in, where they contain no other block level elements.)
@@ -329,15 +384,17 @@ var readability = {
 		for(var nodeIndex = 0; (node = document.getElementsByTagName('*')[nodeIndex]); nodeIndex++)
 		{
 			/* Remove unlikely candidates */
-			var unlikelyMatchString = node.className + node.id;
-			if (unlikelyMatchString.search(readability.regexps.unlikelyCandidatesRe) !== -1 &&
-			    unlikelyMatchString.search(readability.regexps.okMaybeItsACandidateRe) == -1 &&
-				node.tagName !== "BODY")
-			{
-				dbg("Removing unlikely candidate - " + unlikelyMatchString);
-				node.parentNode.removeChild(node);
-				nodeIndex--;
-				continue;
+			if (!preserveUnlikelyCandidates) {
+				var unlikelyMatchString = node.className + node.id;
+				if (unlikelyMatchString.search(readability.regexps.unlikelyCandidatesRe) !== -1 &&
+				    unlikelyMatchString.search(readability.regexps.okMaybeItsACandidateRe) == -1 &&
+					node.tagName !== "BODY")
+				{
+					dbg("Removing unlikely candidate - " + unlikelyMatchString);
+					node.parentNode.removeChild(node);
+					nodeIndex--;
+					continue;
+				}				
 			}
 
 			/* Turn all divs that don't have children block level elements into p's */
@@ -459,29 +516,43 @@ var readability = {
 		 * Things like preambles, content split by ads that we removed, etc.
 		**/
 		var articleContent        = document.createElement("DIV");
-	    articleContent.id     = "readability-content";
+	        articleContent.id     = "readability-content";
 		var siblingScoreThreshold = Math.max(10, topCandidate.readability.contentScore * 0.2);
 		var siblingNodes          = topCandidate.parentNode.childNodes;
 		for(var i=0, il=siblingNodes.length; i < il; i++)
 		{
 			var siblingNode = siblingNodes[i];
+			var append      = false;
 
 			dbg("Looking at sibling node: " + siblingNode + " (" + siblingNode.className + ":" + siblingNode.id + ")" + ((typeof siblingNode.readability != 'undefined') ? (" with score " + siblingNode.readability.contentScore) : ''));
 			dbg("Sibling has score " + (siblingNode.readability ? siblingNode.readability.contentScore : 'Unknown'));
+
+			if(siblingNode === topCandidate)
+			{
+				append = true;
+			}
 			
-			if (siblingNode === topCandidate ||
-				(
-				  typeof siblingNode.readability != 'undefined' &&
-				  siblingNode.readability.contentScore >= siblingScoreThreshold
-				) ||
-			    (
-				  siblingNode.nodeName == "P" &&
-			      (
-				    readability.getInnerText(siblingNode).length > 80 ||
-				    readability.getLinkDensity(siblingNode) < 0.25
-				  )
-				)
-			)
+			if(typeof siblingNode.readability != 'undefined' && siblingNode.readability.contentScore >= siblingScoreThreshold)
+			{
+				append = true;
+			}
+			
+			if(siblingNode.nodeName == "P") {
+				var linkDensity = readability.getLinkDensity(siblingNode);
+				var nodeContent = readability.getInnerText(siblingNode);
+				var nodeLength  = nodeContent.length;
+				
+				if(nodeLength > 80 && linkDensity < 0.25)
+				{
+					append = true;
+				}
+				else if(nodeLength < 80 && linkDensity == 0 && nodeContent.indexOf('.') !== -1)
+				{
+					append = true;
+				}
+			}
+
+			if(append)
 			{
 				dbg("Appending node: " + siblingNode)
 
@@ -507,11 +578,20 @@ var readability = {
 	 * @param Element
 	 * @return string
 	**/
-	getInnerText: function (e) {
+	getInnerText: function (e, normalizeSpaces) {
+		var textContent    = "";
+
+		nomalizeSpaces = (typeof normalizeSpaces == 'undefined') ? true : normalizeSpaces;
+
 		if (navigator.appName == "Microsoft Internet Explorer")
-			return e.innerText.replace( /^\s+|\s+$/g, "" ).replace(/\s{2,}/g, " ");
+			textContent = e.innerText.replace( readability.regexps.trimRe, "" );
 		else
-			return e.textContent.replace( /^\s+|\s+$/g, "" ).replace(/\s{2,}/g, " ");
+			textContent = e.textContent.replace( readability.regexps.trimRe, "" );
+
+		if(normalizeSpaces)
+			return textContent.replace( readability.regexps.normalizeRe, " ");
+		else
+			return textContent;
 	},
 
 	/**
@@ -592,7 +672,7 @@ var readability = {
 	 **/
 	killBreaks: function (e) {
 		try {
-			e.innerHTML = e.innerHTML.replace(/(<br\s*\/?>(\s|&nbsp;?)*){1,}/g,'<br />');		
+			e.innerHTML = e.innerHTML.replace(readability.regexps.killBreaksRe,'<br />');		
 		}
 		catch (e) {
 			dbg("KillBreaks failed - this is an IE bug. Ignoring.");
@@ -621,7 +701,6 @@ var readability = {
 
 			
 			var p      = tagsList[i].getElementsByTagName("p").length;
-			dbg(p);
 			var img    = tagsList[i].getElementsByTagName("img").length;
 			var embed  = tagsList[i].getElementsByTagName("embed").length;
 			var input  = tagsList[i].getElementsByTagName("input").length;
