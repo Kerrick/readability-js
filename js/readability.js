@@ -37,7 +37,8 @@ var readability = {
 		replaceFontsRe:         /<(\/?)font[^>]*>/gi,
 		trimRe:                 /^\s+|\s+$/g,
 		normalizeRe:            /\s{2,}/g,
-		killBreaksRe:           /(<br\s*\/?>(\s|&nbsp;?)*){1,}/g
+		killBreaksRe:           /(<br\s*\/?>(\s|&nbsp;?)*){1,}/g,
+		videoRe:                /http:\/\/(www\.)?(youtube|vimeo)\.com/i
 	},
 
 	/**
@@ -711,7 +712,7 @@ var readability = {
 
 		for (var y=targetList.length-1; y >= 0; y--) {
 			/* Allow youtube and vimeo videos through as people usually want to see those. */
-			if(isEmbed && targetList[y].innerHTML.search(/http:\/\/www\.(youtube|vimeo)\.com/) !== -1)
+			if(isEmbed && targetList[y].innerHTML.search(readability.regexps.videoRe) !== -1)
 			{
 				continue;
 			}
@@ -754,8 +755,15 @@ var readability = {
 				var p      = tagsList[i].getElementsByTagName("p").length;
 				var img    = tagsList[i].getElementsByTagName("img").length;
 				var li     = tagsList[i].getElementsByTagName("li").length-100;
-				var embed  = tagsList[i].getElementsByTagName("embed").length;
 				var input  = tagsList[i].getElementsByTagName("input").length;
+
+				var embedCount = 0;
+				var embeds     = tagsList[i].getElementsByTagName("embed");
+				for(var ei=0,il=embeds.length; ei < il; ei++) {
+					if (embeds[ei].src.search(readability.regexps.videoRe) == -1) {
+					  embedCount++;	
+					}
+				}
 
 				var linkDensity   = readability.getLinkDensity(tagsList[i]);
 				var contentLength = readability.getInnerText(tagsList[i]).length;
@@ -773,7 +781,7 @@ var readability = {
 					toRemove = true;
 				} else if(weight >= 25 && linkDensity > .5) {
 					toRemove = true;
-				} else if((embed == 1 && contentLength < 75) || embed > 1) {
+				} else if((embedCount == 1 && contentLength < 75) || embedCount > 1) {
 					toRemove = true;
 				}
 
