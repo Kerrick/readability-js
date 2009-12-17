@@ -89,6 +89,9 @@ span.version {
     height: 34px;
 }
 
+#kindle-page{
+    background: url(../images/read-kindle.png) no-repeat left top;
+}
 #email-page{
     background: url(http://lab.arc90.com/experiments/readability/images/read-email.png) no-repeat left top;
 }
@@ -214,6 +217,23 @@ span.version {
 /* ---------------- EMAIL POP UP --------------------- */
 
 #email-container{
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    margin: 0 0 0 -240px;
+    padding: 0;
+    width: 500px;
+    height: 490px;
+    border: solid 3px #666;
+    background-color: #fff;
+    z-index: 100 !important;
+    overflow: hidden;
+}
+
+
+/* ---------------- KINDLE POP UP --------------------- */
+
+#kindle-container{
     position: fixed;
     top: 60px;
     left: 50%;

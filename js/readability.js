@@ -13,7 +13,8 @@ var dbg = function(s) {
 **/
 var readability = {
 	version:     '0.5',
-	emailSrc:    'http://proto1.arc90.com/readability/email.php',
+	emailSrc:    'http://lab.arc90.com/experiments/readability/email.php',
+	kindleSrc:   'http://lab.arc90.com/experiments/readability/kindle.php',
 	iframeLoads: 0,
 	frameHack:   false, /**
 	                     * The frame hack is to workaround a firefox bug where if you
@@ -119,6 +120,7 @@ var readability = {
 			<a href='#' onclick='return window.location.reload()' title='Reload original page' id='reload-page'>Reload Original Page</a>\
 			<a href='#' onclick='javascript:window.print();' title='Print page' id='print-page'>Print Page</a>\
 			<a href='#' onclick='readability.emailBox(); return false;' title='Email page' id='email-page'>Email Page</a>\
+			<a href='#' onclick='readability.kindleBox(); return false;' title='Send to Amazon Kindle' id='kindle-page'>Send to Kindle</a>\
 		";
 
 		return articleTools;
@@ -782,6 +784,12 @@ var readability = {
 		}
 	},
 
+	/**
+	 * Clean out spurious headers from an Element. Checks things like classnames and link density.
+	 *
+	 * @param Element
+	 * @return void
+	**/
 	cleanHeaders: function (e) {
 		for (var headerIndex = 1; headerIndex < 7; headerIndex++) {
 			var headers = e.getElementsByTagName('h' + headerIndex);
@@ -792,7 +800,6 @@ var readability = {
 			}
 		}
 	},
-
 	
 	/**
 	 * Show the email popup.
@@ -812,6 +819,35 @@ var readability = {
 
 	    document.body.appendChild(emailContainer);			
 	},
+
+	/**
+	 * Show the email popup.
+	 *
+	 * @return void
+	 **/
+	kindleBox: function () {
+	    var kindleContainer = document.getElementById('kindle-container');
+	    if(null != kindleContainer)
+	    {
+	        return;
+	    }
+
+	    var kindleContainer = document.createElement('div');
+	    kindleContainer.setAttribute('id', 'kindle-container');
+	    kindleContainer.innerHTML = '<iframe id="readabilityKindleIframe" name="readabilityKindleIframe" scrolling="no" onload="readability.removeFrame()" style="width:500px; height: 490px; border: 0;"></iframe>';
+
+	    document.body.appendChild(kindleContainer);
+
+		/* Dynamically create a form to be POSTed to the iframe */
+		var formHtml =  '<form id="readabilityKindleForm" style="display: none;" target="readabilityKindleIframe" method="post" action="' + readability.kindleSrc + '">\
+		                     <input type="hidden" name="bodyContent" id="bodyContent" value="' + readability.htmlspecialchars(document.getElementById('readability-content').innerHTML) + '" />\
+						     <input type="hidden" name="pageUrl" id="pageUrl" value="' + readability.htmlspecialchars(window.location) + '" />\
+						     <input type="hidden" name="pageTitle" id="pageUrl" value="' + readability.htmlspecialchars(document.title) + '" />\
+                         </form>';
+
+		document.body.innerHTML += formHtml;
+		document.forms['readabilityKindleForm'].submit();
+	},
 	
 	/**
 	 * Close the email popup. This is a hacktackular way to check if we're in a "close loop".
@@ -829,8 +865,25 @@ var readability = {
 	            emailContainer.parentNode.removeChild(emailContainer);
 	        }
 
+	        var kindleContainer = document.getElementById('kindle-container');
+	        if (null !== kindleContainer) {
+	            kindleContainer.parentNode.removeChild(kindleContainer);
+	        }
+
 	        readability.iframeLoads = 0;
 	    }			
+	},
+	
+	htmlspecialchars: function (s) {
+		if (typeof(s) == "string") {
+			s = s.replace(/&/g, "&amp;");
+			s = s.replace(/"/g, "&quot;");
+			s = s.replace(/'/g, "&#039;");
+			s = s.replace(/</g, "&lt;");
+			s = s.replace(/>/g, "&gt;");
+		}
+	
+		return s;
 	}
 	
 };

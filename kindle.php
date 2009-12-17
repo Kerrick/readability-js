@@ -2,6 +2,15 @@
     set_include_path( get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/lib');
     session_start();
 
+	// Strip any slashes from POSTed params
+	foreach( $_POST as $postIndex=>$postVar ) {
+		if( get_magic_quotes_gpc() ) {
+			$_POST[$postIndex] = stripslashes($postVar);
+		}
+
+		$_POST[$postIndex] = utf8_encode($_POST[$postIndex]);
+	}
+
     require_once 'Zend/Filter.php';
     require_once 'Zend/Filter/StripTags.php';
     require_once 'Zend/Filter/StringTrim.php';
@@ -10,13 +19,33 @@
     $filters->addFilter(new Zend_Filter_StripTags())
             ->addFilter(new Zend_Filter_StringTrim());
 
-    $pageTitle  = array_key_exists('pageTitle', $_GET) ? $filters->filter($_GET['pageTitle']) : '';
-    $pageUrl    = array_key_exists('pageUrl', $_GET) ? $filters->filter($_GET['pageUrl']) : '';
-    $page       = 'form';
-    $errors     = array();
+    $pageTitle   = array_key_exists('pageTitle', $_POST) ? $filters->filter($_POST['pageTitle']) : '';
+    $pageUrl     = array_key_exists('pageUrl', $_POST) ? $filters->filter($_POST['pageUrl']) : '';
+	$bodyContent = array_key_exists('bodyContent', $_POST) ? $_POST['bodyContent'] : '';
+    $page        = 'form';
+    $errors      = array();
 
-    if('post' == strtolower($_SERVER['REQUEST_METHOD']))
-    {
+	$bodyContent = '
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<style type="text/css">' .
+				file_get_contents('css/readability.css') . '
+			</style>
+			<title>Readability</title>
+		</head>
+		<body class="style-newspaper">
+			<div id="readOverlay" class="style-newspaper">
+				<div id="readInner">
+					<div id="readability-content">' .
+						$bodyContent . '
+					</div>
+				</div>
+			</div>
+		</body>
+	</html>';
+	
+    if('post' == strtolower($_SERVER['REQUEST_METHOD']) && isset($_POST['deliveryMethod'])) {
         // someone sent over an invalid
         if(!Readability::hasValidParams())
         {
@@ -27,16 +56,12 @@
         require_once 'Zend/Validate/EmailAddress.php';
 
         //FILTER DATA
-
-        $from       = $filters->filter($_POST['from']);
-        $fromName   = $filters->filter($_POST['name']);
-        $fromName   = !empty($fromName) ? $fromName : $from;
-        $to         = $filters->filter($_POST['to']);
-        $to         = array_map('trim', split(',', $to));
-        $note       = $filters->filter($_POST['note']);
-        $key        = $filters->filter($_POST['key']);
-        $pageUrl    = $filters->filter($_POST['pageUrl']);
-        $pageTitle  = $filters->filter($_POST['pageTitle']);
+        $bodyContent    = $_POST['bodyContent'];
+		$deliveryMethod = $filters->filter($_POST['deliveryMethod']);
+		$username       = $filters->filter($_POST['username']);
+        $key            = $filters->filter($_POST['key']);
+        $pageUrl        = $filters->filter($_POST['pageUrl']);
+        $pageTitle      = $filters->filter($_POST['pageTitle']);
 
         if(!Readability::validateSecureKey($key))
         {
@@ -48,33 +73,12 @@
 
         $emailValidator = new Zend_Validate_EmailAddress();
 
-        if(!$emailValidator->isValid($_POST['from']))
-        {
-            $errors[] = 'from';
-        }
-
-        if(count($to) == 0)
-        {
-            $errors[] = 'to';
-        }
-        else
-        {
-            foreach($to as $toAddress)
-            {
-                if(!$emailValidator->isValid($toAddress))
-                {
-                    $errors[] = 'to';
-                    break;
-                }
-            }
-        }
-
         // NO ERRORS SEND EMAIL
         if(count($errors) == 0)
         {
             // store the from address so it's saved for future use
-            setcookie("from", $from, time()+3600*24*7*4, "/");
-            setcookie("name", $fromName, time()+3600*24*7*4, "/");
+            setcookie("username", $username, time()+3600*24*7*4, "/");
+            setcookie("deliveryMethod", $deliveryMethod, time()+3600*24*7*4, "/");
 
             require_once 'Zend/Mail.php';
             require_once 'Zend/Mail/Transport/Smtp.php';
@@ -82,37 +86,29 @@
             $mailer = new Zend_Mail_Transport_Smtp('smtp.googlemail.com', Array(
                 'auth'      => 'login',
                 'username'  => 'readability@arc90.com',
-                'password'  => '********',
+                'password'  => '**********',
                 'ssl'       => 'ssl',
                 'port'      => 465,
             ));
             $mailer->EOL = "\r\n";    // gmail is fussy about this
             Zend_Mail::setDefaultTransport($mailer);
 
-            $body = '<html><head>';
-            $body = '</head>';
-            $body = '<body>';
-            $body .= '<div style="font-size: 15px;">';
-            $body .= '<p>This page was sent to you by: '.$from.'</p>';
-            if(!empty($note))
-            {
-                $body .= '<p>Message from sender: </p><p><blockquote>'.stripslashes($note).'</blockquote></p>';
-            }
-            $body .= '<p>Just click this link: <a href="'.$pageUrl.'">'.$pageTitle.'</a></p>';
-            $body .= '<hr />';
-            $body .= '<p style="font-size: 90%;">Sent from <a href="http://lab.arc90.com/experiments/readability/">Readability</a> | An <a href="http://www.arc90.com">Arc90</a> lab experiment<p>';
-            $body .= '</div>';
-            $body .= '</body></html>';
-
             $mail = new Zend_Mail();
-            $mail->setBodyHtml($body);
-            $mail->setFrom($from, $fromName);
-            $mail->addHeader('Reply-To', $from);
+            $mail->setBodyText("This is a document sent by Readability from Arc90 to your Kindle.");
+            $mail->setFrom('readability@arc90.com', 'Readability');
+            $mail->addHeader('Reply-To', 'readability@arc90.com');
 
-            foreach($to as $toAddress)
-            {
-                $mail->addTo($toAddress);
-            }
+			$at              = $mail->createAttachment($bodyContent);
+//			$at->type        = 'text/html';
+			$at->type        = 'text/html; charset=UTF-8; name="readability.htm"';
+			$at->filename    = ($pageTitle != "" ? $pageTitle : 'readability') . '.htm';
+
+			if($deliveryMethod == "wireless") {
+				$mail->addTo('chrisd@arc90.com');
+				$mail->addTo($username . "@kindle.com");
+			} else {
+				$mail->addTo($username . "@free.kindle.com");
+			}
 
             $mail->setSubject("Sent via Readability: {$pageTitle}");
 
@@ -120,7 +116,7 @@
             {
                 if(!$mail->send())
                 {
-                    Readability::logMessage("ERROR:There was an error sending the email. [to:".implode(', ', $to).", from:{$from}, notes:{$note}, pageUrl: {$pageUrl}, pageTitle: {$pageTitle}]");
+                    Readability::logMessage("ERROR:There was an error sending to kindle. POST: " . print_r($_POST, true));
                 }
                 else
                 {
@@ -129,14 +125,13 @@
             }
             catch(Exception $e)
             {
-                Readability::logMessage("ERROR:There was an exception sending the email. [to:".implode(', ', $to).", from:{$from}, notes:{$note}, pageUrl: {$pageUrl}, pageTitle: {$pageTitle}]");
+                Readability::logMessage("ERROR:There was an exception sending the email. POST: " . print_r($_POST, true));
                 Readability::logMessage("ERROR:".$e->getMessage());
             }
 
             //header('location: close.html');
         }
     } // end of: if method == POST
-
     elseif('get' == strtolower($_SERVER['REQUEST_METHOD']))
     {
         $_SESSION['secureKey'] = Readability::generateSecureKey();
@@ -177,6 +172,7 @@
 
         public static function logMessage($message)
         {
+			echo $message;
             $logFile = dirname(__FILE__) . '/log.txt';
 
             $handle = @fopen($logFile, 'a');
@@ -241,7 +237,7 @@
 
         public static function hasValidParams()
         {
-            $requiredParams = array('from', 'name', 'to', 'note', 'key', 'pageTitle', 'pageUrl');
+            $requiredParams = array('bodyContent', 'deliveryMethod', 'username', 'key', 'pageTitle', 'pageUrl');
             $sentParams = array_keys($_POST);
             foreach($requiredParams as $required)
             {
@@ -259,28 +255,39 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
         <title>Readability</title>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
         <script type="text/javascript" charset="utf-8">
-            window.onload = function(){
-                document.getElementById('cancel-email').onclick = function(){
-                    window.location = 'http://lab.arc90.com/experiments/readability/close.html';
+			$(function() {
+                $('#cancel-kindle').click(function(){
+                    window.location = 'http://localhost/readability/close.html';
                     return false;
-                };
-                document.getElementById('send-email').onclick = function(){
-                    document.getElementById('send-email-form').submit();
+                });
+
+                $('#send-kindle').click(function(){
+                    document.getElementById('send-kindle-form').submit();
                     return false;
-                };
-            };
-            <?php if($page == "complete"){ ?>
-            timer = setTimeout(function(){
-                window.location = 'close.html';
-            }, 3000);
-            <?php } ?>
+                });
+
+				$('input[name="deliveryMethod"]').click(function() {
+					if(this.value == "wireless") {
+						$('#kindleDomain').text('@kindle.com');
+					} else {
+						$('#kindleDomain').text('@free.kindle.com');
+					}
+				});
+
+	            <?php if($page == "complete"){ ?>
+	            timer = setTimeout(function(){
+	                window.location = 'close.html';
+	            }, 3000);
+	            <?php } ?>
+            });
         </script>
         <style type="text/css" media="screen">
             *{
                 margin: 0;
             }
-            #email-container{
+            #kindle-container{
                 font-size: 14px;
                 margin: 0;
                 padding: 0;
@@ -291,32 +298,19 @@
             }
             h2{
                 margin: 0 0 10px;
+				/*
                 background: url(http://lab.arc90.com/experiments/readability/images/email-head.gif) #e2e3e4 no-repeat 15px center;
                 text-indent: -99999px;
+				*/
                 height: 40px;
             }
-            form{
-                padding-right: 20px;
-            }
-            label{
-                font-size: 20px;
-                padding-right: 10px;
-                display: block;
-                float: left;
-                width: 130px;
-                text-align: right;
-            }
-            input,
-            textarea{
-                padding: 5px;
-                width: 320px;
-                font-family: times, serif;
-                font-size: 14px;
-                border: solid 1px #999;
-            }
-            input.error{
-                border: solid 2px #c33;
-            }
+			fieldset {
+				margin: 10px;
+			}
+			fieldset h3 {
+				text-align: center;
+				font-variant: small-caps;
+			}
             p.error{
                 color: #c33;
                 font-size: 14px;
@@ -335,9 +329,14 @@
                 margin-left: 120px; /* add label width + label padding-right */
             }
             .section{
+				text-align: center;
                 margin-top: 15px;
                 clear: both;
             }
+			label {
+				padding: 5px;
+				display: block;
+			}
             #note{
                 <?php if(count($errors) > 0){ ?>
                 height: 100px;
@@ -345,8 +344,8 @@
                 height: 140px;
                 <?php } ?>
             }
-            #send-email,
-            #cancel-email{
+            #send-kindle,
+            #cancel-kindle{
                 padding: 2px 2px;
                 font-family: times, serif;
                 background-color: #e7e8e9;
@@ -354,11 +353,10 @@
                 border: solid 2px #666;
                 cursor: pointer;
             }
-            #send-email{
-                margin-left: 180px;
+            #send-kindle{
                 font-weight: bold;
             }
-            #cancel-email{
+            #cancel-kindle{
                 margin-left: 10px;
             }
             .logo{
@@ -381,65 +379,50 @@
         </style>
     </head>
     <body>
-        <div id="email-container">
-            <h2>Email Page</h2>
-
+        <div id="kindle-container">
+            <h2>Send to Kindle</h2>
+			<p>Readability will deliver this document to your Kindle so you may read it at your leisure.</p>
+			
             <?php if($page == 'form'){ ?>
-            <form action="./email.php" method="post" accept-charset="utf-8" id="send-email-form">
+            <form action="./kindle.php" method="post" accept-charset="utf-8" id="send-kindle-form">
+
+				<fieldset id="deliveryMethod">
+					<h3>How shall we deliver your document?</h3>
+					<div style="margin: 0 auto; width: 300px;">
+					<label for="deliveryMethod-wireless"><input type="radio" name="deliveryMethod" value="wireless" id="deliveryMethod-wireless" /> Wirelessly, please. (15&cent;/MB Amazon Fee)</label>
+					<label for="deliveryMethod-email"><input type="radio" name="deliveryMethod" value="email" id="deliveryMethod-email" /> Email is fine. (Free)</label>
+					</div>
+				</fieldset>
+				
+				<fieldset id="kindleUsername" style="text-align: center">
+					<h3>Please enter your Amazon Kindle username.</h3>
+					<input type="text" name="username" value="" id="username" /><span id="kindleDomain">@kindle.com</span>
+				</fieldset>
+				
                 <div class="section">
-                    <label for="name">Your Name :</label>
-                    <input type="text" name="name" id="name" value="<?php echo Readability::getParam('name') ?>" />
+                    <button id="send-kindle">Send to Kindle</button>
+                    <button id="cancel-kindle">Cancel</button>
                 </div>
-                <div class="section">
-                    <label for="from">Your Email :</label>
-                    <input type="text" name="from" id="from" value="<?php echo Readability::getParam('from') ?>" <?php echo Readability::getErrorClass('from', $errors); ?> />
-                    <?php if(Readability::isError('from', $errors)){ ?>
-                    <p class="helper error">
-                        This field should be a valid email address.
-                    </p>
-                    <?php } ?>
-                </div>
-                <div class="section">
-                    <label for="to">Recipients :</label>
-                    <input type="text" name="to" id="to" value="<?php echo Readability::getParam('to') ?>" <?php echo Readability::getErrorClass('to', $errors); ?> />
-                    <?php if(Readability::isError('to', $errors)){ ?>
-                    <p class="helper error">
-                        Please ensure that all addresses are valid email adderesses.
-                    </p>
-                    <?php } ?>
-                    <p class="helper">
-                        Seperate multiple <em>email addresses</em> with commas.
-                    </p>
-                </div>
-                <div class="section">
-                    <label>Sending :</label>
-                    <p class="details">
-                        <?= $pageTitle ?>
-                    </p>
-                </div>
-                <div class="section">
-                    <label for="note">Note :</label>
-                    <textarea name="note" id="note" rows="8" cols="40"><?php echo Readability::getParam('note') ?></textarea>
-                </div>
-                <div class="section">
-                    <button id="send-email">Email Page</button>
-                    <button id="cancel-email">Cancel</button>
-                </div>
+
+				<div class="section">
+					<em>Please ensure readability@arc90.com is approved to send email to your kindle address. <a href="http://www.amazon.com/manageyourkindle">You can manage approved emails here.</a></em>
+				</div>
                 <img src="http://lab.arc90.com/experiments/readability/images/email-readability.gif" alt="Readability" class="logo" />
-                <input type="hidden" name="pageUrl" value="<?= $pageUrl; ?>" id="pageUrl" />
-                <input type="hidden" name="pageTitle" value="<?= $pageTitle; ?>" id="pageTitle" />
-                <input type="hidden" name="key" value="<?= $_SESSION['secureKey']; ?>" id="key" />
+                <input type="hidden" name="pageUrl" value="<?= htmlspecialchars($pageUrl); ?>" id="pageUrl" />
+				<input type="hidden" name="bodyContent" value="<?= htmlspecialchars($bodyContent) ?>" />
+                <input type="hidden" name="pageTitle" value="<?= htmlspecialchars($pageTitle); ?>" id="pageTitle" />
+                <input type="hidden" name="key" value="<?= htmlspecialchars($_SESSION['secureKey']); ?>" id="key" />
             </form>
             <?php }else if($page == "complete"){ ?>
             <div id="complete">
                 <p>
-                    A link to this page has been sent to <?php echo Readability::emailAsLinks($to) ?>
+                    A link to this page has been sent to <?php echo Readability::kindleAsLinks($to) ?>
                 </p>
                 <p>
                     Thanks for using Readability.
                 </p>
                 <div>
-                    <img src="http://lab.arc90.com/experiments/readability/images/footer-thanks.png" alt="Readability" />
+                    <img src="http://localhost/readability/images/footer-thanks.png" alt="Readability" />
                 </div>
             </div>
             <?php } ?>
