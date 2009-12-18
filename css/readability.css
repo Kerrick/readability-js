@@ -23,8 +23,11 @@
 	max-width: 800px;
 }
 #readInner a {
-	color: blue;
-	text-decoration: underline;
+	color:#003399;
+	text-decoration:none;
+}
+#readInner a:hover {
+	text-decoration:underline;
 }
 #readInner * {
 	margin-bottom: 16px;
@@ -153,6 +156,10 @@ span.version {
 	background: #1D4E2C;
 	color: #C6FFC6;
 }
+.style-terminal #readInner a {
+	color: #009933;
+}
+
 
 /* Begin Typekit Styles */
 
