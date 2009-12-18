@@ -17,7 +17,7 @@
 	width: 100%;
 }
 #readInner {
-	text-align: left;
+	text-align: start;
 	line-height: 1.4em;
 	margin: 1em auto;
 	max-width: 800px;
@@ -90,6 +90,7 @@ span.version {
     filter:alpha(opacity=40);
     text-indent: -99999px;
     height: 34px;
+	text-decoration: none;
 }
 
 #kindle-page{
