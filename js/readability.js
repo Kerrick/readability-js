@@ -301,7 +301,11 @@ var readability = {
 		var articleParagraphs = articleContent.getElementsByTagName('p');
 		for(i = articleParagraphs.length-1; i >= 0; i--)
 		{
-			if(readability.getInnerText(articleParagraphs[i], false) == '')
+			var imgCount    = articleParagraphs[i].getElementsByTagName('img').length;
+			var embedCount  = articleParagraphs[i].getElementsByTagName('embed').length;
+			var objectCount = articleParagraphs[i].getElementsByTagName('object').length;
+			
+			if(imgCount == 0 && embedCount == 0 && objectCount == 0 && readability.getInnerText(articleParagraphs[i], false) == '')
 			{
 				articleParagraphs[i].parentNode.removeChild(articleParagraphs[i]);
 			}
