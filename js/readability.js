@@ -74,10 +74,16 @@ var readability = {
 		 * that may mean we stripped out the actual content so we couldn't parse it. So re-run init while preserving
 		 * unlikely candidates to have a better shot at getting our content out properly.
 		**/
-		if(!preserveUnlikelyCandidates && readability.getInnerText(articleContent, false) == "")
+		if(readability.getInnerText(articleContent, false) == "")
 		{
-			document.body.innerHTML = readability.bodyCache;
-			return readability.init(true);
+			if(!preserveUnlikelyCandidates) {
+				document.body.innerHTML = readability.bodyCache;
+				return readability.init(true);				
+			}
+			else
+			{
+				articleContent.innerHTML = "<p>Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>let us know by submitting an issue.</a></p>";
+			}
 		}
 
 		overlay.id              = "readOverlay";
