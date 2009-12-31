@@ -48,13 +48,32 @@ a.www-link {
 }
 
 #arc90 {
-	display: block;
-	text-align: right;
-	margin-top: 60px;
+    display: block;
+    text-align: right;
+    margin-top: 60px;
+}
+#arc90 img {
+    margin-right: 10px;
+}
+#arc90 a.twitter { 
+    color: #ddd;
+    text-decoration: none;
+    font-size: .8em;
+    font-weight: bolder;
+    margin-top: 10px;
+    border-bottom: 1px solid #fff;
+}
+#arc90 a.blog { 
+    color: #ddd;
+    text-decoration: none;
+    font-size: .8em;
+    font-weight: bolder;
+    margin-top: 10px;
+    border-bottom: 1px solid #fff;
 }
 
 #settings {
-	margin-top: 193px;
+	margin-top: 132px;
 	padding: 0 1.5em;
 	display: block;
 	width: 900px;
@@ -97,7 +116,7 @@ div#margin {
 	margin-left: 30px;
 	margin-top: 24px;
 	width: 888px;
-	height: 454px;
+	height: 458px;
 	left: 30px;
 	padding: 1em 2em;
 	overflow: auto;
