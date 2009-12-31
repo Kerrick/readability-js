@@ -12,7 +12,7 @@ var dbg = function(s) {
  * Readability is licensed under the Apache License, Version 2.0.
 **/
 var readability = {
-	version:     '0.5',
+	version:     '0.5.1',
 	emailSrc:    'http://lab.arc90.com/experiments/readability/email.php',
 	kindleSrc:   'http://lab.arc90.com/experiments/readability/kindle.php',
 	iframeLoads: 0,
