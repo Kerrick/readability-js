@@ -22,6 +22,11 @@ var readability = {
 						 * So we fake a scrollbar in the wrapping div.
 						**/
 	bodyCache:  null,   /* Cache the body HTML in case we need to re-use it later */
+	flags: 0x1 | 0x2,   /* Start with both flags set. */
+	
+	/* constants */
+	FLAG_STRIP_UNLIKELYS: 0x1,
+	FLAG_WEIGHT_CLASSES:  0x2,
 	
 	/**
 	 * All of the regular expressions in use within readability.
@@ -53,9 +58,7 @@ var readability = {
 	 *
 	 * @return void
 	 **/
-	init: function(preserveUnlikelyCandidates) {
-		preserveUnlikelyCandidates = (typeof preserveUnlikelyCandidates == 'undefined') ? false : preserveUnlikelyCandidates;
-
+	init: function() {
 		if(document.body && !readability.bodyCache)
 			readability.bodyCache = document.body.innerHTML;
 		
@@ -66,7 +69,7 @@ var readability = {
 		var innerDiv       = document.createElement("DIV");
 		var articleTools   = readability.getArticleTools();
 		var articleTitle   = readability.getArticleTitle();
-		var articleContent = readability.grabArticle(preserveUnlikelyCandidates);
+		var articleContent = readability.grabArticle();
 		var articleFooter  = readability.getArticleFooter();
 
 		/**
@@ -76,13 +79,18 @@ var readability = {
 		**/
 		if(readability.getInnerText(articleContent, false) == "")
 		{
-			if(!preserveUnlikelyCandidates) {
+			if (readability.flagIsActive(readability.FLAG_STRIP_UNLIKELYS)) {
+				readability.removeFlag(readability.FLAG_STRIP_UNLIKELYS)
 				document.body.innerHTML = readability.bodyCache;
-				return readability.init(true);				
+				return readability.init();
 			}
-			else
-			{
-				articleContent.innerHTML = "<p>Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>let us know by submitting an issue.</a></p>";
+			else if (readability.flagIsActive(readability.FLAG_WEIGHT_CLASSES)) {
+				readability.removeFlag(readability.FLAG_WEIGHT_CLASSES);
+				document.body.innerHTML = readability.bodyCache;
+				return readability.init();				
+			}
+			else {
+				articleContent.innerHTML = "<p>Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>let us know by submitting an issue.</a></p><p>Also, please note that Readability does not play very nicely with front pages. Readability is intended to work on articles with a sizable chunk of text that you'd like to read comfortably. If you're using Readability on a landing page (like nytimes.com for example), please click into an article first before using Readability.</p>";
 			}
 		}
 
@@ -377,7 +385,9 @@ var readability = {
 	 *
 	 * @return Element
 	**/
-	grabArticle: function (preserveUnlikelyCandidates) {
+	grabArticle: function () {
+		var stripUnlikelyCandidates = readability.flagIsActive(readability.FLAG_STRIP_UNLIKELYS);
+
 		/**
 		 * First, node prepping. Trash nodes that look cruddy (like ones with the class name "comment", etc), and turn divs
 		 * into P tags where they have been used inappropriately (as in, where they contain no other block level elements.)
@@ -388,7 +398,7 @@ var readability = {
 		for(var nodeIndex = 0; (node = document.getElementsByTagName('*')[nodeIndex]); nodeIndex++)
 		{
 			/* Remove unlikely candidates */
-			if (!preserveUnlikelyCandidates) {
+			if (stripUnlikelyCandidates) {
 				var unlikelyMatchString = node.className + node.id;
 				if (unlikelyMatchString.search(readability.regexps.unlikelyCandidatesRe) !== -1 &&
 				    unlikelyMatchString.search(readability.regexps.okMaybeItsACandidateRe) == -1 &&
@@ -421,7 +431,7 @@ var readability = {
 					/* EXPERIMENTAL */
 					for(var i = 0, il = node.childNodes.length; i < il; i++) {
 						var childNode = node.childNodes[i];
-						if(childNode.nodeType == Node.TEXT_NODE) {
+						if(childNode.nodeType == 3) { // Node.TEXT_NODE
 							dbg("replacing text node with a p tag with the same content.");
 							var p = document.createElement('p');
 							p.innerHTML = childNode.nodeValue;
@@ -668,6 +678,10 @@ var readability = {
 	 * @return number (Integer)
 	**/
 	getClassWeight: function (e) {
+		if(!readability.flagIsActive(readability.FLAG_WEIGHT_CLASSES)) {
+			return 0;
+		}
+
 		var weight = 0;
 
 		/* Look for a special classname */
@@ -749,10 +763,11 @@ var readability = {
 		**/
 		for (var i=curTagsLength-1; i >= 0; i--) {
 			var weight = readability.getClassWeight(tagsList[i]);
-
+			var contentScore = (typeof tagsList[i].readability != 'undefined') ? tagsList[i].readability.contentScore : 0;
+			
 			dbg("Cleaning Conditionally " + tagsList[i] + " (" + tagsList[i].className + ":" + tagsList[i].id + ")" + ((typeof tagsList[i].readability != 'undefined') ? (" with score " + tagsList[i].readability.contentScore) : ''));
 
-			if(weight < 0)
+			if(weight+contentScore < 0)
 			{
 				tagsList[i].parentNode.removeChild(tagsList[i]);
 			}
@@ -902,6 +917,18 @@ var readability = {
 		}
 	
 		return s;
+	},
+
+	flagIsActive: function(flag) {
+		return (readability.flags & flag) > 0;
+	},
+	
+	addFlag: function(flag) {
+		readability.flags = readability.flags | flag;
+	},
+	
+	removeFlag: function(flag) {
+		readability.flags = readability.flags & ~flag;
 	}
 	
 };
