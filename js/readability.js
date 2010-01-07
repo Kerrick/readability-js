@@ -142,14 +142,44 @@ var readability = {
 	},
 	
 	/**
-	 * Get the article title as an H1. Currently just uses document.title,
-	 * we might want to be smarter in the future.
+	 * Get the article title as an H1.
 	 *
 	 * @return void
 	 **/
 	getArticleTitle: function () {
+		var curTitle = document.title;
+
+		if(curTitle.match(/ [\|\-] /))
+		{
+			curTitle = document.title.replace(/(.*)[\|\-] .*/gi,'$1');
+			
+			if(curTitle.split(' ').length < 3) {
+				curTitle = document.title.replace(/[^\|\-]*[\|\-](.*)/gi,'$1');
+			}
+		}
+		else if(curTitle.indexOf(': ') !== -1)
+		{
+			curTitle = document.title.replace(/.*:(.*)/gi, '$1');
+
+			if(curTitle.split(' ').length < 3) {
+				curTitle = document.title.replace(/[^:]*[:](.*)/gi,'$1');
+			}
+		}
+		else if(curTitle.length > 150 || curTitle.length < 15)
+		{
+			var hOnes = document.getElementsByTagName('h1');
+			if(hOnes.length == 1)
+			{
+				curTitle = readability.getInnerText(hOnes[0]);
+			}
+		}
+
+		if(curTitle.split(' ').length < 3) {
+			curTitle = document.title;
+		}
+		
 		var articleTitle = document.createElement("H1");
-		articleTitle.innerHTML = document.title;
+		articleTitle.innerHTML = curTitle;
 		
 		return articleTitle;
 	},
