@@ -1,235 +1,297 @@
-@charset "utf-8";
-/* CSS Document */
-
+/* @group Body and Layout */
 body {
-	background: #1E4E74;	
-	color: #ddd;
-}
+    background: #3574a6 url("../images/bg-body.jpg") repeat-x 0 0;
+    color: #ededed;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, "Times New Roman", Times, Georgia, serif;
+    }
 
-img {
-border: none;
-}
+#container, #header, #instructions, #article, #example, #footer {
+    clear: both;
+    display: block;
+    padding: 0 0 10px;
+    position: relative;
+    overflow: auto;
+    }
 
 #container {
-	margin-top: 10px;
-	margin-right:auto;
-	margin-left:auto;
-	width: 980px;
-	height: 1125px;
-	padding: 10px;
-	background: url(../images/readability.png) no-repeat;
-	overflow: hidden;
-}
-#footer {
-	margin-top: 46px;
-	text-align: right;
-}
-#footer * {
-	float: right;	
-}
-#arcLinks {
-	margin-left: 140px;
-}
-#kindlingAd {
-	width: 250px;
-}
-#kindlingAd a {
-	color: #fff;
-	font-size: 12px;
-	text-decoration: none;
-	display: block;
-}
-#kindlingAd p {
-	margin: 4px 40px 0 0;
-}
+    margin: 10px auto 0;
+    padding: 10px;
+    width: 961px;
+    }
 
-a.www-link {
-	margin: 0 8px 0 30px;
-}
-
-#arc90 {
-    display: block;
-    text-align: right;
-    margin-top: 60px;
-}
-#arc90 img {
-    margin-right: 10px;
-}
-#arc90 a.twitter { 
-    color: #ddd;
-    text-decoration: none;
-    font-size: .8em;
-    font-weight: bolder;
-    margin-top: 10px;
-    border-bottom: 1px solid #fff;
-}
-#arc90 a.blog { 
-    color: #ddd;
-    text-decoration: none;
-    font-size: .8em;
-    font-weight: bolder;
-    margin-top: 10px;
-    border-bottom: 1px solid #fff;
-}
-
-#settings {
-	margin-top: 132px;
-	padding: 0 1.5em;
-	display: block;
-	width: 900px;
-	height: 160px;
-}
-
-div.settings-box, div#bookmarklet {
-	float: left;
-}
-div#bookmarklet {
-	width: 200px;
-	margin-top: 24px;
-	margin-left: 140px;
-	text-align: center;	
-}
-
-div#style {
-	width: 175px;
-	margin-left: 20px;
-}
-div#size {
-	width: 165px;	
-}
-div#margin {
-	width: 160px;	
-}
-
-.settings-box label {
-	margin-left: .5em;
-	cursor: pointer;
-}
-.settings-box p {
-	margin: .1em 0;	
-}
-#readHiddenContent {
-	display: none;	
-}
 #example {
-	display: block;
-	margin-left: 30px;
-	margin-top: 24px;
-	width: 888px;
 	height: 458px;
-	left: 30px;
 	padding: 1em 2em;
 	overflow: auto;
-}
+    }
+/* @end Body and Layout */
+
+/* @group General Typography */
+#header p, #instructions p, #footer p,
+#header li, #instructions li, #footer li {
+    margin: 0;
+    padding: 0;
+    line-height: 1.6em;
+    font-weight: 300;
+    }
+
+ol,ul { list-style-type: none; padding: 0; margin: 0; }
+
+img { border: 0; outline: 0; }
+
+a, a:link, a:visited { color: #ddd; text-decoration: none; }
+
+a:hover { color: #fff; }
+
+a:active { color: #aaa; }
+
+em {
+    font-size: 1.1em;
+    line-height: 1.4em;
+    font-style: normal;
+    font-variant: small-caps;
+    }
+/* @end General Typography */
+
+/* @group Header */
+#header h1 {
+    display: inline;
+    height: 147px;
+    float: left;
+    width: 315px;
+    background: transparent url("../images/logo-readability-large.png") no-repeat 0 0;
+    text-indent: -9000px;
+    }
+
+#es #header h1 { background-image: url("../images/logo-readability-es-large.png"); }
+
+#introduction {
+    display: inline;
+    float: left;
+    margin: 25px 0 0;
+    width: 350px;
+    }
+
+#watch-video {
+    display: inline;
+    float: left;
+    margin: 30px 0 0 30px;
+    width: 110px;
+    }
+
+#header .meta {
+    display: inline;
+    float: left;
+    width: 130px;
+    margin: 50px 0 0 25px;
+    font-size: .75em;
+    text-align: center;
+    }
+
+#header .meta p a, #header .meta p a:link, #header .meta p a:visited { line-height: 2em; border-bottom: 1px solid #ddd; }
+
+#header .meta p a:hover { border-bottom-color: #fff; }
+
+#header .meta p a:active { border-bottom-color: #aaa; }
+/* @end Header */
+
+/* @group instructions */
+#settings {
+    display: inline;
+    float: left;
+    width: 560px;
+    background: transparent url("../images/bg-settings.png") no-repeat 0 65px;
+    }
+
+#es #settings { background-image: url("../images/bg-settings-es.png"); }
+
+#settings h2, #bookmarklet h2 {
+    margin: 0 0 15px;
+    padding: 16px 0 0 45px;
+    background: transparent url("../images/steps.png") no-repeat -45px 0;
+    font-size: 24px;
+    font-weight: 300;
+    line-height: 1;
+    text-transform: uppercase;
+    }
+
+#settings .settings-box {
+    display: inline;
+    float: left;
+    margin: 55px 0 0 25px;
+    padding: 0 0 25px;
+    width: 135px;
+    }
+
+#settings dt { display: none; }
+
+#settings dd { margin: 0; padding: 0; }
+
+#settings input { margin: 0 10px 0 0; }
+
+#settings .powered-typekit { display: inline; padding-right: 18px; background: transparent url("../images/typekit-icon.png") no-repeat right 3px;}
+
+#bookmarklet {
+    display: inline;
+    float: left;
+    width: 380px;
+    font-size: .9em;
+    }
+
+#bookmarklet h2 { background-position: 0 -45px; }
+
+#bookmarklet p {
+    margin: 0 0 0 45px;
+    width: 330px;
+    }
+#browser-instruction-placer { display: block; height: 46px; }
+#bookmarkletLink {
+    display: block;
+    height: 40px;
+    margin: 10px 0 10px 115px;
+    width: 174px;
+    cursor: move;
+    }
+/* @end instructions */
+
+/* @group footer */
+#footer { background: transparent url("../images/logo-readability-small.png") no-repeat 0 30px; }
+
+#footer hr { 
+    height: 0;
+    margin-bottom: 20px;
+    outline: 0;
+    border: 1px solid #8ea6b9;
+    }
+
+#arcLinks li { display: inline; float: right; }
+
+#arcLinks img { vertical-align: -8px; }
+
+#arcLinks .www-link { margin-left: 25px; padding-left: 25px; border-left: 1px solid #ededed; }
+
+#kindlingAd {
+    margin: 0 auto;
+	width: 250px;
+	text-align: center;
+	font-size: .8em;
+    }
+/* @end footer */
+
+/* @group Readability Examples */
+#article h2 { 
+    display: block;
+    margin: 0;
+    padding: 5px 0;
+    position: absolute;
+    right: 35px;
+    width: 136px;
+    z-index: 1000;
+    background: transparent url("../images/tab-example.png") no-repeat 0 bottom;
+    font-weight: 300;
+    text-align: center;
+    }
+
 #articleContent {
 	text-align: left;
 	line-height: 1.4em;	
 	margin: 1em auto;
-}
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-/* Size options */
-.size-small {
-	font-size: 12px;
-}
-.size-medium {
-	font-size: 18px;	
-}
-.size-large {
-	font-size: 26px;
-}
-.size-x-large {
-	font-size: 34px;
-}
+    }
 
+#articleContent h1 {
+	font-size: 1.2em;
+	display: block;
+	text-transform: capitalize;
+    }
+/* Size options */
+.size-x-small { font-size: 12px; }
+.size-small { font-size: 15px; }
+.size-medium { font-size: 18px; }
+.size-large { font-size: 26px; }
+.size-x-large { font-size: 34px; }
 /* Style options */
 .style-novel {
-	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
-	background: #F4F3DB;
+	font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+	background: #f4f3db;
 	color: #222;
-}
-
+    }
 .style-ebook {
-	font-family:Arial, Helvetica, sans-serif;
+	font-family: Arial, Helvetica, sans-serif;
 	background: #eee;
 	color: #333;
-}
+    }
 .style-ebook h1 {
 	font-family: "Arial Black", Gadget, sans-serif;
-	font-weight: normal;
-}
-
+	font-weight: 400;
+    }
 .style-newspaper {
-	font-family:"Times New Roman", Times, serif;
-	background: #F7F7F7;
+	font-family: "Times New Roman", Times, serif;
+	background: #f7f7f7;
 	color: #222;
-}
+    }
 .style-newspaper h1 {
-	text-transform:capitalize;
+	text-transform: capitalize;
 	font-family: Georgia, "Times New Roman", Times, serif;
-}
-
+    }
 .style-terminal {
 	font-family: "Lucida Console", Monaco, monospace;
-	background: #1D4E2C;
-	color: #C6FFC6;
-}
-
+	background: #1d4e2c;
+	color: #c6ffc6;
+    }
 /* Begin Typekit Styles */
-
+.style-apertura {
+    font-family: "apertura-1", "apertura-2", sans-serif;
+    background-color: #2e2e2e;
+    color: #efefef;
+    }
+.style-athelas {
+    font-family: "athelas-1", "athelas-2", sans-serif;
+    background-color: #fd2;
+    color: #0b1924;
+    }
+.style-athelas hr {
+    border-color: #23211f;
+    }
+.style-droid-mono {
+    font-family: "droid-sans-mono-1", "droid-sans-mono-2", monospace;
+    background-color: #eee;
+    color: #2f2f2f;
+    }
+.style-ff-meta-web-pro {
+    font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", sans-serif;
+	background-color: #fdfdfd;
+	color: #434343;
+    }
+.style-ff-meta-web-pro h1 {
+    font-family: "ff-meta-web-pro-2", "ff-meta-web-pro-1", sans-serif;
+    font-weight: 800;
+    }
 .style-classy {
-	font-family: "Adobe Caslon Pro",georgia,garamond,times,serif;
+	font-family: sans-serif;
 	background-color: #FDFDFD;
 	color: #434343;
-}
-
+    }
 .style-classy #readInner a {
 	color: #8F674B;
 	text-decoration: none;
-}
-
+    }
 .style-post {
 	font-family: "Droid Sans", "Arial", sans-serif;
 	background-color: #FFF;
 	color: #222;
-}
-
-.style-post #articleContent h1 {
+    }
+.style-post h1 {
 	font-family: "League Gothic";
-	font-size: 2.4em;
+	font-size: 53px;
 	letter-spacing: 2px;
-	line-height: 1;
+	line-height: 1.4;
 	text-align: center;
 	text-transform: uppercase;
-	margin-bottom: 0;
-	font-weight: normal;
-}
-
+    }
 /* Margin Options */
-.margin-x-wide {
-	width: 35%;
-}
-.margin-wide {
-	width: 55%;
-}
-.margin-medium {
-	width: 75%;
-}
-.margin-narrow {
-	width: 95%;
-}
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-
-
-
-/* LOCK IN H1 SIZING */
-#articleContent h1 {
-	font-size: 1.2em;
-	display: block;
-	text-transform:capitalize;
-}
-#articleContent {
-	line-height: 1.4em;	
-}
-
+.margin-x-narrow { width: 95%; }
+.margin-narrow { width: 85%; }
+.margin-medium { width: 75%; }
+.margin-wide { width: 55%; }
+.margin-x-wide { width: 35%; }
+/* @end Readability Examples */

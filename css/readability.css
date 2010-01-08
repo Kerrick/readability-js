@@ -1,14 +1,10 @@
 @charset "utf-8";
 /* CSS Document */
-
-/*
-#readOverlay  {
-	background-image: none;
-	background: #eee;
-	font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;
-
+#readability-footer-logo, #footer-twitterLink, #readTools a {
+    background-color: transparent !important;
+    background-image: url("http://staging.arc90.com/readability-text/images/sprite-readability.png") !important;
+    background-repeat: no-repeat !important;
 }
-*/
 #readOverlay {
 	display: block;
 	position: absolute;
@@ -22,7 +18,7 @@
 	max-width: 800px;
 }
 #readInner a {
-	color:#003399;
+	color:#039;
 	text-decoration:none;
 }
 #readInner a:hover {
@@ -44,6 +40,7 @@
 	border-bottom: 1px solid #333;
 	font-size: 1.2em;
 }
+.style-apertura #readInner h1 { border-bottom-color: #ededed; }
 #readInner blockquote {
 	margin-left: 3em;
 	margin-right: 3em;
@@ -53,25 +50,40 @@
 	border-top: 1px solid #333;
 	text-align: center;
 	clear: both;
+	overflow: hidden;
 }
+.style-apertura #readFooter { border-top-color: #ededed; }
+#readability-footer-logo {
+    display: inline;
+    float: left;
+    height: 29px;
+    margin-top: 15px;
+    width: 401px;
+    background-position: 0 -36px;
+    text-indent: -9000px;
+    }
+.style-apertura #readability-footer-logo {
+    background-position: 0 -67px;
+    }
+.style-athelas #readability-footer-logo {
+    background-position: 0 -98px;
+    }
 div.footer-right {
+	display: inline;
 	float: right;
 	line-height: 1;
 	text-align: right;
 	font-size: .75em;
-	margin-top: 18px
+    margin-top: 24px;
 }
-a.footer-twitterLink {
-	clear: both;
-	float: left;
-	font-size: 11px;
-	margin-left: 228px;
-	margin-top: -32px;
+#footer-twitterLink {
+	font-size: 12px;
+	padding: 6px 0 6px 28px;
+    background-position: 0 -123px;
 }
 span.version {
 	display: none;
 }
-
 /* Article Tools */
 #readTools {
 	width: 34px;
@@ -89,21 +101,14 @@ span.version {
     filter:alpha(opacity=40);
     text-indent: -99999px;
     height: 34px;
+    width: 34px;
 	text-decoration: none;
 }
 
-#kindle-page{
-    background: url(../images/read-kindle.png) no-repeat left top;
-}
-#email-page{
-    background: url(http://lab.arc90.com/experiments/readability/images/read-email.png) no-repeat left top;
-}
-#reload-page{
-    background: url(http://lab.arc90.com/experiments/readability/images/read-refresh.png) no-repeat left top;
-}
-#print-page{
-    background: url(http://lab.arc90.com/experiments/readability/images/read-print.png) no-repeat left top;
-}
+#reload-page{ background-position: 0 0; }
+#print-page{ background-position: -36px 0; }
+#email-page{ background-position: -72px 0; }
+#kindle-page{ background-position: -108px 0; }
 #readTools a:hover{
     opacity: 1;
     filter:alpha(opacity=100);
@@ -113,73 +118,93 @@ span.version {
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
 
 /* Size options */
-
-.size-small {
-	font-size: 12px;
-}
-.size-medium {
-	font-size: 18px;
-}
-.size-large {
-	font-size: 26px;
-}
-.size-x-large {
-	font-size: 34px;
-}
+.size-x-small { font-size: 12px; }
+.size-small { font-size: 15px; }
+.size-medium { font-size: 18px; }
+.size-large { font-size: 26px; }
+.size-x-large { font-size: 34px; }
 /* Style options */
-
-.style-novel {
-	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
-	background: #F4F3DB;
-	color: #222;
-}
-.style-ebook {
-	font-family:Arial, Helvetica, sans-serif;
-	background: #eee;
-	color: #333;
-}
-.style-ebook h1 {
-	font-family: "Arial Black", Gadget, sans-serif;
-	font-weight: normal;
-}
 .style-newspaper {
 	font-family:"Times New Roman", Times, serif;
-	background: #FFF;
+	background: #fff;
 	color: #222;
 }
 .style-newspaper h1 {
 	text-transform:capitalize;
 	font-family: Georgia, "Times New Roman", Times, serif;
 }
+.style-novel {
+	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
+	background: #f4f3db;
+	color: #222;
+}
+.style-novel #readInner a {
+	color:#c00;
+}
+.style-ebook {
+	font-family:Arial, Helvetica, sans-serif;
+	background: #eee;
+	color: #333;
+}
+.style-ebook #readInner a {
+    color: #187dc9;
+}
+.style-ebook h1 {
+	font-family: "Arial Black", Gadget, sans-serif;
+	font-weight: 400;
+}
 .style-terminal {
 	font-family: "Lucida Console", Monaco, monospace;
-	background: #1D4E2C;
-	color: #C6FFC6;
+	background: #1d4e2c;
+	color: #c6ffc6;
 }
 .style-terminal #readInner a {
-	color: #009933;
+	color: #093;
 }
-
-
 /* Begin Typekit Styles */
-
+.style-apertura {
+    font-family: "apertura-1", "apertura-2", sans-serif;
+    background-color: #2e2e2e;
+    color: #efefef;
+    }
+.style-apertura #readInner a { color: #ff5349; }
+.style-athelas {
+    font-family: "athelas-1", "athelas-2", sans-serif;
+    background-color: #fd2;
+    color: #0b1924;
+    }
+.style-athelas #readInner a { color: #00f; }
+.style-athelas hr {
+    border-color: #23211f;
+    }
+.style-droid-mono {
+    font-family: "droid-sans-mono-1", "droid-sans-mono-2", monospace;
+    background-color: #eee;
+    color: #2f2f2f;
+    }
+.style-ff-meta-web-pro {
+    font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", sans-serif;
+	background-color: #fdfdfd;
+	color: #434343;
+    }
+.style-ff-meta-web-pro h1 {
+    font-family: "ff-meta-web-pro-2", "ff-meta-web-pro-1", sans-serif;
+    font-weight: 800;
+    }
 .style-classy {
 	font-family: sans-serif;
 	background-color: #FDFDFD;
 	color: #434343;
-}
-
+    }
 .style-classy #readInner a {
 	color: #8F674B;
 	text-decoration: none;
-}
-
+    }
 .style-post {
 	font-family: "Droid Sans", "Arial", sans-serif;
 	background-color: #FFF;
 	color: #222;
-}
-
+    }
 .style-post h1 {
 	font-family: "League Gothic";
 	font-size: 53px;
@@ -187,38 +212,29 @@ span.version {
 	line-height: 1.4;
 	text-align: center;
 	text-transform: uppercase;
-}
-
+    }
 /* Margin Options */
-
-.margin-x-wide {
-	width: 35%;
-}
-.margin-wide {
-	width: 55%;
-}
-.margin-medium {
-	width: 75%;
-}
-.margin-narrow {
-	width: 95%;
-}
+.margin-x-narrow { width: 95%; }
+.margin-narrow { width: 85%; }
+.margin-medium { width: 75%; }
+.margin-wide { width: 55%; }
+.margin-x-wide { width: 35%; }
 /* ---------------- USER-CONFIGURABLE STYLING --------------------- */
 
 /* ------ DEBUG ------- */
 
 .bug-green {
-	background: #BBF9B0;
+	background: #bbf9b0;
 	border: 4px solid green;
 }
 .bug-red {
 	background: red;
 }
 .bug-yellow {
-	background: #FFFF8E;
+	background: #ffff8e;
 }
 .bug-blue {
-	background: #BFDFFF;
+	background: #bfdfff;
 }
 
 /* ---------------- EMAIL POP UP --------------------- */

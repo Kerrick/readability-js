@@ -3,12 +3,20 @@ var size = "size-large";
 var margin = "margin-wide";
 
 var baseHref = window.location.toString().match(/.*\//);
-
-
 var linkStringStart = "javascript:(function(){";
 var linkStringEnd   = "';_readability_script=document.createElement('SCRIPT');_readability_script.type='text/javascript';_readability_script.src='" + baseHref + "js/readability.js?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(_readability_script);_readability_css=document.createElement('LINK');_readability_css.rel='stylesheet';_readability_css.href='" + baseHref + "css/readability.css';_readability_css.type='text/css';_readability_css.media='screen';document.getElementsByTagName('head')[0].appendChild(_readability_css);_readability_print_css=document.createElement('LINK');_readability_print_css.rel='stylesheet';_readability_print_css.href='" + baseHref + "css/readability-print.css';_readability_print_css.media='print';_readability_print_css.type='text/css';document.getElementsByTagName('head')[0].appendChild(_readability_print_css);})();";
 
 $(document).ready(function() {
+    
+    if($.browser.msie) {
+        $("#browser-instruction-placer").hide();
+        $("#browser-instruction-ie").fadeIn('100');
+        $("#bookmarkletLink").css("cursor","pointer");
+    }
+    else {
+        $("#browser-instruction-placer").hide();
+        $("#browser-instruction").fadeIn('100');
+    }
 						   
 	$("#bookmarkletLink").attr("href", linkStringStart + "readStyle='" + style + "';readSize='" + size + "';readMargin='" + margin + linkStringEnd);
 	
@@ -19,13 +27,13 @@ $(document).ready(function() {
 		switch(s){
 			case "style":
 				style = y;
-				break
+				break;
 			case "size":
 				size = y;
-				break
+				break;
 			case "margin":
 				margin = y;
-				break
+				break;
 		}
 		example.className = style;
 		article.className = margin + " " + size;
@@ -48,5 +56,14 @@ $(document).ready(function() {
 		return false;
 	});
 
+    $('.video').fancybox({
+        zoomSpeedIn: 0,
+        zoomSpeedOut: 0,
+        overlayShow: true,
+        overlayOpacity: 0.85,
+        overlayColor: "#091824",
+        hideOnContentClick: false,
+        frameWidth: 480,
+        frameHeight: 360
+    });
 });
-

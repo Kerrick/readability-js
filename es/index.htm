@@ -1,97 +1,147 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>Readability - Un experimento de Arc90 Laboratory</title>
-<link rel="stylesheet" href="../css/es/readability-home.css" type="text/css" media="screen" />
-<script type="text/javascript" src="../js/jquery-1.3.1.min.js"></script>
-<script type="text/javascript" src="../js/es/readability-start.js"></script>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Readability - Un experimento de Arc90 Laboratory</title>
+  <meta name="author" content="Arc90">
+  <meta name="description" content="Readability es una herramienta simple que have de leer en la web una tarea m&aacute;s placentera al remover el desorden que hay alrededor de lo que est&aacute;s leyendo.">
+  <link rel="stylesheet" href="../css/readability-home.css" type="text/css" media="screen" charset="utf-8">
+  <link rel="stylesheet" href="../css/fancybox.css" type="text/css" media="screen" charset="utf-8">
+  <link rel="icon" type="image/png" href="../images/icon-readability-favicon.png">
+  <!--[if lte IE 7]>
+    <style type="text/css" media="screen">
+      #introduction, #watch-video, #header .meta { margin-top: 0; }
+      .settings-box { margin-left: 5px; width: 160px; }
+    </style>
+  <![endif]-->
+  <script src="../js/jquery-1.3.1.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../js/readability-start.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../js/jquery.fancybox-1.2.6.pack.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript" src="http://use.typekit.com/thw1vhb.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+  <script type="text/javascript">
+    languagesAvailable  = ['es'];
+    language            = (navigator.language || navigator.userLanguage);
+    languageCode        = language.replace(/-.*/,'').toLowerCase();
+    if(languageCode != 'en') {
+      languageIsAvailable = false;
+      for(l in languagesAvailable) {
+        if(languagesAvailable[l] == languageCode) {
+          languageIsAvailable = true;
+          break;
+        }
+      }
+      if(languageIsAvailable) {
+        window.location = "http://lab.arc90.com/experiments/readability/" + languageCode;
+      }
+    }
+  </script>
 </head>
 <body>
-<div id="readHiddenContent">
-	<h1>Readability</h1>
-	<p>READABILITY is a simple tool that makes reading on the Web more enjoyable by removing the clutter around what you’re reading. Follow the steps below to install READABILITY in your Web browser.</p>
-</div>
+
 <div id="container">
-	<div id="arc90">
-		<a href="http://www.arc90.com"><img src="../images/arc90-logo-large.png" alt="Arc90" /></a>
-		<p><a href="http://twitter.com/arc90" class="twitter">Siguenos en Twitter &raquo;</a></p>
-	</div>
-	<form name="applySettings">
-		<div id="settings">
-			<div class="settings-box" id="style">
-				<p>
-					<input type="radio" name="style" value="style-newspaper" id="newspaper" checked="checked" />
-					<label for="newspaper">Diario</label>
-				</p>
-				<p>
-					<input type="radio" name="style" value="style-novel" id="novel"/>
-					<label for="novel">Novela</label>
-				</p>
-				<p>
-					<input type="radio" name="style" value="style-ebook" id="ebook" />
-					<label for="ebook">eBook</label>
-				</p>
-				<p>
-					<input type="radio" name="style" value="style-terminal" id="terminal" />
-					<label for="terminal">Terminal</label>
-				</p>
-			</div>
-			<div class="settings-box" id="size">
-				<p>
-					<input type="radio" name="size" value="size-small" id="small" />
-					<label for="small">Chico</label>
-				</p>
-				<p>
-					<input type="radio" name="size" value="size-medium" id="medium" />
-					<label for="medium">Mediano</label>
-				</p>
-				<p>
-					<input type="radio" name="size" value="size-large" id="large" checked="checked"/>
-					<label for="large">Grande</label>
-				</p>
-				<p>
-					<input type="radio" name="size" value="size-x-large" id="x-large" />
-					<label for="x-large">Extra Grande</label>
-				</p>
-			</div>
-			<div class="settings-box" id="margin">
-				<p>
-					<input type="radio" name="margin" value="margin-narrow" id="narrow" />
-					<label for="narrow">Estrecho</label>
-				</p>
-				<p>
-					<input type="radio" name="margin" value="margin-medium" id="med" />
-					<label for="med">Medium</label>
-				</p>
-				<p>
-					<input type="radio" name="margin" value="margin-wide" id="wide" checked="checked" />
-					<label for="wide">Ancho</label>
-				</p>
-				<p>
-					<input type="radio" name="margin" value="margin-x-wide" id="x-wide" />
-					<label for="x-wide">Muy Ancho</label>
-				</p>
-			</div>
-			<div id="bookmarklet"> <a id="bookmarkletLink"><img src="../images/readability-drag.png" alt="Readability" /></a> </div>
-		</div>
-	</form>
-	<div id="example" class="style-newspaper">
-		<div id="articleContent" class="margin-wide size-large">
-			<h1>Compilando Contenido Que Vale La Pena Leer </h1>
-			<hr/>
-			<p>Nadie lo vio desembarcar en la unánime noche, nadie vio la canoa de bambú sumiéndose en el fango sagrado, pero a los pocos días nadie ignoraba que el hombre taciturno venía del Sur y que su patria era una de las infinitas aldeas que están aguas arriba, en el flanco violento de la montaña, donde el idioma zend no está contaminado de griego y donde es infrecuente la lepra. Lo cierto es que el hombre gris besó el fango, repechó la ribera sin apartar (probablemente, sin sentir) las cortaderas que le dilaceraban las carnes y se arrastró, mareado y ensangrentado, hasta el recinto circular que corona un tigre o caballo de piedra, que tuvo alguna vez el color del fuego y ahora el de la ceniza. Ese redondel es un templo que devoraron los incendios antiguos, que la selva palúdica ha profanado y cuyo dios no recibe honor de los hombres. El forastero se tendió bajo el pedestal. Lo despertó el sol alto. Comprobó sin asombro que las heridas habían cicatrizado; cerró los ojos pálidos y durmió, no por flaqueza de la carne sino por determinación de la voluntad. Sabía que ese templo era el lugar que requería su invencible propósito; sabía que los árboles incesantes no habían logrado estrangular, río abajo, las ruinas de otro templo propicio, también de dioses incendiados y muertos; sabía que su inmediata obligación era el sueño. Hacia la medianoche lo despertó el grito inconsolable de un pájaro. Rastros de pies descalzos, unos higos y un cántaro le advirtieron que los hombres de la región habían espiado con respeto su sueño y solicitaban su amparo o temían su magia. Sintió el frío del miedo y buscó en la muralla dilapidada un nicho sepulcral y se tapó con hojas desconocidas.</p>
-			<p>Al principio, los sueños eran caóticos; poco después, fueron de naturaleza dialéctica. El forastero se soñaba en el centro de un anfiteatro circular que era de algún modo el templo incendiado: nubes de alumnos taciturnos fatigaban las gradas; las caras de los últimos pendían a muchos siglos de distancia y a una altura estelar, pero eran del todo precisas. El hombre les dictaba lecciones de anatomía, de cosmografía, de magia: los rostros escuchaban con ansiedad y procuraban responder con entendimiento, como si adivinaran la importancia de aquel examen, que redimiría a uno de ellos de su condición de vana apariencia y lo interpolaría en el mundo real. El hombre, en el sueño y en la vigilia, consideraba las respuestas de sus fantasmas, no se dejaba embaucar por los impostores, adivinaba en ciertas perplejidades una inteligencia creciente. Buscaba un alma que mereciera participar en el universo.</p>
-			<p>A las nueve o diez noches comprendió con alguna amargura que nada podía esperar de aquellos alumnos que aceptaban con pasividad su doctrina y sí de aquellos que arriesgaban, a veces, una contradicción razonable. Los primeros, aunque dignos de amor y de buen afecto, no podían ascender a individuos; los últimos preexistían un poco más. Una tarde (ahora también las tardes eran tributarias del sueño, ahora no velaba sino un par de horas en el amanecer) licenció para siempre el vasto colegio ilusorio y se quedó con un solo alumno. Era un muchacho taciturno, cetrino, díscolo a veces, de rasgos afilados que repetían los de su soñador. No lo desconcertó por mucho tiempo la brusca eliminación de los condiscípulos; su progreso, al cabo de unas pocas lecciones particulares, pudo maravillar al maestro. Sin embargo, la catástrofe sobrevino. El hombre, un día, emergió del sueño como de un desierto viscoso, miró la vana luz de la tarde que al pronto confundió con la aurora y comprendió que no había soñado. Toda esa noche y todo el día, la intolerable lucidez del insomnio se abatió contra él. Quiso explorar la selva, extenuarse; apenas alcanzó entre la cicuta unas rachas de sueño débil, veteadas fugazmente de visiones de tipo rudimental: inservibles. Quiso congregar el colegio y apenas hubo articulado unas breves palabras de exhortación, éste se deformó, se borró. En la casi perpetua vigilia, lágrimas de ira le quemaban los viejos ojos.</p>
-			<p>Comprendió que el empeño de modelar la materia incoherente y vertiginosa de que se componen los sueños es el más arduo que puede acometer un varón, aunque penetre todos los enigmas del orden superior y del inferior: mucho más arduo que tejer una cuerda de arena o que amonedar el viento sin cara. Comprendió que un fracaso inicial era inevitable. Juró olvidar la enorme alucinación que lo había desviado al principio y buscó otro método de trabajo. Antes de ejercitarlo, dedicó un mes a la reposición de las fuerzas que había malgastado el delirio. Abandonó toda premeditación de soñar y casi acto continuo logró dormir un trecho razonable del día. Las raras veces que soñó durante ese período, no reparó en los sueños. Para reanudar la tarea, esperó que el disco de la luna fuera perfecto. Luego, en la tarde, se purificó en las aguas del río, adoró los dioses planetarios, pronunció las sílabas lícitas de un nombre poderoso y durmió. Casi inmediatamente, soñó con un corazón que latía.</p>
-        </div>
-	</div>
-	<div id="footer">
-		<div id="arcLinks"> <a href="http://lab.arc90.com" class="lab-link"><img src="../images/arc90lab-logo-small.png" alt="Arc90 Lab" /></a><a href="http://www.arc90.com" class="www-link"><img src="../images/arc90-logo-small.png" alt="Arc90" /></a> </div>
-		<div id="kindlingAd"> <a href="http://www.kindlingapp.com"> <img src="../images/kindling-logo-small.gif" alt="Kindling - Idea Management &amp; Collaboration" />
-			<p>Idea Management &amp; Collaboration</p>
-			</a> </div>
-	</div>
-</div>
+  <div id="header">
+    <h1>Readability<span class="secondary-title"> &mdash; Un experimento de Arc90 Laboratory</span></h1>
+
+    <div id="introduction">
+      <p><em>Readability</em> es una herramienta simple que have de leer en la web una tarea m&aacute;s placentera al remover el desorden que hay alrededor de lo que est&aacute;s leyendo. Sigue los pasos abajo para instalar <em>Readability</em> en tu navegador Web.</p>
+    </div>  <!-- End #introduction -->
+
+    <div id="watch-video">
+      <a href="#video" class="video" title="Video de Presentaci&oacute;n"><img src="../images/badge-video.png" width="104" height="104" alt="Video de Presentaci&oacute;n"></a>
+
+      <div id="video" style="display:none;">
+        <object width="480" height="360">
+          <param name="allowfullscreen" value="true">
+          <param name="allowscriptaccess" value="always">
+          <param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=3445774&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1">
+          <embed src="http://vimeo.com/moogaloop.swf?clip_id=3445774&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="480" height="360"></embed>
+        </object>
+      </div>  <!-- End #video -->
+    </div>
+
+    <div class="meta">
+      <a href="http://www.arc90.com/" class="arc90"><img src="../images/logo-arc90-large.png" width="107" height="41" alt="Arc90" title="Arc90"></a>
+
+      <p><a href="http://twitter.com/arc90" class="twitter">Siguenos en Twitter &raquo;</a></p>
+    </div>  <!-- End .meta -->
+  </div>  <!-- End #header -->
+
+  <ol id="instructions">
+    <li id="settings">
+      <h2>Elige tu configuraci&oacute;n</h2>
+      <dl class="settings-box" id="style">
+        <dt>Elije un estilo:</dt>
+        <dd><input type="radio" name="style" value="style-newspaper" id="newspaper" checked="checked"><label for="newspaper">Diario</label></dd>
+        <dd><input type="radio" name="style" value="style-novel" id="novel"><label for="novel">Novela</label></dd>
+        <dd><input type="radio" name="style" value="style-ebook" id="ebook"><label for="ebook">eBook</label></dd>
+        <!-- <dd><input type="radio" name="style" value="style-terminal" id="terminal"><label for="terminal">Terminal</label></dd> -->
+        <dd><input type="radio" name="style" value="style-apertura" id="apertura"><label for="apertura" class="powered-typekit" title="Powered by Typekit">Inverso</label></dd>
+        <dd><input type="radio" name="style" value="style-athelas" id="athelas"><label for="athelas" class="powered-typekit" title="Powered by Typekit">Athelas</label></dd>
+        <!-- <dd><input type="radio" name="style" value="style-post" id="post"><label for="post" class="powered-typekit" title="Powered by Typekit">The Post</label></dd> -->
+        <!-- <dd><input type="radio" name="style" value="style-classy" id="classy"><label for="classy" class="powered-typekit" title="Powered by Typekit">Classy</label></dd> -->
+        <!-- <dd><input type="radio" name="style" value="style-ff-meta-web-pro" id="metapro"><label for="metapro" class="powered-typekit" title="Powered by Typekit">FF Meta Web Pro</label></dd> -->
+        <!-- <dd><input type="radio" name="style" value="style-droid-mono" id="droidmono"><label for="droidmono" class="powered-typekit" title="Powered by Typekit">Droid Mono</label></dd> -->
+      </dl>
+      <dl class="settings-box" id="size">
+        <dt>Elige un Tama&ntilde;o de Fuente:</dt>
+        <dd><input type="radio" name="size" value="size-x-small" id="x-small"><label for="x-small">Muy Chico</label></dd>
+        <dd><input type="radio" name="size" value="size-small" id="small"><label for="small">Chico</label></dd>
+        <dd><input type="radio" name="size" value="size-medium" id="medium"><label for="medium">Mediano</label></dd>
+        <dd><input type="radio" name="size" value="size-large" id="large" checked="checked"><label for="large">Grande</label></dd>
+        <dd><input type="radio" name="size" value="size-x-large" id="x-large"><label for="x-large">Extra Grande</label></dd>
+      </dl>
+      <dl class="settings-box" id="margin">
+        <dt>Elije una Anchura del Margen:</dt>
+        <dd><input type="radio" name="margin" value="margin-x-narrow" id="x-narrow"><label for="x-narrow">Muy Estrecho</label></dd>
+        <dd><input type="radio" name="margin" value="margin-narrow" id="narrow"><label for="narrow">Estrecho</label></dd>
+        <dd><input type="radio" name="margin" value="margin-medium" id="med"><label for="med">Mediano</label></dd>
+        <dd><input type="radio" name="margin" value="margin-wide" id="wide" checked="checked"><label for="wide">Ancho</label></dd>
+        <dd><input type="radio" name="margin" value="margin-x-wide" id="x-wide"><label for="x-wide">Muy Ancho</label></dd>
+      </dl>
+    </li>  <!-- End #settings -->
+
+    <li id="bookmarklet">
+      <h2>Agrega t&uacute; marcardor</h2>
+      <p id="browser-instruction-placer"></p>
+      <p id="browser-instruction" style="display:none;">Arrastre el <em>Readability</em> de placas a continuaci&oacute;n para su navegador favorito de la barra de herramientas:</p>
+      <p id="browser-instruction-ie" style="display:none;">Haga clic derecho sobre el <em>Readabilty</em> placa de abajo y seleccione &ldquo;Agregar a Favoritos&hellip;&rdquo;:</p>
+      <a id="bookmarkletLink" title="A&ntilde;adir este enlace a los favoritos de su navegador."><img src="../images/badge-readability.png" width="174" height="40" alt="Readability"></a>
+      <p>Cuando est&eacute; visitando una p&aacute;gina Web que valga la pena leer, simplemente haz click en el link para activar <em>Readability</em>.</p>
+    </li>  <!-- End #bookmarklet -->
+  </ol>  <!-- End #instructions -->
+
+
+  <div id="article">
+    <h2>Ejemplo</h2>
+    <div id="example" class="style-newspaper">
+      <div id="articleContent" class="margin-wide size-large">
+        <h1>Compilando Contenido Que Vale La Pena Leer</h1>
+        <hr>
+  			<p>Cuando Gregorio Samsa se despert&oacute; una ma&ntilde;ana de sue&ntilde;o intranquilo, se encontr&oacute; en su cama en un insecto gigante. Estaba tendido en su duro, por as&iacute; decirlo caparaz&oacute;n, la espalda y cuando levant&oacute; la cabeza un poco de poder ver su vientre oscuro, domo dividido en segmentos de arco r&iacute;gido en la parte superior de la colcha que no pod&iacute;a permanecer en el lugar y estaba a punto a deslizarse por completo. Sus piernas numerosos, que fueron rid&iacute;culamente peque&ntilde;as en comparaci&oacute;n con el resto de su volumen, agit&oacute; impotente ante sus ojos.</p>
+  			<p>&iquest;Qu&eacute; ha ocurrido a m&iacute;? , pens&oacute;. No era un sue&ntilde;o. Su habitaci&oacute;n, una habitaci&oacute;n humana regular, s&oacute;lo demasiado peque&ntilde;a, permanec&iacute;a tranquila dentro de sus cuatro paredes familiar. Por encima de la mesa en la que una colecci&oacute;n de muestras de tela fue desembalado y hacia fuera-Samsa era viajante de comercio-colgado el cuadro que hac&iacute;a poco hab&iacute;a recortado de una revista ilustrada y poner en un bonito marco dorado. Mostr&oacute; una dama con un sombrero de piel y en una estola de piel, sentarse derecho y sosteniendo al espectador un amplio manguito de piel en la que la totalidad de su antebrazo hab&iacute;a desaparecido!</p>
+  			<p>Los ojos de Gregorio se volvi&oacute; al lado de la ventana, y el cielo nublado, se o&iacute;an las gotas de lluvia golpeando la ventana del canal-le hizo muy melanc&oacute;lica. &iquest;Qu&eacute; acerca de dormir un poco m&aacute;s y olvidar toda esta tonter&iacute;a, pens&oacute;, pero no se pod&iacute;a hacer, porque estaba acostumbrado a dormir sobre el lado derecho y en su estado actual no pod&iacute;a entregarse. Sin embargo, se oblig&oacute; violentamente hacia el lado derecho, que siempre se dio la vuelta otra vez. Lo intent&oacute; por lo menos un centenar de veces, cerrando los ojos para no ver sus piernas luchando, y s&oacute;lo desisti&oacute; cuando empez&oacute; a sentir en el costado un dolor sordo d&eacute;bil que nunca hab&iacute;a sentido antes.</p>
+  			<p>&iexcl;Oh, Dios, pens&oacute;, lo que es un trabajo agotador que he elegido para m&iacute;! En el d&iacute;a de carreteras a d&iacute;a. Es un trabajo mucho m&aacute;s irritante que hacer el negocio real en la oficina en casa, y encima de que no es el problema de viajar constantemente, de preocuparse por las conexiones de trenes, la mala alimentaci&oacute;n y las comidas irregulares, conocidos ocasionales que siempre son nuevas y nunca llegan a ser &iacute;ntimo amigos. El diablo se lleve todo! Sinti&oacute; un ligero picor en su vientre, poco a poco empujaba a s&iacute; mismo en la espalda cerca de la parte superior de la cama para que pudiera levantar la cabeza con m&aacute;s facilidad, identific&oacute; el lugar de escozor, que estaba rodeado de muchas manchas peque&ntilde;as de color blanco de la naturaleza de la que no pod&iacute;a entender y estaba a punto de tocar con una pierna, pero se&ntilde;al&oacute; a la pierna de atr&aacute;s de inmediato, el contacto que hizo correr un escalofr&iacute;o a trav&eacute;s de &eacute;l.</p>
+      </div>  <!-- End #articleContent -->
+    </div>  <!-- End #example -->
+  </div>  <!-- End #article -->
+
+  <div id="footer">
+    <hr class="section">
+
+    <ul id="arcLinks">
+      <li><a href="http://www.arc90.com/" class="www-link"><img src="../images/logo-arc90-small.png" width="66" height="26" alt="Arc90" title="Arc90"></a></li>
+      <li><a href="http://lab.arc90.com/" class="lab-link"><img src="../images/logo-arc90lab-small.png" width="123" height="26" alt="Arc90 Lab" title="Arc90 Lab"></a></li>
+    </ul>
+
+    <div id="kindlingAd">
+      <a href="http://www.kindlingapp.com/" class="kindlingapp">
+        <img src="../images/kindling-logo-small.gif" width="250" height="50" alt="Kindling &mdash; Idea Management &amp; Collaboration" title="Kindling &mdash; Idea Management &amp; Collaboration">
+        <span>Idea Management &amp; Collaboration</span>
+      </a>
+    </div>
+  </div>  <!-- End #footer -->
+</div>  <!-- End #container -->
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
 document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
