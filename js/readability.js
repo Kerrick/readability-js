@@ -33,7 +33,7 @@ var readability = {
      * Defined up here so we don't instantiate them repeatedly in loops.
      **/
     regexps: {
-        unlikelyCandidatesRe:   /combx|comment|disqus|foot|header|menu|meta|nav|rss|shoutbox|sidebar|sponsor/i,
+        unlikelyCandidatesRe:   /combx|comment|disqus|foot|header|menu|meta|rss|shoutbox|sidebar|sponsor/i,
         okMaybeItsACandidateRe: /and|article|body|column|main/i,
         positiveRe:             /article|body|content|entry|hentry|page|pagination|post|text/i,
         negativeRe:             /combx|comment|contact|foot|footer|footnote|link|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget/i,
@@ -248,6 +248,13 @@ var readability = {
      **/
     getArticleFooter: function () {
         var articleFooter = document.createElement("DIV");
+
+		/**
+		 * For research purposes, generate an img src that contains the chosen readstyle etc,
+		 * so we can generate aggregate stats and change styles based on them in the future
+		 **/
+		var statsQueryParams = "?readStyle=" + encodeURIComponent(readStyle) + "&readMargin=" + encodeURIComponent(readMargin) + "&readSize=" + encodeURIComponent(readSize);
+		/* TODO: attach this to an image */
 
         articleFooter.id = "readFooter";
         articleFooter.innerHTML = 
