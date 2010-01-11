@@ -1,6 +1,6 @@
 @charset "utf-8";
 /* CSS Document */
-#readability-footer-logo, #footer-twitterLink, #readTools a {
+#readability-logo, #arc90-logo, #footer-twitterLink, #readTools a {
     background-color: transparent !important;
     background-image: url("http://staging.arc90.com/readability-text/images/sprite-readability.png") !important;
     background-repeat: no-repeat !important;
@@ -62,11 +62,31 @@
     background-position: 0 -36px;
     text-indent: -9000px;
     }
-.style-apertura #readability-footer-logo {
+#readability-footer-logo a, #readability-footer-logo a:link {
+    display: inline;
+    float: left;
+    height: 29px;
+    text-indent: -9000px;
+}
+#readability-logo {
+    background-position: 0 -36px;
+    width: 189px;
+}
+#arc90-logo {
+    background-position: right -36px;
+    width: 212px;
+}
+.style-apertura #readability-logo {
     background-position: 0 -67px;
     }
-.style-athelas #readability-footer-logo {
+.style-apertura #arc90-logo {
+    background-position: right -67px;
+    }
+.style-athelas #readability-logo {
     background-position: 0 -98px;
+    }
+.style-athelas #arc90-logo {
+    background-position: right -98px;
     }
 div.footer-right {
 	display: inline;

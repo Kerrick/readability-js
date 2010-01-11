@@ -258,7 +258,10 @@ var readability = {
 
         articleFooter.id = "readFooter";
         articleFooter.innerHTML = 
-            "<a href='http://lab.arc90.com/experiments/readability' id='readability-footer-logo'>Readability &mdash; An Arc90 Laboratory Experiment</a>" +
+            "<div id='readability-footer-logo'>" +
+                "<a href='http://lab.arc90.com/experiments/readability' id='readability-logo'>Readability &mdash; </a>" +
+                "<a href='http://www.arc90.com/' id='arc90-logo'>An Arc90 Laboratory Experiment</a>" +
+            "</div>" +
             "<div class='footer-right'>" +
                 "<a href='http://www.twitter.com/arc90' id='footer-twitterLink'>Follow us on Twitter &raquo;</a>" +
                 "<span class='version'>Readability version " + readability.version + "</span>" +

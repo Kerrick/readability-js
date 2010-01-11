@@ -56,8 +56,9 @@ em {
 /* @group Header */
 #header h1 {
     display: inline;
-    height: 147px;
+    height: 133px;
     float: left;
+    margin: 20px 0 10px;
     width: 315px;
     background: transparent url("../images/logo-readability-large.png") no-repeat 0 0;
     text-indent: -9000px;
@@ -129,7 +130,7 @@ em {
 
 #settings input { margin: 0 10px 0 0; }
 
-#settings .powered-typekit { display: inline; padding-right: 18px; background: transparent url("../images/typekit-icon.png") no-repeat right 3px;}
+#settings .powered-typekit { display: inline; padding-right: 20px; background: transparent url("../images/icon-typekit.png") no-repeat right 1px;}
 
 #bookmarklet {
     display: inline;
