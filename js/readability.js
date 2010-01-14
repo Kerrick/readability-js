@@ -13,7 +13,7 @@ var dbg = function(s) {
  * Readability is licensed under the Apache License, Version 2.0.
 **/
 var readability = {
-    version:     '0.5.1',
+    version:     '1.5.0',
     emailSrc:    'http://lab.arc90.com/experiments/readability/email.php',
     iframeLoads: 0,
     frameHack:   false, /**
@@ -59,6 +59,7 @@ var readability = {
      * @return void
      **/
     init: function() {
+        document.body.style.display = "none";
         if(document.body && !readability.bodyCache) {
             readability.bodyCache = document.body.innerHTML; }
         
@@ -66,7 +67,6 @@ var readability = {
 
         /* Build readability's DOM tree */
         var overlay        = document.createElement("DIV");
-            overlay.style.display = "none";
         var innerDiv       = document.createElement("DIV");
         var articleTools   = readability.getArticleTools();
         var articleTitle   = readability.getArticleTitle();
@@ -97,45 +97,6 @@ var readability = {
 
         overlay.id              = "readOverlay";
         innerDiv.id             = "readInner";
-
-        /* If we're using a typekit style, inject the JS for it. */
-        if (readStyle == "style-athelas" || readStyle == "style-apertura") {
-            var typeKitScript  = document.createElement('script');
-            var typeKitCode    = null;
-            
-            if (readStyle == "style-athelas") {
-                typeKitCode = "sxt6vzy";
-            }
-            if (readStyle == "style-apertura") {
-                typeKitCode = "bae8ybu";
-            }
-            typeKitScript.type = "text/javascript";
-            typeKitScript.src  = "http://use.typekit.com/"+typeKitCode+".js";
-            document.body.appendChild(typeKitScript);
-
-            /**
-             * Done as a script elem so that it's ensured it will activate
-             * after typekit is loaded from the previous script src.
-            **/
-            var typeKitLoader  = document.createElement('script');
-            typeKitLoader.type = "text/javascript";
-
-            /**
-             * Experimental Callback function. Documentation:
-             * http://gist.github.com/192350
-             * &
-             * http://getsatisfaction.com/typekit/topics/support_a_pre_and_post_load_callback_function
-            **/
-            // var typeKitCallback = 'Typekit.load("'+typeKitCode+'", {' +
-            //     'beforeLoad:function(data){ document.getElementById("readOverlay").style.display = "none"; }, ' +
-            //     'afterLoad:function(data){ document.getElementById("readOverlay").style.display = "block"; } });';
-            var typeKitCallback = 'Typekit.load("'+typeKitCode+'", {' +
-                'beforeLoad:function(data){}, ' +
-                'afterLoad:function(data){ document.getElementById("readOverlay").style.display = "block"; } });';
-            var typeKitLoaderContent = document.createTextNode(typeKitCallback);
-            typeKitLoader.appendChild(typeKitLoaderContent);
-            document.body.appendChild(typeKitLoader);
-        }
 
         /* Apply user-selected styling */
         document.body.className = readStyle;
@@ -174,11 +135,14 @@ var readability = {
 
             innerDiv.insertBefore( rootWarning, articleContent );
         }
+        document.body.style.display = "block";
 
         window.scrollTo(0, 0);
-        
-        overlay.style.display = "block";
 
+        /* If we're using the Typekit library, select the font */
+        if (readStyle == "style-athelas" || readStyle == "style-apertura") {
+            readability.useRdbTypekit();
+        }
     },
 
     /**
@@ -255,7 +219,7 @@ var readability = {
 		 * For research purposes, generate an img src that contains the chosen readstyle etc,
 		 * so we can generate aggregate stats and change styles based on them in the future
 		 **/
-		var statsQueryParams = "?readStyle=" + encodeURIComponent(readStyle) + "&readMargin=" + encodeURIComponent(readMargin) + "&readSize=" + encodeURIComponent(readSize);
+        // var statsQueryParams = "?readStyle=" + encodeURIComponent(readStyle) + "&readMargin=" + encodeURIComponent(readMargin) + "&readSize=" + encodeURIComponent(readSize);
 		/* TODO: attach this to an image */
 
         articleFooter.id = "readFooter";
@@ -286,12 +250,13 @@ var readability = {
          */
         if(document.body === null)
         {
-            body = document.createElement("body");
+            var body = document.createElement("body");
             try {
                 document.body = body;       
             }
             catch(e) {
                 document.documentElement.appendChild(body);
+                dbg(e);
             }
         }
 
@@ -307,7 +272,10 @@ var readability = {
                 try {
                     frames[frameIndex].contentWindow.document.body;
                     canAccessFrame = true;
-                } catch(eFrames) {}
+                }
+                catch(eFrames) {
+                    dbg(eFrames);
+                }
                 
                 if(canAccessFrame && frameSize > bestFrameSize)
                 {
@@ -333,9 +301,9 @@ var readability = {
 
         /* remove all scripts that are not readability */
         var scripts = document.getElementsByTagName('script');
-        for(i = scripts.length-1; i >= 0; i--)
+        for(var i = scripts.length-1; i >= 0; i--)
         {
-            if(typeof(scripts[i].src) == "undefined" || scripts[i].src.indexOf('readability') == -1)
+            if(typeof(scripts[i].src) == "undefined" || (scripts[i].src.indexOf('readability') == -1 && scripts[i].src.indexOf('typekit') == -1))
             {
                 scripts[i].parentNode.removeChild(scripts[i]);          
             }
@@ -350,14 +318,57 @@ var readability = {
 
         /* Remove all style tags in head (not doing this on IE) - TODO: Why not? */
         var styleTags = document.getElementsByTagName("style");
-        for (var j=0;j < styleTags.length; j++) {
+        for (var st=0;st < styleTags.length; st++) {
             if (navigator.appName != "Microsoft Internet Explorer") {
-                styleTags[j].textContent = ""; }
+                styleTags[st].textContent = ""; }
         }
 
         /* Turn all double br's into p's */
         /* Note, this is pretty costly as far as processing goes. Maybe optimize later. */
         document.body.innerHTML = document.body.innerHTML.replace(readability.regexps.replaceBrsRe, '</p><p>').replace(readability.regexps.replaceFontsRe, '<$1span>');
+    },
+
+    useRdbTypekit: function () {
+        var rdbHead      = document.getElementsByTagName('head')[0];
+        var rdbTKScript  = document.createElement('script');
+        var rdbTKCode    = null;
+        if (readStyle == "style-athelas") {
+            rdbTKCode = "sxt6vzy";
+            dbg("Using Athelas Theme");
+        }
+        if (readStyle == "style-apertura") {
+            rdbTKCode = "bae8ybu";
+            dbg("Using Inverse Theme");
+        }
+
+        /**
+         * Setting new script tag attributes to pull Typekits libraries
+        **/
+        rdbTKScript.setAttribute('type','text/javascript');
+        rdbTKScript.setAttribute('src',"http://use.typekit.com/" + rdbTKCode + ".js");
+		rdbTKScript.setAttribute('charset','UTF-8');
+        rdbHead.appendChild(rdbTKScript);
+
+        /**
+         * In the future, maybe try using the following experimental Callback function?:
+         * http://gist.github.com/192350
+         * &
+         * http://getsatisfaction.com/typekit/topics/support_a_pre_and_post_load_callback_function
+        **/
+		var typekitLoader = function() {
+		    dbg("Looking for Typekit.");
+			if(typeof Typekit != "undefined") {
+				try {
+					dbg("Caught typekit");
+					Typekit.load();
+					clearInterval(window.typekitInterval);
+				} catch(e) {
+					dbg("Typekit error: " + e);
+				}
+			}
+		};
+
+		window.typekitInterval = window.setInterval(typekitLoader, 100);
     },
 
     /**
@@ -392,7 +403,7 @@ var readability = {
 
         /* Remove extra paragraphs */
         var articleParagraphs = articleContent.getElementsByTagName('p');
-        for(i = articleParagraphs.length-1; i >= 0; i--)
+        for(var i = articleParagraphs.length-1; i >= 0; i--)
         {
             var imgCount    = articleParagraphs[i].getElementsByTagName('img').length;
             var embedCount  = articleParagraphs[i].getElementsByTagName('embed').length;
@@ -408,7 +419,7 @@ var readability = {
             articleContent.innerHTML = articleContent.innerHTML.replace(/<br[^>]*>\s*<p/gi, '<p');      
         }
         catch (e) {
-            dbg("Cleaning innerHTML of breaks failed. This is an IE strict-block-elements bug. Ignoring.");
+            dbg("Cleaning innerHTML of breaks failed. This is an IE strict-block-elements bug. Ignoring.: " + e);
         }
     },
     
@@ -474,6 +485,7 @@ var readability = {
          * Note: Assignment from index for performance. See http://www.peachpit.com/articles/article.aspx?p=31567&seqNum=5
          * TODO: Shouldn't this be a reverse traversal?
         **/
+        var node = null;
         for(var nodeIndex = 0; (node = document.getElementsByTagName('*')[nodeIndex]); nodeIndex++)
         {
             /* Remove unlikely candidates */
@@ -500,9 +512,8 @@ var readability = {
                         node.parentNode.replaceChild(newNode, node);
                         nodeIndex--;
                     }
-                    catch(e)
-                    {
-                        dbg("Could not alter div to p, probably an IE restriction, reverting back to div.");
+                    catch(e) {
+                        dbg("Could not alter div to p, probably an IE restriction, reverting back to div.: " + e);
                     }
                 }
                 else
@@ -532,10 +543,10 @@ var readability = {
         var allParagraphs = document.getElementsByTagName("p");
         var candidates    = [];
 
-        for (var j=0; j < allParagraphs.length; j++) {
-            var parentNode      = allParagraphs[j].parentNode;
+        for (var pt=0; pt < allParagraphs.length; pt++) {
+            var parentNode      = allParagraphs[pt].parentNode;
             var grandParentNode = parentNode.parentNode;
-            var innerText       = readability.getInnerText(allParagraphs[j]);
+            var innerText       = readability.getInnerText(allParagraphs[pt]);
 
             /* If this paragraph is less than 25 characters, don't even count it. */
             if(innerText.length < 25) {
@@ -817,7 +828,7 @@ var readability = {
             e.innerHTML = e.innerHTML.replace(readability.regexps.killBreaksRe,'<br />');       
         }
         catch (eBreaks) {
-            dbg("KillBreaks failed - this is an IE bug. Ignoring.");
+            dbg("KillBreaks failed - this is an IE bug. Ignoring.: " + eBreaks);
         }
     },
 
