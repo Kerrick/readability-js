@@ -78,7 +78,7 @@ var readability = {
          * that may mean we stripped out the actual content so we couldn't parse it. So re-run init while preserving
          * unlikely candidates to have a better shot at getting our content out properly.
         **/
-        if(readability.getInnerText(articleContent, false) == "")
+        if(readability.getInnerText(articleContent, false).length < 500)
         {
             if (readability.flagIsActive(readability.FLAG_STRIP_UNLIKELYS)) {
                 readability.removeFlag(readability.FLAG_STRIP_UNLIKELYS);
@@ -231,7 +231,9 @@ var readability = {
 			}
 		}
 
-		if(curTitle.split(' ').length < 3) {
+		curTitle = curTitle.replace( readability.regexps.trimRe, "" );
+
+		if(curTitle.split(' ').length <= 4) {
 			curTitle = document.title;
 		}
 		
@@ -261,6 +263,7 @@ var readability = {
             "<div id='readability-footer-logo'>" +
                 "<a href='http://lab.arc90.com/experiments/readability' id='readability-logo'>Readability &mdash; </a>" +
                 "<a href='http://www.arc90.com/' id='arc90-logo'>An Arc90 Laboratory Experiment</a>" +
+				"<span id='readability-url'> &mdash; http://lab.arc90.com/experiments/readability</span>" +
             "</div>" +
             "<div class='footer-right'>" +
                 "<a href='http://www.twitter.com/arc90' id='footer-twitterLink'>Follow us on Twitter &raquo;</a>" +
@@ -646,8 +649,28 @@ var readability = {
             {
                 dbg("Appending node: " + siblingNode);
 
+				var nodeToAppend = null;
+				if(siblingNode.nodeName != "DIV" && siblingNode.nodeName != "P") {
+					/* We have a node that isn't a common block level element, like a form or td tag. Turn it into a div so it doesn't get filtered out later by accident. */
+					
+                    dbg("Altering siblingNode of " + siblingNode.nodeName + ' to div.');
+                    nodeToAppend = document.createElement('div');
+                    try {
+						nodeToAppend.className = siblingNode.className;
+						nodeToAppend.id = siblignNode.id;
+                        nodeToAppend.innerHTML = siblingNode.innerHTML;
+                    }
+                    catch(e)
+                    {
+                        dbg("Could not alter siblingNode to div, probably an IE restriction, reverting back to original.");
+						nodeToAppend = siblingNode;
+                    }
+				} else {
+					nodeToAppend = siblingNode;
+				}
+
                 /* Append sibling and subtract from our list because it removes the node when you append to another node */
-                articleContent.appendChild(siblingNode);
+                articleContent.appendChild(nodeToAppend);
                 s--;
                 sl--;
             }

@@ -76,6 +76,9 @@
     background-position: right -36px;
     width: 212px;
 }
+#readability-url {
+    display: none; /* For print only */
+}
 .style-apertura #readability-logo {
     background-position: 0 -67px;
     }
