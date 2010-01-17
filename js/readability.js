@@ -843,12 +843,25 @@ var readability = {
     clean: function (e, tag) {
         var targetList = e.getElementsByTagName( tag );
         var isEmbed    = (tag == 'object' || tag == 'embed');
-
+        
         for (var y=targetList.length-1; y >= 0; y--) {
             /* Allow youtube and vimeo videos through as people usually want to see those. */
-            if(isEmbed && targetList[y].innerHTML.search(readability.regexps.videoRe) !== -1)
-            {
-                continue;
+            if(isEmbed) {
+                var attributeValues = "";
+                for (var i=0, il=targetList[y].attributes.length; i < il; i++) {
+                    attributeValues += targetList[y].attributes[i].value + '|';
+                }
+                
+                /* First, check the elements attributes to see if any of them contain youtube or vimeo */
+                if (attributeValues.search(readability.regexps.videoRe) !== -1) {
+                    continue;
+                }
+
+                /* Then check the elements inside this element for the same. */
+                if (targetList[y].innerHTML.search(readability.regexps.videoRe) !== -1) {
+                    continue;
+                }
+                
             }
 
             targetList[y].parentNode.removeChild(targetList[y]);
