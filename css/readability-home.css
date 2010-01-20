@@ -136,7 +136,7 @@ em {
     margin: 0 0 0 6px;
     position: relative;
     width: 14px;
-    top: 2px;
+    top: 5px;
     background: transparent url("../images/icon-typekit.png") no-repeat 0 0;
     text-indent: -9000px;
     }
@@ -185,7 +185,12 @@ em {
 	width: 250px;
 	text-align: center;
 	font-size: .8em;
+	margin-top: -10px;
     }
+
+#kindlingAd span {
+	font-size: 11px;
+	}
 /* @end footer */
 
 /* @group Readability Examples */

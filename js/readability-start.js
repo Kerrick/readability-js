@@ -1,6 +1,6 @@
 var style = "style-newspaper";
 var size = "size-medium";
-var margin = "margin-medium";
+var margin = "margin-wide";
 
 var baseHref = window.location.toString().match(/.*\//);
 var linkStringStart = "javascript:(function(){";
