@@ -130,7 +130,16 @@ em {
 
 #settings input { margin: 0 10px 0 0; }
 
-#settings .powered-typekit { display: inline; padding-right: 20px; background: transparent url("../images/icon-typekit.png") no-repeat right 1px;}
+#settings dd a, #settings dd a:link {
+    display: inline-block;
+    height: 14px;
+    margin: 0 0 0 6px;
+    position: relative;
+    width: 14px;
+    top: 2px;
+    background: transparent url("../images/icon-typekit.png") no-repeat 0 0;
+    text-indent: -9000px;
+    }
 
 #bookmarklet {
     display: inline;
@@ -187,7 +196,7 @@ em {
     position: absolute;
     right: 35px;
     width: 136px;
-    z-index: 1000;
+    z-index: 10;
     background: transparent url("../images/tab-example.png") no-repeat 0 bottom;
     font-weight: 300;
     text-align: center;
@@ -204,6 +213,7 @@ em {
 	display: block;
 	text-transform: capitalize;
     }
+
 /* Size options */
 .size-x-small { font-size: 12px; }
 .size-small { font-size: 15px; }
@@ -211,84 +221,21 @@ em {
 .size-large { font-size: 26px; }
 .size-x-large { font-size: 34px; }
 /* Style options */
-.style-novel {
-	font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-	background: #f4f3db;
-	color: #222;
-    }
-.style-ebook {
-	font-family: Arial, Helvetica, sans-serif;
-	background: #eee;
-	color: #333;
-    }
-.style-ebook h1 {
-	font-family: "Arial Black", Gadget, sans-serif;
-	font-weight: 400;
-    }
-.style-newspaper {
-	font-family: "Times New Roman", Times, serif;
-	background: #f7f7f7;
-	color: #222;
-    }
-.style-newspaper h1 {
-	text-transform: capitalize;
-	font-family: Georgia, "Times New Roman", Times, serif;
-    }
-.style-terminal {
-	font-family: "Lucida Console", Monaco, monospace;
-	background: #1d4e2c;
-	color: #c6ffc6;
-    }
+.style-newspaper { font-family:"Times New Roman", Times, serif; background:#fbfbfb; color:#080000; }
+.style-newspaper h1 { text-transform:capitalize; font-family:Georgia, "Times New Roman", Times, serif; }
+.style-newspaper #readInner a { color:#0924e1; }
+.style-novel { font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif; background:#f4eed9; color:#1d1916; }
+.style-novel #readInner a { color:#1856ba; }
+.style-ebook { font-family:Arial, Helvetica, sans-serif; background:#edebe8; color:#2c2d32; }
+.style-ebook #readInner a { color:#187dc9; }
+.style-ebook h1 { font-family:"Arial Black", Gadget, sans-serif; font-weight:400; }
+.style-terminal { font-family:"Lucida Console", Monaco, monospace; background:#1d4e2c; color:#c6ffc6; }
+.style-terminal #readInner a { color:#093; }
 /* Begin Typekit Styles */
-.style-apertura {
-    font-family: "apertura-1", "apertura-2", sans-serif;
-    background-color: #2e2e2e;
-    color: #efefef;
-    }
-.style-athelas {
-    font-family: "athelas-1", "athelas-2", sans-serif;
-    background-color: #fd2;
-    color: #0b1924;
-    }
-.style-athelas hr {
-    border-color: #23211f;
-    }
-.style-droid-mono {
-    font-family: "droid-sans-mono-1", "droid-sans-mono-2", monospace;
-    background-color: #eee;
-    color: #2f2f2f;
-    }
-.style-ff-meta-web-pro {
-    font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", sans-serif;
-	background-color: #fdfdfd;
-	color: #434343;
-    }
-.style-ff-meta-web-pro h1 {
-    font-family: "ff-meta-web-pro-2", "ff-meta-web-pro-1", sans-serif;
-    font-weight: 800;
-    }
-.style-classy {
-	font-family: sans-serif;
-	background-color: #FDFDFD;
-	color: #434343;
-    }
-.style-classy #readInner a {
-	color: #8F674B;
-	text-decoration: none;
-    }
-.style-post {
-	font-family: "Droid Sans", "Arial", sans-serif;
-	background-color: #FFF;
-	color: #222;
-    }
-.style-post h1 {
-	font-family: "League Gothic";
-	font-size: 53px;
-	letter-spacing: 2px;
-	line-height: 1.4;
-	text-align: center;
-	text-transform: uppercase;
-    }
+.style-apertura { font-family:"apertura-1", "apertura-2", sans-serif; background-color:#2d2828; color:#eae8e9; }
+.style-apertura #readInner a { color:#58b0ff; }
+.style-athelas { font-family:"athelas-1", "athelas-2", sans-serif; background-color:#f7f7f7; color:#2b373d; }
+.style-athelas #readInner a { color:#1e83cb; }
 /* Margin Options */
 .margin-x-narrow { width: 95%; }
 .margin-narrow { width: 85%; }

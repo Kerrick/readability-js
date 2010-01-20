@@ -48,16 +48,25 @@
     </div>  <!-- End #introduction -->
 
     <div id="watch-video">
-      <a href="#video" class="video" title="Introduction Video"><img src="images/badge-video.png" width="104" height="104" alt="Introduction Video"></a>
+      <a href="#video-other" class="video" title="Installation Instructions" id="video-instruction"><img src="images/badge-video.png" width="104" height="104" alt="Installation Instructions Icon"></a>
 
-      <div id="video" style="display:none;">
+      <div id="video-ie" style="display:none;">
         <object width="480" height="360">
           <param name="allowfullscreen" value="true">
           <param name="allowscriptaccess" value="always">
-          <param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=3445774&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1">
-          <embed src="http://vimeo.com/moogaloop.swf?clip_id=3445774&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="480" height="360"></embed>
+          <param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=8798529&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1">
+          <embed src="http://vimeo.com/moogaloop.swf?clip_id=8798529&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="480" height="360"></embed>
         </object>
-      </div>  <!-- End #video -->
+      </div>  <!-- End #video-ie -->
+
+      <div id="video-other" style="display:none;">
+        <object width="480" height="360">
+          <param name="allowfullscreen" value="true">
+          <param name="allowscriptaccess" value="always">
+          <param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=8798492&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1">
+          <embed src="http://vimeo.com/moogaloop.swf?clip_id=8798492&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="480" height="360"></embed>
+        </object>
+      </div>  <!-- End #video-other -->
     </div>
 
     <div class="meta">
@@ -75,8 +84,8 @@
         <dd><input type="radio" name="style" value="style-newspaper" id="newspaper" checked="checked"><label for="newspaper">Newspaper</label></dd>
         <dd><input type="radio" name="style" value="style-novel" id="novel"><label for="novel">Novel</label></dd>
         <dd><input type="radio" name="style" value="style-ebook" id="ebook"><label for="ebook">eBook</label></dd>
-        <dd><input type="radio" name="style" value="style-apertura" id="apertura"><label for="apertura" class="powered-typekit" title="Powered by Typekit">Inverse</label></dd>
-        <dd><input type="radio" name="style" value="style-athelas" id="athelas"><label for="athelas" class="powered-typekit" title="Powered by Typekit">Athelas</label></dd>
+        <dd><input type="radio" name="style" value="style-apertura" id="apertura"><label for="apertura" title="Powered by Typekit">Inverse</label><a href="http://www.typekit.com/" title="Powered by Typekit" target="_blank"><em>Powered by Typekit</em></a></dd>
+        <dd><input type="radio" name="style" value="style-athelas" id="athelas"><label for="athelas" title="Powered by Typekit">Athelas</label><a href="http://www.typekit.com/" title="Powered by Typekit" target="_blank"><em>Powered by Typekit</em></a></dd>
       </dl>
       <dl class="settings-box" id="size">
         <dt>Choose a Font Size:</dt>
@@ -110,7 +119,7 @@
   <div id="article">
     <h2>Example</h2>
     <div id="example" class="style-newspaper">
-      <div id="articleContent" class="margin-wide size-large">
+      <div id="articleContent" class="size-medium margin-medium">
         <h1>Compelling Content Worth Reading</h1>
         <hr>
         <p>One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin. He lay on his armour&ndash;like back, and if he lifted his head a little he could see his brown belly, slightly domed and divided by arches into stiff sections.</p>

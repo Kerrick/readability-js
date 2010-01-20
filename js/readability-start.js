@@ -1,6 +1,6 @@
 var style = "style-newspaper";
-var size = "size-large";
-var margin = "margin-wide";
+var size = "size-medium";
+var margin = "margin-medium";
 
 var baseHref = window.location.toString().match(/.*\//);
 var linkStringStart = "javascript:(function(){";
@@ -12,6 +12,7 @@ $(document).ready(function() {
         $("#browser-instruction-placer").hide();
         $("#browser-instruction-ie").fadeIn('100');
         $("#bookmarkletLink").css("cursor","pointer");
+        $("#video-instruction").attr("href","#video-ie");
     }
     else {
         $("#browser-instruction-placer").hide();
