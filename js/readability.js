@@ -100,7 +100,7 @@ var readability = {
 
         /* Apply user-selected styling */
         document.body.className = readStyle;
-        if (readStyle == ("style-athelas" || "style-apertura")){
+        if (readStyle == "style-athelas" || readStyle == "style-apertura"){
             overlay.className       = readStyle + " rdbTypekit";
         }
         else {
