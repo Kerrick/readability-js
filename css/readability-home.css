@@ -223,8 +223,8 @@ em {
 .size-x-small { font-size: 12px; }
 .size-small { font-size: 15px; }
 .size-medium { font-size: 18px; }
-.size-large { font-size: 26px; }
-.size-x-large { font-size: 34px; }
+.size-large { font-size: 22px; }
+.size-x-large { font-size: 28px; }
 /* Style options */
 .style-newspaper { font-family:"Times New Roman", Times, serif; background:#fbfbfb; color:#080000; }
 .style-newspaper h1 { text-transform:capitalize; font-family:Georgia, "Times New Roman", Times, serif; }

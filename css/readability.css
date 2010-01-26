@@ -1,220 +1,74 @@
 @charset "utf-8";
-/* CSS Document */
-#readability-logo, #arc90-logo, #footer-twitterLink, #readTools a {
-    background-color: transparent !important;
-    background-image: url("http://staging.arc90.com/readability-text/images/sprite-readability.png") !important;
-    background-repeat: no-repeat !important;
-}
-#readOverlay {
-	display: block;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-}
-#readInner {
-	line-height: 1.4em;
-	margin: 1em auto;
-	max-width: 800px;
-}
-#readInner a {
-	color:#039;
-	text-decoration:none;
-}
-#readInner a:hover {
-	text-decoration:underline;
-}
-#readInner * {
-	margin-bottom: 16px;
-	border: none;
-	background: none;
-}
-#readInner img {
-	float: left;
-	margin-right: 12px;
-	margin-bottom: 12px;
-}
-#readInner h1 {
-	display: block;
-	width: 100%;
-	border-bottom: 1px solid #333;
-	font-size: 1.2em;
-}
-.style-apertura #readInner h1 { border-bottom-color: #ededed; }
-#readInner blockquote {
-	margin-left: 3em;
-	margin-right: 3em;
-}
-#readFooter {
-	display: block;
-	border-top: 1px solid #333;
-	text-align: center;
-	clear: both;
-	overflow: hidden;
-}
-.style-apertura #readFooter { border-top-color: #ededed; }
-#readability-footer-logo {
-    display: inline;
-    float: left;
-    height: 29px;
-    margin-top: 15px;
-    width: 401px;
-    background-position: 0 -36px;
-    text-indent: -9000px;
-    }
-#readability-footer-logo a, #readability-footer-logo a:link {
-    display: inline;
-    float: left;
-    height: 29px;
-    text-indent: -9000px;
-}
-#readability-logo {
-    background-position: 0 -36px;
-    width: 189px;
-}
-#arc90-logo {
-    background-position: right -36px;
-    width: 212px;
-}
-#readability-url {
-    display: none; /* For print only */
-}
-.style-apertura #readability-logo {
-    background-position: 0 -67px;
-    }
-.style-apertura #arc90-logo {
-    background-position: right -67px;
-    }
-/*.style-athelas #readability-logo {
-    background-position: 0 -98px;
-    }
-.style-athelas #arc90-logo {
-    background-position: right -98px;
-    }*/
-div.footer-right {
-	display: inline;
-	float: right;
-	line-height: 1;
-	text-align: right;
-	font-size: .75em;
-    margin-top: 24px;
-}
-#footer-twitterLink {
-	font-size: 12px;
-	padding: 6px 0 6px 28px;
-    background-position: 0 -123px;
-}
-span.version {
-	display: none;
-}
-/* Article Tools */
-#readTools {
-	width: 34px;
-	height: 150px;
-	position: fixed;
-	z-index: 100;
-	top: 10px;
-	left: 10px;
-}
-#readTools a {
-    overflow: hidden;
-	margin-bottom: 8px;
-	display: block;
-    opacity: .4;
-    filter:alpha(opacity=40);
-    text-indent: -99999px;
-    height: 34px;
-    width: 34px;
-	text-decoration: none;
-}
-
-#reload-page{ background-position: 0 0; }
-#print-page{ background-position: -36px 0; }
-#email-page{ background-position: -72px 0; }
-#kindle-page{ background-position: -108px 0; }
-#readTools a:hover{
-    opacity: 1;
-    filter:alpha(opacity=100);
-}
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-
-/* Size options */
-.size-x-small { font-size: 12px; }
-.size-small { font-size: 15px; }
-.size-medium { font-size: 18px; }
-.size-large { font-size: 26px; }
-.size-x-large { font-size: 34px; }
-/* Style options */
-.style-newspaper { font-family:"Times New Roman", Times, serif; background:#fbfbfb; color:#080000; }
-.style-newspaper h1 { text-transform:capitalize; font-family:Georgia, "Times New Roman", Times, serif; }
-.style-newspaper #readInner a { color:#0924e1; }
-.style-novel { font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif; background:#f4eed9; color:#1d1916; }
-.style-novel #readInner a { color:#1856ba; }
-.style-ebook { font-family:Arial, Helvetica, sans-serif; background:#edebe8; color:#2c2d32; }
-.style-ebook #readInner a { color:#187dc9; }
-.style-ebook h1 { font-family:"Arial Black", Gadget, sans-serif; font-weight:400; }
-.style-terminal { font-family:"Lucida Console", Monaco, monospace; background:#1d4e2c; color:#c6ffc6; }
-.style-terminal #readInner a { color:#093; }
-/* Begin Typekit Styles */
-.style-apertura { font-family:"apertura-1", "apertura-2", sans-serif; background-color:#2d2828; color:#eae8e9; }
-.style-apertura #readInner a { color:#58b0ff; }
-.style-athelas { font-family:"athelas-1", "athelas-2", sans-serif; background-color:#f7f7f7; color:#2b373d; }
-.style-athelas #readInner a { color:#1e83cb; }
-/* Margin Options */
-.margin-x-narrow { width: 95%; }
-.margin-narrow { width: 85%; }
-.margin-medium { width: 75%; }
-.margin-wide { width: 55%; }
-.margin-x-wide { width: 35%; }
-/* ---------------- USER-CONFIGURABLE STYLING --------------------- */
-
-/* ------ DEBUG ------- */
-
-.bug-green {
-	background: #bbf9b0;
-	border: 4px solid green;
-}
-.bug-red {
-	background: red;
-}
-.bug-yellow {
-	background: #ffff8e;
-}
-.bug-blue {
-	background: #bfdfff;
-}
-
-/* ---------------- EMAIL POP UP --------------------- */
-
-#email-container{
-    position: fixed;
-    top: 60px;
-    left: 50%;
-    margin: 0 0 0 -240px;
-    padding: 0;
-    width: 500px;
-    height: 490px;
-    border: solid 3px #666;
-    background-color: #fff;
-    z-index: 100 !important;
-    overflow: hidden;
-}
-
-
-/* ---------------- KINDLE POP UP --------------------- */
-
-#kindle-container{
-    position: fixed;
-    top: 60px;
-    left: 50%;
-    margin: 0 0 0 -240px;
-    padding: 0;
-    width: 500px;
-    height: 490px;
-    border: solid 3px #666;
-    background-color: #fff;
-    z-index: 100 !important;
-    overflow: hidden;
-}
+/* Document */
+#readability-logo,#arc90-logo,#footer-twitterLink,#readTools a,a.rdbTK-powered span{background-color:transparent!important;background-image:url(http://readability.local/images/sprite-readability-v2.png)!important;background-repeat:no-repeat!important;}
+#readOverlay {display:block;position:absolute;top:0;left:0;width:100%;}
+#readInner {line-height:1.4em;max-width:800px;margin:1em auto;}
+#readInner a {color:#039;text-decoration:none;}
+#readInner a:hover {text-decoration:underline;}
+#readInner img {float:left;margin-right:12px;margin-bottom:12px;}
+#readInner h1 {display:block;width:100%;border-bottom:1px solid #333;font-size:1.2em;}
+.style-apertura #readInner h1 {border-bottom-color:#ededed;}
+#readInner blockquote {margin-left:3em;margin-right:3em;}
+#readability-inner * {margin-bottom:16px;border:none;background:none;}
+/* Footer */
+#readFooter {display:block;border-top:1px solid #333;text-align:center;clear:both;overflow:hidden;}
+.style-apertura #readFooter {border-top-color:#ededed;}
+#readability-footer-logo {display:inline;float:left;height:29px;margin-top:15px;width:401px;background-position:0 -36px;text-indent:-9000px;}
+#readability-footer-logo a,#readability-footer-logo a:link {display:inline;float:left;height:29px;text-indent:-9000px;}
+#readability-logo {background-position:0 -36px;width:189px;}
+#arc90-logo {background-position:right -36px;width:212px;}
+#readability-url {display:none;}
+.style-apertura #readability-logo {background-position:0 -67px;}
+.style-apertura #arc90-logo {background-position:right -67px;}
+#rdb-footer-right {display:inline;float:right;text-align:right;font-size:.75em;margin-top:18px;}
+#rdb-footer-right a {display:inline-block;float:left;overflow:visible;line-height:16px;vertical-align:baseline;}
+#footer-twitterLink {height:20px;padding:4px 0 0 28px;background-position:0 -123px;font-size:12px;}
+a.rdbTK-powered,a.rdbTK-powered:link,a.rdbTK-powered:hover {margin-left:40px;font-size:16px;color:#858789!important;text-decoration:none!important;}
+a.rdbTK-powered span {display:inline-block;height:22px;margin-left:2px;padding:4px 0 0 26px;background-position:0 -146px!important;}
+.style-apertura #rdb-inverse,.style-athelas #rdb-athelas {display:block;}
+span.version {display:none;}
+/* Tools */
+#readTools {width:34px;height:150px;position:fixed;z-index:100;top:10px;left:10px;}
+#readTools a {overflow:hidden;margin-bottom:8px;display:block;opacity:.4;text-indent:-99999px;height:34px;width:34px;text-decoration:none;filter:alpha(opacity=40);}
+#reload-page {background-position:0 0;}
+#print-page {background-position:-36px 0;}
+#email-page {background-position:-72px 0;}
+#kindle-page {background-position:-108px 0;}
+#readTools a:hover {opacity:1;filter:alpha(opacity=100);}
+/* -- USER-CONFIGURABLE STYLING -- */
+/* Size */
+.size-x-small {font-size:12px;}
+.size-small {font-size:15px;}
+.size-medium {font-size:18px;}
+.size-large {font-size:22px;}
+.size-x-large {font-size:28px;}
+/* Style */
+.style-newspaper {font-family:"Times New Roman", Times, serif;background:#fbfbfb;color:#080000;}
+.style-newspaper h1 {text-transform:capitalize;font-family:Georgia, "Times New Roman", Times, serif;}
+.style-newspaper #readInner a {color:#0924e1;}
+.style-novel {font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;background:#f4eed9;color:#1d1916;}
+.style-novel #readInner a {color:#1856ba;}
+.style-ebook {font-family:Arial, Helvetica, sans-serif;background:#edebe8;color:#2c2d32;}
+.style-ebook #readInner a {color:#187dc9;}
+.style-ebook h1 {font-family:"Arial Black", Gadget, sans-serif;font-weight:400;}
+.style-terminal {font-family:"Lucida Console", Monaco, monospace;background:#1d4e2c;color:#c6ffc6;}
+.style-terminal #readInner a {color:#093;}
+/* Typekit */
+.style-apertura {font-family:"apertura-1", "apertura-2", sans-serif;background-color:#2d2828;color:#eae8e9;}
+.style-apertura #readInner a {color:#58b0ff;}
+.style-athelas {font-family:"athelas-1", "athelas-2", sans-serif;background-color:#f7f7f7;color:#2b373d;}
+.style-athelas #readInner a {color:#1e83cb;}
+/* Margin */
+.margin-x-narrow {width:95%;}
+.margin-narrow {width:85%;}
+.margin-medium {width:75%;}
+.margin-wide {width:55%;}
+.margin-x-wide {width:35%;}
+/* -- USER-CONFIGURABLE STYLING -- */
+/* -- DEBUG -- */
+.bug-green {background:#bbf9b0;border:4px solid green;}
+.bug-red {background:red;}
+.bug-yellow {background:#ffff8e;}
+.bug-blue {background:#bfdfff;}
+/* -- EMAIL / KINDLE POP UP -- */
+#kindle-container, #email-container {position:fixed;top:60px;left:50%;width:500px;height:490px;border:solid 3px #666;background-color:#fff;z-index:100!important;overflow:hidden;margin:0 0 0 -240px;padding:0;}

@@ -48,16 +48,25 @@
     </div>  <!-- End #introduction -->
 
     <div id="watch-video">
-      <a href="#video" class="video" title="Video de Presentaci&oacute;n"><img src="../images/badge-video.png" width="104" height="104" alt="Video de Presentaci&oacute;n"></a>
+      <a href="#video-other" class="video" title="Video de Presentaci&oacute;n" id="video-instruction"><img src="../images/badge-video.png" width="104" height="104" alt="Video de Presentaci&oacute;n"></a>
 
-      <div id="video" style="display:none;">
+      <div id="video-ie" style="display:none;">
         <object width="480" height="360">
           <param name="allowfullscreen" value="true">
           <param name="allowscriptaccess" value="always">
-          <param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=3445774&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1">
-          <embed src="http://vimeo.com/moogaloop.swf?clip_id=3445774&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="480" height="360"></embed>
+          <param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=8798529&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1">
+          <embed src="http://vimeo.com/moogaloop.swf?clip_id=8798529&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="480" height="360"></embed>
         </object>
-      </div>  <!-- End #video -->
+      </div>  <!-- End #video-ie -->
+
+      <div id="video-other" style="display:none;">
+        <object width="480" height="360">
+          <param name="allowfullscreen" value="true">
+          <param name="allowscriptaccess" value="always">
+          <param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=8798492&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1">
+          <embed src="http://vimeo.com/moogaloop.swf?clip_id=8798492&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="480" height="360"></embed>
+        </object>
+      </div>  <!-- End #video-other -->
     </div>
 
     <div class="meta">
@@ -75,8 +84,8 @@
         <dd><input type="radio" name="style" value="style-newspaper" id="newspaper" checked="checked"><label for="newspaper">Diario</label></dd>
         <dd><input type="radio" name="style" value="style-novel" id="novel"><label for="novel">Novela</label></dd>
         <dd><input type="radio" name="style" value="style-ebook" id="ebook"><label for="ebook">eBook</label></dd>
-        <dd><input type="radio" name="style" value="style-apertura" id="apertura"><label for="apertura" class="powered-typekit" title="Powered by Typekit">Inverso</label></dd>
-        <dd><input type="radio" name="style" value="style-athelas" id="athelas"><label for="athelas" class="powered-typekit" title="Powered by Typekit">Athelas</label></dd>
+        <dd><input type="radio" name="style" value="style-apertura" id="apertura"><label for="apertura" title="Powered by Typekit">Inverse</label><a href="http://typekit.com/?utm_source=readability&amp;utm_medium=affiliate&amp;utm_campaign=inverse" title="Powered by Typekit" target="_blank"><em>Powered by Typekit</em></a></dd>
+        <dd><input type="radio" name="style" value="style-athelas" id="athelas"><label for="athelas" title="Powered by Typekit">Athelas</label><a href="http://typekit.com/?utm_source=readability&amp;utm_medium=affiliate&amp;utm_campaign=athelas" title="Powered by Typekit" target="_blank"><em>Powered by Typekit</em></a></dd>
       </dl>
       <dl class="settings-box" id="size">
         <dt>Elige un Tama&ntilde;o de Fuente:</dt>

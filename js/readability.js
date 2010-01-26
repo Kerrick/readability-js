@@ -229,7 +229,7 @@ var readability = {
                 "<a href='http://www.arc90.com/' id='arc90-logo'>An Arc90 Laboratory Experiment</a>" +
 				"<span id='readability-url'> &mdash; http://lab.arc90.com/experiments/readability</span>" +
             "</div>" +
-            "<div class='footer-right'>" +
+            "<div id='rdb-footer-right'>" +
                 "<a href='http://www.twitter.com/arc90' id='footer-twitterLink'>Follow us on Twitter &raquo;</a>" +
                 "<span class='version'>Readability version " + readability.version + "</span>" +
             "</div>";
@@ -332,13 +332,27 @@ var readability = {
         var rdbHead      = document.getElementsByTagName('head')[0];
         var rdbTKScript  = document.createElement('script');
         var rdbTKCode    = null;
+
+        var rdbTKLink    = document.createElement('a');
+            rdbTKLink.setAttribute('class','rdbTK-powered');
+            rdbTKLink.setAttribute('title','Fonts by Typekit');
+            rdbTKLink.innerHTML = "Fonts by <span class='rdbTK'>Typekit</span>";
+
         if (readStyle == "style-athelas") {
             rdbTKCode = "sxt6vzy";
             dbg("Using Athelas Theme");
+
+            rdbTKLink.setAttribute('href','http://typekit.com/?utm_source=readability&utm_medium=affiliate&utm_campaign=athelas');
+            rdbTKLink.setAttribute('id','rdb-athelas');
+            document.getElementById("rdb-footer-right").appendChild(rdbTKLink);
         }
         if (readStyle == "style-apertura") {
             rdbTKCode = "bae8ybu";
             dbg("Using Inverse Theme");
+
+            rdbTKLink.setAttribute('href','http://typekit.com/?utm_source=readability&utm_medium=affiliate&utm_campaign=inverse');
+            rdbTKLink.setAttribute('id','rdb-inverse');
+            document.getElementById("rdb-footer-right").appendChild(rdbTKLink);
         }
 
         /**
