@@ -709,9 +709,13 @@ var readability = {
                     {
                         dbg("Could not alter siblingNode to div, probably an IE restriction, reverting back to original.");
 						nodeToAppend = siblingNode;
+		                s--;
+		                sl--;
                     }
 				} else {
 					nodeToAppend = siblingNode;
+	                s--;
+	                sl--;
 				}
 				
 				/* To ensure a node does not interfere with readability styles, remove its classnames */
@@ -719,8 +723,6 @@ var readability = {
 
                 /* Append sibling and subtract from our list because it removes the node when you append to another node */
                 articleContent.appendChild(nodeToAppend);
-                s--;
-                sl--;
             }
         }
 
