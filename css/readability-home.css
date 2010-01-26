@@ -10,7 +10,7 @@ body {
     display: block;
     padding: 0 0 10px;
     position: relative;
-    overflow: auto;
+    overflow: hidden;
     }
 
 #container {
