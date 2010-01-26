@@ -100,7 +100,12 @@ var readability = {
 
         /* Apply user-selected styling */
         document.body.className = readStyle;
-        overlay.className       = readStyle;
+        if (readStyle == ("style-athelas" || "style-apertura")){
+            overlay.className       = readStyle + " rdbTypekit";
+        }
+        else {
+            overlay.className       = readStyle;
+        }
         innerDiv.className      = readMargin + " " + readSize;
 
         /* Glue the structure of our document together. */
@@ -222,17 +227,33 @@ var readability = {
         // var statsQueryParams = "?readStyle=" + encodeURIComponent(readStyle) + "&readMargin=" + encodeURIComponent(readMargin) + "&readSize=" + encodeURIComponent(readSize);
 		/* TODO: attach this to an image */
 
+        var twitterLink = document.createElement('a');
+            twitterLink.setAttribute('href','http://lab.arc90.com/experiments/readability');
+            twitterLink.setAttribute('id','footer-twitterLink');
+            twitterLink.setAttribute('title','Follow Arc90 on Twitter');
+            twitterLink.innerHTML = "Follow us on Twitter &raquo;";
+
         articleFooter.id = "readFooter";
         articleFooter.innerHTML = 
-            "<div id='readability-footer-logo'>" +
+            "<div id='rdb-footer-left'>" +
                 "<a href='http://lab.arc90.com/experiments/readability' id='readability-logo'>Readability &mdash; </a>" +
                 "<a href='http://www.arc90.com/' id='arc90-logo'>An Arc90 Laboratory Experiment</a>" +
 				"<span id='readability-url'> &mdash; http://lab.arc90.com/experiments/readability</span>" +
+                "<a href='http://www.twitter.com/arc90' class='footer-twitterLink'>Follow us on Twitter &raquo;</a>" +
             "</div>" +
             "<div id='rdb-footer-right'>" +
-                "<a href='http://www.twitter.com/arc90' id='footer-twitterLink'>Follow us on Twitter &raquo;</a>" +
+                "<a href='http://www.twitter.com/arc90' class='footer-twitterLink'>Follow us on Twitter &raquo;</a>" +
                 "<span class='version'>Readability version " + readability.version + "</span>" +
             "</div>";
+
+        // if (readStyle == ("style-athelas" || "style-apertura")) {
+        //     console.log("Using Typekit Footer");
+        //     getElementById("rdb-footer-logo").appendChild(twitterLink);
+        // }
+        // else {
+        //     console.log("Using Normal Footer");
+        //     articleFooter.getElementById("rdb-footer-right").appendChild(twitterLink);
+        // }
 
         return articleFooter;
     },
