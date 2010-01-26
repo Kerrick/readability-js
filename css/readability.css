@@ -6,7 +6,7 @@
 #readInner a {color:#039;text-decoration:none;}
 #readInner a:hover {text-decoration:underline;}
 #readInner img {float:left;margin-right:12px;margin-bottom:12px;}
-#readInner h1 {display:block;width:100%;border-bottom:1px solid #333;font-size:1.2em;margin-bottom:16px;}
+#readInner h1 {display:block;width:100%;border-bottom:1px solid #333;font-size:1.2em;padding-bottom:.5em;margin-bottom:.75em;}
 .style-apertura #readInner h1 {border-bottom-color:#ededed;}
 #readInner blockquote {margin-left:3em;margin-right:3em;}
 #readability-inner * {margin-bottom:16px;border:none;background:none;}
