@@ -702,8 +702,7 @@ var readability = {
                     dbg("Altering siblingNode of " + siblingNode.nodeName + ' to div.');
                     nodeToAppend = document.createElement('div');
                     try {
-						nodeToAppend.className = siblingNode.className;
-						nodeToAppend.id = siblignNode.id;
+						nodeToAppend.id = siblingNode.id;
                         nodeToAppend.innerHTML = siblingNode.innerHTML;
                     }
                     catch(e)
@@ -714,6 +713,9 @@ var readability = {
 				} else {
 					nodeToAppend = siblingNode;
 				}
+				
+				/* To ensure a node does not interfere with readability styles, remove its classnames */
+				nodeToAppend.className = "";
 
                 /* Append sibling and subtract from our list because it removes the node when you append to another node */
                 articleContent.appendChild(nodeToAppend);
