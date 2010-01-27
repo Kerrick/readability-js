@@ -521,6 +521,7 @@ var readability = {
          * TODO: Shouldn't this be a reverse traversal?
         **/
         var node = null;
+		var nodesToScore = [];
         for(var nodeIndex = 0; (node = document.getElementsByTagName('*')[nodeIndex]); nodeIndex++)
         {
             /* Remove unlikely candidates */
@@ -536,6 +537,10 @@ var readability = {
                     continue;
                 }               
             }
+
+			if (node.tagName === "P" || node.tagName === "TD") {
+				nodesToScore[nodesToScore.length] = node;
+			}
 
             /* Turn all divs that don't have children block level elements into p's */
             if (node.tagName === "DIV") {
@@ -575,13 +580,11 @@ var readability = {
          *
          * A score is determined by things like number of commas, class names, etc. Maybe eventually link density.
         **/
-        var allParagraphs = document.getElementsByTagName("p");
-        var candidates    = [];
-
-        for (var pt=0; pt < allParagraphs.length; pt++) {
-            var parentNode      = allParagraphs[pt].parentNode;
+		var candidates = [];
+        for (var pt=0; pt < nodesToScore.length; pt++) {
+            var parentNode      = nodesToScore[pt].parentNode;
             var grandParentNode = parentNode.parentNode;
-            var innerText       = readability.getInnerText(allParagraphs[pt]);
+            var innerText       = readability.getInnerText(nodesToScore[pt]);
 
             /* If this paragraph is less than 25 characters, don't even count it. */
             if(innerText.length < 25) {
