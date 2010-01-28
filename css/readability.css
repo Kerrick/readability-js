@@ -5,7 +5,7 @@
 #readInner {line-height:1.4em;max-width:800px;margin:1em auto;}
 #readInner a {color:#039;text-decoration:none;}
 #readInner a:hover {text-decoration:underline;}
-#readInner img {float:left;margin-right:12px;margin-bottom:12px;}
+#readInner img {float:left;clear:both;margin: 0 12px 12px 0;}
 #readInner h1 {display:block;width:100%;border-bottom:1px solid #333;font-size:1.2em;padding-bottom:.5em;margin-bottom:.75em;}
 .style-apertura #readInner h1 {border-bottom-color:#ededed;}
 #readInner blockquote {margin-left:3em;margin-right:3em;}
@@ -60,7 +60,7 @@ span.version {display:none;}
 /* Typekit */
 .style-apertura {font-family:"apertura-1", "apertura-2", sans-serif;background-color:#2d2828;color:#eae8e9;}
 .style-apertura #readInner a {color:#58b0ff;}
-.style-athelas {font-family:"athelas-1", "athelas-2", sans-serif;background-color:#f7f7f7;color:#2b373d;}
+.style-athelas {font-family:"athelas-1", "athelas-2", "Palatino Linotype", "Book Antiqua", Palatino, serif;background-color:#f7f7f7;color:#2b373d;}
 .style-athelas #readInner a {color:#1e83cb;}
 /* Margin */
 .margin-x-narrow {width:95%;}
