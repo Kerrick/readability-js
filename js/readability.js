@@ -78,7 +78,7 @@ var readability = {
          * that may mean we stripped out the actual content so we couldn't parse it. So re-run init while preserving
          * unlikely candidates to have a better shot at getting our content out properly.
         **/
-        if(readability.getInnerText(articleContent, false).length < 500)
+        if(readability.getInnerText(articleContent, false).length < 250)
         {
             if (readability.flagIsActive(readability.FLAG_STRIP_UNLIKELYS)) {
                 readability.removeFlag(readability.FLAG_STRIP_UNLIKELYS);
@@ -769,7 +769,7 @@ var readability = {
     **/
     getCharCount: function (e,s) {
         s = s || ",";
-        return readability.getInnerText(e).split(s).length;
+        return readability.getInnerText(e).split(s).length-1;
     },
 
     /**
@@ -941,7 +941,6 @@ var readability = {
                  * If there are not very many commas, and the number of
                  * non-paragraph elements is more than paragraphs or other ominous signs, remove the element.
                 **/
-
                 var p      = tagsList[i].getElementsByTagName("p").length;
                 var img    = tagsList[i].getElementsByTagName("img").length;
                 var li     = tagsList[i].getElementsByTagName("li").length-100;
