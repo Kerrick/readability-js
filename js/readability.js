@@ -173,22 +173,32 @@ var readability = {
 	 * @return void
 	 **/
 	getArticleTitle: function () {
-		var curTitle = document.title;
+		var curTitle = "",
+		    origTitle = "";
 
+		try {
+			curTitle = origTitle = document.title;
+			
+			if(typeof curTitle != "string") { /* If they had an element with id "title" in their HTML */
+				curTitle = origTitle = readability.getInnerText(document.getElementsByTagName('title')[0]);				
+			}
+		}
+		catch(e) {}
+		
 		if(curTitle.match(/ [\|\-] /))
 		{
-			curTitle = document.title.replace(/(.*)[\|\-] .*/gi,'$1');
+			curTitle = origTitle.replace(/(.*)[\|\-] .*/gi,'$1');
 			
 			if(curTitle.split(' ').length < 3) {
-				curTitle = document.title.replace(/[^\|\-]*[\|\-](.*)/gi,'$1');
+				curTitle = origTitle.replace(/[^\|\-]*[\|\-](.*)/gi,'$1');
 			}
 		}
 		else if(curTitle.indexOf(': ') !== -1)
 		{
-			curTitle = document.title.replace(/.*:(.*)/gi, '$1');
+			curTitle = origTitle.replace(/.*:(.*)/gi, '$1');
 
 			if(curTitle.split(' ').length < 3) {
-				curTitle = document.title.replace(/[^:]*[:](.*)/gi,'$1');
+				curTitle = origTitle.replace(/[^:]*[:](.*)/gi,'$1');
 			}
 		}
 		else if(curTitle.length > 150 || curTitle.length < 15)
@@ -203,7 +213,7 @@ var readability = {
 		curTitle = curTitle.replace( readability.regexps.trimRe, "" );
 
 		if(curTitle.split(' ').length <= 4) {
-			curTitle = document.title;
+			curTitle = origTitle;
 		}
 		
 		var articleTitle = document.createElement("H1");
