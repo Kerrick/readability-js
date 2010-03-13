@@ -1,3 +1,7 @@
+body, #readOverlay {
+	background-color: white !important;
+}
+
 embed, object {
 	display: none !important;
 }
