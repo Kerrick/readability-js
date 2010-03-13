@@ -683,8 +683,14 @@ var readability = {
             {
                 append = true;
             }
-            
-            if(typeof siblingNode.readability != 'undefined' && siblingNode.readability.contentScore >= siblingScoreThreshold)
+
+			var contentBonus = 0;
+			/* Give a small bonus if sibling nodes and top candidates have the example same classname */
+			if(siblingNode.className == topCandidate.className && topCandidate.className != "") {
+				contentBonus += 10;
+			}
+
+            if(typeof siblingNode.readability != 'undefined' && (siblingNode.readability.contentScore+contentBonus) >= siblingScoreThreshold)
             {
                 append = true;
             }
