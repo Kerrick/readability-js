@@ -393,7 +393,7 @@ var readability = {
 
 			/** Add a superscript reference after the article link */
 			refLink.href      = '#readabilityFootnoteLink-' + linkCount;
-			refLink.innerHTML = '<small><sup><strong>' + linkCount + '</strong></sup></small>'
+			refLink.innerHTML = '<small><sup>[' + linkCount + ']</sup></small>'
 			refLink.className = 'readability-DoNotFootnote';
 			refLink.style.color = 'inherit';
 			
@@ -421,7 +421,6 @@ var readability = {
 			articleContent.appendChild(footnotesWrapper);			
 		}
 	},
-
 
     useRdbTypekit: function () {
         var rdbHead      = document.getElementsByTagName('head')[0];
