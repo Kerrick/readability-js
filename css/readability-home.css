@@ -151,15 +151,32 @@ em {
 
 #settings p label { font-style: italic; }
 
-#settings p a {
-    margin-left: 5px;
-    padding: 2px 5px;
-    background: #d1d2d4;
-    color: #58585a;
+#footnote-details {
+    display: inline-block;
+    margin: 0 0 0 5px;
+    padding: 3px 0;
+    background: none;
+    border: 0;
+    text-decoration: none;
+    color: #444;
     font-size: .7em;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
+    font-weight: 600;
+    }
+
+#footnote-details span {
+    margin: 0;
+    padding: 3px 0;
+    background: #ccc;
+    border-right: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    }
+
+#footnote-details span span {
+    padding: 3px .4em;
+    position: relative;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    border-width: 1px 1px;
     }
 
 #bookmarklet {
@@ -169,7 +186,7 @@ em {
     font-size: .9em;
     }
 #bookmarklet h2 {
-    margin-bottom: 55px;
+    margin-bottom: 45px;
     background-position: 0 -45px;
     }
 #bookmarklet p {
@@ -180,7 +197,7 @@ em {
 #bookmarkletLink {
     display: block;
     height: 40px;
-    margin: 10px 0 10px 115px;
+    margin: 20px 0 20px 115px;
     width: 174px;
     cursor: move;
     }
@@ -192,9 +209,9 @@ em {
     -webkit-box-shadow: 3px 2px 2px 0 rgba(0,0,0, 0.35);
     box-shadow: 3px 2px 2px 0 rgba(0,0,0, 0.35);
     *border: 1px solid #888; /* IE hax */
-    background-color: #DDD;
-    background: -moz-linear-gradient(90deg, #BBBBBB, #EEEEEE) repeat scroll 0 0 transparent;
-    background: -webkit-gradient(linear, left top, left bottom, from(#BBBBBB), to(#EEEEEE));
+    background-color: #ddd;
+    background: -moz-linear-gradient(90deg, #bbb, #eee) repeat scroll 0 0 transparent;
+    background: -webkit-gradient(linear, left top, left bottom, from(#bbb), to(#eee));
     color: #222;
     letter-spacing: 0.02em;
     font-size: 22px;
