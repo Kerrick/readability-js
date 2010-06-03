@@ -16,6 +16,7 @@ var readability = {
     version:     '1.5.0',
     emailSrc:    'http://lab.arc90.com/experiments/readability/email.php',
     iframeLoads: 0,
+	convertLinksToFootnotes: false,
     frameHack:   false, /**
                          * The frame hack is to workaround a firefox bug where if you
                          * pull content out of a frame and stick it into the parent element, the scrollbar won't appear.
@@ -36,14 +37,15 @@ var readability = {
         unlikelyCandidatesRe:   /combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor/i,
         okMaybeItsACandidateRe: /and|article|body|column|main/i,
         positiveRe:             /article|body|content|entry|hentry|page|pagination|post|text/i,
-        negativeRe:             /combx|comment|contact|foot|footer|footnote|link|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget/i,
+        negativeRe:             /combx|comment|contact|foot|footer|footnote|link|masthead|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget/i,
         divToPElementsRe:       /<(a|blockquote|dl|div|img|ol|p|pre|table|ul)/i,
         replaceBrsRe:           /(<br[^>]*>[ \n\r\t]*){2,}/gi,
         replaceFontsRe:         /<(\/?)font[^>]*>/gi,
         trimRe:                 /^\s+|\s+$/g,
         normalizeRe:            /\s{2,}/g,
         killBreaksRe:           /(<br\s*\/?>(\s|&nbsp;?)*){1,}/g,
-        videoRe:                /http:\/\/(www\.)?(youtube|vimeo)\.com/i
+        videoRe:                /http:\/\/(www\.)?(youtube|vimeo)\.com/i,
+		skipFootnoteLinkRe:     /^\s*(\[?[a-z0-9]{1,3}\]?|^|edit|citation needed)\s*$/i
     },
 
     /**
@@ -59,7 +61,7 @@ var readability = {
      * @return void
      **/
     init: function() {
-        document.body.style.display = "none";
+//        document.body.style.display = "none";
         if(document.body && !readability.bodyCache) {
             readability.bodyCache = document.body.innerHTML; }
         
@@ -101,12 +103,16 @@ var readability = {
         /* Apply user-selected styling */
         document.body.className = readStyle;
         if (readStyle == "style-athelas" || readStyle == "style-apertura"){
-            overlay.className       = readStyle + " rdbTypekit";
+            overlay.className = readStyle + " rdbTypekit";
         }
         else {
-            overlay.className       = readStyle;
+            overlay.className = readStyle;
         }
-        innerDiv.className      = readMargin + " " + readSize;
+        innerDiv.className    = readMargin + " " + readSize;
+
+		if(typeof(readConvertLinksToFootnotes) !== 'undefined' && readConvertLinksToFootnotes == true) {
+			readability.convertLinksToFootnotes = true;
+		}
 
         /* Glue the structure of our document together. */
         // articleContent.appendChild( articleFooter  );
@@ -140,7 +146,11 @@ var readability = {
 
             innerDiv.insertBefore( rootWarning, articleContent );
         }
-        document.body.style.display = "block";
+//        document.body.style.display = "block";
+
+		if(readability.convertLinksToFootnotes && !window.location.href.match(/wikipedia\.org/g)) {
+			readability.addFootnotes(articleContent);
+		}
 
         window.scrollTo(0, 0);
 
@@ -256,15 +266,6 @@ var readability = {
                 "<span class='version'>Readability version " + readability.version + "</span>" +
             "</div>";
 
-        // if (readStyle == ("style-athelas" || "style-apertura")) {
-        //     console.log("Using Typekit Footer");
-        //     getElementById("rdb-footer-logo").appendChild(twitterLink);
-        // }
-        // else {
-        //     console.log("Using Normal Footer");
-        //     articleFooter.getElementById("rdb-footer-right").appendChild(twitterLink);
-        // }
-
         return articleFooter;
     },
     
@@ -358,6 +359,69 @@ var readability = {
         /* Note, this is pretty costly as far as processing goes. Maybe optimize later. */
         document.body.innerHTML = document.body.innerHTML.replace(readability.regexps.replaceBrsRe, '</p><p>').replace(readability.regexps.replaceFontsRe, '<$1span>');
     },
+
+	/**
+	 * For easier reading, convert this document to have footnotes at the bottom rather than inline links.
+	 * @see http://www.roughtype.com/archives/2010/05/experiments_in.php
+	 *
+	 * @return void
+	**/
+	addFootnotes: function(articleContent) {
+		var footnotesWrapper = document.createElement('div');
+		footnotesWrapper.innerHTML = "<h3>References</h3>";
+		
+		var articleFootnotes = document.createElement('ol');
+		footnotesWrapper.appendChild(articleFootnotes);
+		
+		var articleLinks = articleContent.getElementsByTagName('a');
+		
+		var linkCount = 0;
+		for (var i = 0; i < articleLinks.length; i++)
+		{
+			var articleLink  = articleLinks[i],
+				footnoteLink = articleLink.cloneNode(true),
+				refLink      = document.createElement('a'),
+			    footnote     = document.createElement('li'),
+				linkDomain   = footnoteLink.host ? footnoteLink.host : document.location.host,
+				linkText     = readability.getInnerText(articleLink);
+			
+			if(articleLink.className && articleLink.className.indexOf('readability-DoNotFootnote') !== -1 || linkText.match(readability.regexps.skipFootnoteLinkRe)) {
+				continue;
+			}
+			
+			linkCount++;
+
+			/** Add a superscript reference after the article link */
+			refLink.href      = '#readabilityFootnoteLink-' + linkCount;
+			refLink.innerHTML = '<small><sup><strong>' + linkCount + '</strong></sup></small>'
+			refLink.className = 'readability-DoNotFootnote';
+			refLink.style.color = 'inherit';
+			
+			if(articleLink.parentNode.lastChild == articleLink) {
+				articleLink.parentNode.appendChild(refLink);
+			} else {
+				articleLink.parentNode.insertBefore(refLink, articleLink.nextSibling);
+			}
+
+			articleLink.style.color = 'inherit';
+			articleLink.name        = 'readabilityLink-' + linkCount;
+
+			footnote.innerHTML      = "<small><sup><a href='#readabilityLink-" + linkCount + "' title='Jump to Link in Article'>^</a></sup></small> ";
+
+			footnoteLink.innerHTML  = (footnoteLink.title ? footnoteLink.title : linkText);
+			footnoteLink.name       = 'readabilityFootnoteLink-' + linkCount;
+			
+			footnote.appendChild(footnoteLink);
+			footnote.innerHTML = footnote.innerHTML + "<small> (" + linkDomain + ")</small>";
+			
+			articleFootnotes.appendChild(footnote);
+		}
+
+		if(linkCount > 0) {
+			articleContent.appendChild(footnotesWrapper);			
+		}
+	},
+
 
     useRdbTypekit: function () {
         var rdbHead      = document.getElementsByTagName('head')[0];
@@ -685,9 +749,9 @@ var readability = {
             }
 
 			var contentBonus = 0;
-			/* Give a small bonus if sibling nodes and top candidates have the example same classname */
+			/* Give a bonus if sibling nodes and top candidates have the example same classname */
 			if(siblingNode.className == topCandidate.className && topCandidate.className != "") {
-				contentBonus += 10;
+				contentBonus += topCandidate.readability.contentScore * 0.2;
 			}
 
             if(typeof siblingNode.readability != 'undefined' && (siblingNode.readability.contentScore+contentBonus) >= siblingScoreThreshold)
@@ -874,7 +938,7 @@ var readability = {
 
         return weight;
     },
-    
+
     /**
      * Remove extraneous break tags from a node.
      *

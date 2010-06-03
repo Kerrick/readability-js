@@ -1,6 +1,7 @@
-var style = "style-newspaper";
-var size = "size-medium";
-var margin = "margin-wide";
+var style     = "style-newspaper";
+var size      = "size-medium";
+var margin    = "margin-wide";
+var footnotes = false;
 
 var baseHref = window.location.toString().match(/.*\//);
 var linkStringStart = "javascript:(function(){";
@@ -9,6 +10,8 @@ var linkStringEnd   = "';_readability_script=document.createElement('SCRIPT');_r
 $(document).ready(function() {
     
     if($.browser.msie) {
+		$('#bookmarkletLink').html('<img src="images/badge-readability.png" width="174" height="40" alt="Readability" title="Readability" />');
+
         $("#browser-instruction-placer").hide();
         $("#browser-instruction-ie").fadeIn('100');
         $("#bookmarkletLink").css("cursor","pointer");
@@ -22,8 +25,9 @@ $(document).ready(function() {
 	$("#bookmarkletLink").attr("href", linkStringStart + "readStyle='" + style + "';readSize='" + size + "';readMargin='" + margin + linkStringEnd);
 	
 	function applyChange(s,y) {
-		var example = document.getElementById("example");
-		var article = document.getElementById("articleContent");
+		var example    = $('#example'),
+		    article    = $('#articleContent');
+		    references = $('#references');
 		
 		switch(s){
 			case "style":
@@ -35,17 +39,21 @@ $(document).ready(function() {
 			case "margin":
 				margin = y;
 				break;
+			case "footnotes":
+				footnotes = y;
 		}
-		example.className = style;
-		article.className = margin + " " + size;
-		$("#bookmarkletLink").attr("href", linkStringStart + "readStyle='" + style + "';readSize='" + size + "';readMargin='" + margin + linkStringEnd);
+		example.attr('className', style);
+		article.attr('className', margin + " " + size);
+		example.toggleClass('showFootnotes', footnotes);
+		
+		$("#bookmarkletLink").attr("href", linkStringStart + "readConvertLinksToFootnotes=" + (footnotes ? 'true' : 'false') + ";readStyle='" + style + "';readSize='" + size + "';readMargin='" + margin + linkStringEnd);
 	}
 	
-	$("#settings input").bind("click", function(){
+	$("#settings input[type='radio']").bind("click", function(){
 		applyChange(this.name, this.value);
 	});
-	$("#settings input").bind("click", function(){
-		applyChange(this.name, this.value);
+	$("#settings input[type='checkbox']").bind("click", function() {
+		applyChange(this.name, this.checked);
 	});
 	$("#bookmarkletLink").bind("click", function(){
 		if($.browser.msie){
@@ -67,4 +75,15 @@ $(document).ready(function() {
         frameWidth: 480,
         frameHeight: 360
     });
+
+  $('#footnote-details').fancybox({
+      zoomSpeedIn: 0,
+      zoomSpeedOut: 0,
+      overlayShow: true,
+      overlayOpacity: 0.85,
+      overlayColor: "#091824",
+      padding: 30,
+      hideOnContentClick: true,
+      frameHeight: 230
+  });
 });

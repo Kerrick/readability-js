@@ -120,7 +120,7 @@ em {
     display: inline;
     float: left;
     margin: 55px 0 0 25px;
-    padding: 0 0 25px;
+    padding: 0 0 35px;
     width: 135px;
     }
 
@@ -141,15 +141,35 @@ em {
     text-indent: -9000px;
     }
 
+#settings p {
+    clear: both;
+    display: block;
+    margin: 0 0 10px 0;
+    width: 500px;
+    text-align: center;
+    }
+
+#settings p label { font-style: italic; }
+
+#settings p a {
+    margin-left: 5px;
+    padding: 2px 5px;
+    background: transparent url("../images/badge-whats_this.png") no-repeat 0 0;
+    color: #444;
+    font-size: .7em;
+    font-weight: 600;
+    }
+
 #bookmarklet {
     display: inline;
     float: left;
     width: 380px;
     font-size: .9em;
     }
-
-#bookmarklet h2 { background-position: 0 -45px; }
-
+#bookmarklet h2 {
+    margin-bottom: 55px;
+    background-position: 0 -45px;
+    }
 #bookmarklet p {
     margin: 0 0 0 45px;
     width: 330px;
@@ -162,6 +182,27 @@ em {
     width: 174px;
     cursor: move;
     }
+#readabilityBadge {
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+    -moz-box-shadow:3px 2px 2px 0 rgba(0, 0, 0, 0.35);
+    -webkit-box-shadow: 3px 2px 2px 0 rgba(0,0,0, 0.35);
+    box-shadow: 3px 2px 2px 0 rgba(0,0,0, 0.35);
+    *border: 1px solid #888; /* IE hax */
+    background-color: #DDD;
+    background: -moz-linear-gradient(90deg, #BBBBBB, #EEEEEE) repeat scroll 0 0 transparent;
+    background: -webkit-gradient(linear, left top, left bottom, from(#BBBBBB), to(#EEEEEE));
+    color: #222;
+    letter-spacing: 0.02em;
+    font-size: 22px;
+    font-variant: small-caps;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
+    width: 167px;
+    cursor: move;
+}
 /* @end instructions */
 
 /* @group footer */
@@ -221,6 +262,36 @@ em {
 	font-size: 1.2em;
 	text-transform: capitalize;
     }
+    
+#articleContent a:hover {
+    text-decoration: underline;
+}
+    
+#articleContent ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+    margin-left: 2em;
+}
+
+#example #references {
+    display: none;
+}
+
+#example a.footnote {
+    display: none;
+}
+
+#example.showFootnotes #articleBody a {
+    color: inherit;
+}
+
+#example.showFootnotes #references {
+    display: block;
+}
+
+#example.showFootnotes a.footnote {
+    display: inline;
+}
 
 /* Size options */
 .size-x-small { font-size: 12px; }
