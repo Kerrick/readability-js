@@ -154,10 +154,12 @@ em {
 #settings p a {
     margin-left: 5px;
     padding: 2px 5px;
-    background: transparent url("../images/badge-whats_this.png") no-repeat 0 0;
-    color: #444;
+    background: #d1d2d4;
+    color: #58585a;
     font-size: .7em;
-    font-weight: 600;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
     }
 
 #bookmarklet {

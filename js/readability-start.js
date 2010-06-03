@@ -76,14 +76,13 @@ $(document).ready(function() {
         frameHeight: 360
     });
 
-  $('#footnote-details').fancybox({
-      zoomSpeedIn: 0,
-      zoomSpeedOut: 0,
-      overlayShow: true,
-      overlayOpacity: 0.85,
-      overlayColor: "#091824",
-      padding: 30,
-      hideOnContentClick: true,
-      frameHeight: 230
-  });
+    $('#footnote-details').fancybox({
+        zoomSpeedIn: 0,
+        zoomSpeedOut: 0,
+        overlayShow: true,
+        overlayOpacity: 0.85,
+        overlayColor: "#091824",
+        hideOnContentClick: true,
+        frameWidth: 480
+    });
 });
