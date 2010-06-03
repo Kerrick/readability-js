@@ -152,15 +152,12 @@ em {
 #settings p label { font-style: italic; }
 
 #footnote-details {
-    display: inline-block;
     margin: 0 0 0 5px;
-    padding: 3px 0;
-    background: none;
-    border: 0;
-    text-decoration: none;
-    color: #444;
-    font-size: .7em;
+    padding: 0 0 0 14px;
+    background: transparent url("../images/bg-settings.png") no-repeat -63px -28px;
+    font-size: .8em;
     font-weight: 600;
+    text-decoration: underline;
     }
 
 #footnote-details span {

@@ -9,18 +9,16 @@ var linkStringEnd   = "';_readability_script=document.createElement('SCRIPT');_r
 
 $(document).ready(function() {
     
-    if($.browser.msie) {
-		$('#bookmarkletLink').html('<img src="images/badge-readability.png" width="174" height="40" alt="Readability" title="Readability" />');
-
-        $("#browser-instruction-placer").hide();
-        $("#browser-instruction-ie").fadeIn('100');
-        $("#bookmarkletLink").css("cursor","pointer");
-        $("#video-instruction").attr("href","#video-ie");
-    }
-    else {
-        $("#browser-instruction-placer").hide();
-        $("#browser-instruction").fadeIn('100');
-    }
+  if($.browser.msie) {
+      $("#browser-instruction-placer").hide();
+      $("#browser-instruction-ie").fadeIn('100');
+      $("#bookmarkletLink").css("cursor","pointer");
+      $("#video-instruction").attr("href","#video-ie");
+  }
+  else {
+      $("#browser-instruction-placer").hide();
+      $("#browser-instruction").fadeIn('100');
+  }
 						   
 	$("#bookmarkletLink").attr("href", linkStringStart + "readStyle='" + style + "';readSize='" + size + "';readMargin='" + margin + linkStringEnd);
 	
@@ -65,24 +63,25 @@ $(document).ready(function() {
 		return false;
 	});
 
-    $('.video').fancybox({
-        zoomSpeedIn: 0,
-        zoomSpeedOut: 0,
-        overlayShow: true,
-        overlayOpacity: 0.85,
-        overlayColor: "#091824",
-        hideOnContentClick: false,
-        frameWidth: 480,
-        frameHeight: 360
-    });
+  $('.video').fancybox({
+      zoomSpeedIn: 0,
+      zoomSpeedOut: 0,
+      overlayShow: true,
+      overlayOpacity: 0.85,
+      overlayColor: "#091824",
+      hideOnContentClick: false,
+      frameWidth: 480,
+      frameHeight: 360
+  });
 
-    $('#footnote-details').fancybox({
-        zoomSpeedIn: 0,
-        zoomSpeedOut: 0,
-        overlayShow: true,
-        overlayOpacity: 0.85,
-        overlayColor: "#091824",
-        hideOnContentClick: true,
-        frameWidth: 480
-    });
+  $('#footnote-details').fancybox({
+      zoomSpeedIn: 0,
+      zoomSpeedOut: 0,
+      overlayShow: true,
+      overlayOpacity: 0.85,
+      overlayColor: "#091824",
+      padding: 40,
+      hideOnContentClick: true,
+      frameHeight: 210
+  });
 });
