@@ -13,7 +13,7 @@ var dbg = function(s) {
  * Readability is licensed under the Apache License, Version 2.0.
 **/
 var readability = {
-    version:     '1.5.0',
+    version:     '1.6.0',
     emailSrc:    'http://lab.arc90.com/experiments/readability/email.php',
     iframeLoads: 0,
 	convertLinksToFootnotes: false,
@@ -45,7 +45,7 @@ var readability = {
         normalizeRe:            /\s{2,}/g,
         killBreaksRe:           /(<br\s*\/?>(\s|&nbsp;?)*){1,}/g,
         videoRe:                /http:\/\/(www\.)?(youtube|vimeo)\.com/i,
-		skipFootnoteLinkRe:     /^\s*(\[?[a-z0-9]{1,3}\]?|^|edit|citation needed)\s*$/i
+		skipFootnoteLinkRe:     /^\s*(\[?[a-z0-9]{1,2}\]?|^|edit|citation needed)\s*$/i
     },
 
     /**
@@ -61,7 +61,6 @@ var readability = {
      * @return void
      **/
     init: function() {
-//        document.body.style.display = "none";
         if(document.body && !readability.bodyCache) {
             readability.bodyCache = document.body.innerHTML; }
         
@@ -573,6 +572,12 @@ var readability = {
                 node.readability.contentScore -= 5;
                 break;
         }
+
+		/* Penalty if this node is invisible */
+		var width = node.offsetWidth, height = node.offsetHeight;
+		if(width === 0 && height === 0 || node.style.display.toLowerCase() === 'none') {
+			node.readability.contentScore -= 10;
+		}
 
         node.readability.contentScore += readability.getClassWeight(node);
     },

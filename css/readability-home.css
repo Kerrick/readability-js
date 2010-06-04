@@ -254,6 +254,16 @@ em {
 	}
 /* @end footer */
 
+/* @group overlay */
+
+#fancy_outer a {
+	color: #036;
+	text-decoration: underline;
+}
+
+
+/* @end overlay */
+
 /* @group Readability Examples */
 #article h2 { 
     display: block;
@@ -301,15 +311,15 @@ em {
     display: none;
 }
 
-#example.showFootnotes #articleBody a {
+#example.showNotes #articleBody a {
     color: inherit;
 }
 
-#example.showFootnotes #references {
+#example.showNotes #references {
     display: block;
 }
 
-#example.showFootnotes a.footnote {
+#example.showNotes a.footnote {
     display: inline;
 }
 

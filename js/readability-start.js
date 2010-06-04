@@ -43,7 +43,7 @@ $(document).ready(function() {
 		}
 		example.attr('className', style);
 		article.attr('className', margin + " " + size);
-		example.toggleClass('showFootnotes', footnotes);
+		example.toggleClass('showNotes', footnotes);
 		
 		$("#bookmarkletLink").attr("href", linkStringStart + "readConvertLinksToFootnotes=" + (footnotes ? 'true' : 'false') + ";readStyle='" + style + "';readSize='" + size + "';readMargin='" + margin + linkStringEnd);
 	}
@@ -82,7 +82,7 @@ $(document).ready(function() {
       overlayOpacity: 0.85,
       overlayColor: "#091824",
       padding: 40,
-      hideOnContentClick: true,
+      hideOnContentClick: false,
       frameHeight: 210
   });
 });
