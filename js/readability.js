@@ -573,12 +573,6 @@ var readability = {
                 break;
         }
 
-		/* Penalty if this node is invisible */
-		var width = node.offsetWidth, height = node.offsetHeight;
-		if(width === 0 && height === 0 || node.style.display.toLowerCase() === 'none') {
-			node.readability.contentScore -= 10;
-		}
-
         node.readability.contentScore += readability.getClassWeight(node);
     },
     
