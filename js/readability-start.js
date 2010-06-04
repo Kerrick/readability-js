@@ -10,6 +10,7 @@ var linkStringEnd   = "';_readability_script=document.createElement('SCRIPT');_r
 $(document).ready(function() {
     
   if($.browser.msie) {
+      $('#bookmarkletLink').html('<img src="images/badge-readability.png" width="174" height="40" alt="Readability" title="Readability" />');
       $("#browser-instruction-placer").hide();
       $("#browser-instruction-ie").fadeIn('100');
       $("#bookmarkletLink").css("cursor","pointer");
@@ -24,7 +25,7 @@ $(document).ready(function() {
 	
 	function applyChange(s,y) {
 		var example    = $('#example'),
-		    article    = $('#articleContent');
+		    article    = $('#articleContent'),
 		    references = $('#references');
 		
 		switch(s){
