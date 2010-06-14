@@ -408,7 +408,7 @@
                     </p>
                     <?php } ?>
                     <p class="helper">
-                        Seperate multiple <em>email addresses</em> with commas.
+                        Separate multiple <em>email addresses</em> with commas.
                     </p>
                 </div>
                 <div class="section">
