@@ -13,21 +13,23 @@ var dbg = function(s) {
  * Readability is licensed under the Apache License, Version 2.0.
 **/
 var readability = {
-    version:     '1.6.0',
-    emailSrc:    'http://lab.arc90.com/experiments/readability/email.php',
-    iframeLoads: 0,
-	convertLinksToFootnotes: false,
-    frameHack:   false, /**
-                         * The frame hack is to workaround a firefox bug where if you
-                         * pull content out of a frame and stick it into the parent element, the scrollbar won't appear.
-                         * So we fake a scrollbar in the wrapping div.
-                        **/
-    bodyCache:  null,   /* Cache the body HTML in case we need to re-use it later */
-    flags: 0x1 | 0x2,   /* Start with both flags set. */
+    version:                '1.6.1',
+    emailSrc:               'http://lab.arc90.com/experiments/readability/email.php',
+    iframeLoads:             0,
+    convertLinksToFootnotes: false,
+    frameHack:               false, /**
+                                      * The frame hack is to workaround a firefox bug where if you
+                                      * pull content out of a frame and stick it into the parent element, the scrollbar won't appear.
+                                      * So we fake a scrollbar in the wrapping div.
+                                     **/
+    biggestFrame:            false,
+    bodyCache:               null,   /* Cache the body HTML in case we need to re-use it later */
+    flags:                   0x1 | 0x2 | 0x4,   /* Start with both flags set. */
     
     /* constants */
     FLAG_STRIP_UNLIKELYS: 0x1,
     FLAG_WEIGHT_CLASSES:  0x2,
+	FLAG_CLEAN_CONDITIONALLY: 0x4,
     
     /**
      * All of the regular expressions in use within readability.
@@ -36,7 +38,7 @@ var readability = {
     regexps: {
         unlikelyCandidatesRe:   /combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor/i,
         okMaybeItsACandidateRe: /and|article|body|column|main/i,
-        positiveRe:             /article|body|content|entry|hentry|page|pagination|post|text/i,
+        positiveRe:             /article|body|content|entry|hentry|page|pagination|post|text|blog/i,
         negativeRe:             /combx|comment|contact|foot|footer|footnote|link|masthead|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget/i,
         divToPElementsRe:       /<(a|blockquote|dl|div|img|ol|p|pre|table|ul)/i,
         replaceBrsRe:           /(<br[^>]*>[ \n\r\t]*){2,}/gi,
@@ -45,7 +47,7 @@ var readability = {
         normalizeRe:            /\s{2,}/g,
         killBreaksRe:           /(<br\s*\/?>(\s|&nbsp;?)*){1,}/g,
         videoRe:                /http:\/\/(www\.)?(youtube|vimeo)\.com/i,
-		skipFootnoteLinkRe:     /^\s*(\[?[a-z0-9]{1,2}\]?|^|edit|citation needed)\s*$/i
+        skipFootnoteLinkRe:     /^\s*(\[?[a-z0-9]{1,2}\]?|^|edit|citation needed)\s*$/i
     },
 
     /**
@@ -91,8 +93,17 @@ var readability = {
                 document.body.innerHTML = readability.bodyCache;
                 return readability.init();              
             }
+			else if (readability.flagIsActive(readability.FLAG_CLEAN_CONDITIONALLY)) {
+				readability.removeFlag(readability.FLAG_CLEAN_CONDITIONALLY);
+				document.body.innerHTML = readability.bodyCache;
+				return readability.init();
+			}
             else {
-                articleContent.innerHTML = "<p>Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>let us know by submitting an issue.</a></p><p>Also, please note that Readability does not play very nicely with front pages. Readability is intended to work on articles with a sizable chunk of text that you'd like to read comfortably. If you're using Readability on a landing page (like nytimes.com for example), please click into an article first before using Readability.</p>";
+                articleContent.innerHTML = [
+                    "<p>Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>let us know by submitting an issue.</a></p>",
+                    (readability.frameHack ? "<p><strong>It appears this page uses frames.</strong> Unfortunately, browser security properties often cause Readability to fail on pages that include frames. You may want to try running readability itself on this source page: <a href='" + readability.biggestFrame.src + "'>" + readability.biggestFrame.src + "</a></p>" : ""),
+                    "<p>Also, please note that Readability does not play very nicely with front pages. Readability is intended to work on articles with a sizable chunk of text that you'd like to read comfortably. If you're using Readability on a landing page (like nytimes.com for example), please click into an article first before using Readability.</p>"
+                ].join('');
             }
         }
 
@@ -109,9 +120,9 @@ var readability = {
         }
         innerDiv.className    = readMargin + " " + readSize;
 
-		if(typeof(readConvertLinksToFootnotes) !== 'undefined' && readConvertLinksToFootnotes == true) {
-			readability.convertLinksToFootnotes = true;
-		}
+        if(typeof(readConvertLinksToFootnotes) !== 'undefined' && readConvertLinksToFootnotes == true) {
+            readability.convertLinksToFootnotes = true;
+        }
 
         /* Glue the structure of our document together. */
         // articleContent.appendChild( articleFooter  );
@@ -147,9 +158,9 @@ var readability = {
         }
 //        document.body.style.display = "block";
 
-		if(readability.convertLinksToFootnotes && !window.location.href.match(/wikipedia\.org/g)) {
-			readability.addFootnotes(articleContent);
-		}
+        if(readability.convertLinksToFootnotes && !window.location.href.match(/wikipedia\.org/g)) {
+            readability.addFootnotes(articleContent);
+        }
 
         window.scrollTo(0, 0);
 
@@ -176,60 +187,60 @@ var readability = {
         return articleTools;
     },
     
-	/**
-	 * Get the article title as an H1.
-	 *
-	 * @return void
-	 **/
-	getArticleTitle: function () {
-		var curTitle = "",
-		    origTitle = "";
+    /**
+     * Get the article title as an H1.
+     *
+     * @return void
+     **/
+    getArticleTitle: function () {
+        var curTitle = "",
+            origTitle = "";
 
-		try {
-			curTitle = origTitle = document.title;
-			
-			if(typeof curTitle != "string") { /* If they had an element with id "title" in their HTML */
-				curTitle = origTitle = readability.getInnerText(document.getElementsByTagName('title')[0]);				
-			}
-		}
-		catch(e) {}
-		
-		if(curTitle.match(/ [\|\-] /))
-		{
-			curTitle = origTitle.replace(/(.*)[\|\-] .*/gi,'$1');
-			
-			if(curTitle.split(' ').length < 3) {
-				curTitle = origTitle.replace(/[^\|\-]*[\|\-](.*)/gi,'$1');
-			}
-		}
-		else if(curTitle.indexOf(': ') !== -1)
-		{
-			curTitle = origTitle.replace(/.*:(.*)/gi, '$1');
+        try {
+            curTitle = origTitle = document.title;
+            
+            if(typeof curTitle != "string") { /* If they had an element with id "title" in their HTML */
+                curTitle = origTitle = readability.getInnerText(document.getElementsByTagName('title')[0]);             
+            }
+        }
+        catch(e) {}
+        
+        if(curTitle.match(/ [\|\-] /))
+        {
+            curTitle = origTitle.replace(/(.*)[\|\-] .*/gi,'$1');
+            
+            if(curTitle.split(' ').length < 3) {
+                curTitle = origTitle.replace(/[^\|\-]*[\|\-](.*)/gi,'$1');
+            }
+        }
+        else if(curTitle.indexOf(': ') !== -1)
+        {
+            curTitle = origTitle.replace(/.*:(.*)/gi, '$1');
 
-			if(curTitle.split(' ').length < 3) {
-				curTitle = origTitle.replace(/[^:]*[:](.*)/gi,'$1');
-			}
-		}
-		else if(curTitle.length > 150 || curTitle.length < 15)
-		{
-			var hOnes = document.getElementsByTagName('h1');
-			if(hOnes.length == 1)
-			{
-				curTitle = readability.getInnerText(hOnes[0]);
-			}
-		}
+            if(curTitle.split(' ').length < 3) {
+                curTitle = origTitle.replace(/[^:]*[:](.*)/gi,'$1');
+            }
+        }
+        else if(curTitle.length > 150 || curTitle.length < 15)
+        {
+            var hOnes = document.getElementsByTagName('h1');
+            if(hOnes.length == 1)
+            {
+                curTitle = readability.getInnerText(hOnes[0]);
+            }
+        }
 
-		curTitle = curTitle.replace( readability.regexps.trimRe, "" );
+        curTitle = curTitle.replace( readability.regexps.trimRe, "" );
 
-		if(curTitle.split(' ').length <= 4) {
-			curTitle = origTitle;
-		}
-		
-		var articleTitle = document.createElement("H1");
-		articleTitle.innerHTML = curTitle;
-		
-		return articleTitle;
-	},
+        if(curTitle.split(' ').length <= 4) {
+            curTitle = origTitle;
+        }
+        
+        var articleTitle = document.createElement("H1");
+        articleTitle.innerHTML = curTitle;
+        
+        return articleTitle;
+    },
 
     /**
      * Get the footer with the readability mark etc.
@@ -239,12 +250,12 @@ var readability = {
     getArticleFooter: function () {
         var articleFooter = document.createElement("DIV");
 
-		/**
-		 * For research purposes, generate an img src that contains the chosen readstyle etc,
-		 * so we can generate aggregate stats and change styles based on them in the future
-		 **/
+        /**
+         * For research purposes, generate an img src that contains the chosen readstyle etc,
+         * so we can generate aggregate stats and change styles based on them in the future
+         **/
         // var statsQueryParams = "?readStyle=" + encodeURIComponent(readStyle) + "&readMargin=" + encodeURIComponent(readMargin) + "&readSize=" + encodeURIComponent(readSize);
-		/* TODO: attach this to an image */
+        /* TODO: attach this to an image */
 
         var twitterLink = document.createElement('a');
             twitterLink.setAttribute('href','http://lab.arc90.com/experiments/readability');
@@ -257,7 +268,7 @@ var readability = {
             "<div id='rdb-footer-left'>" +
                 "<a href='http://lab.arc90.com/experiments/readability' id='readability-logo'>Readability &mdash; </a>" +
                 "<a href='http://www.arc90.com/' id='arc90-logo'>An Arc90 Laboratory Experiment</a>" +
-				"<span id='readability-url'> &mdash; http://lab.arc90.com/experiments/readability</span>" +
+                "<span id='readability-url'> &mdash; http://lab.arc90.com/experiments/readability</span>" +
                 "<a href='http://www.twitter.com/arc90' class='footer-twitterLink'>Follow us on Twitter &raquo;</a>" +
             "</div>" +
             "<div id='rdb-footer-right'>" +
@@ -295,7 +306,8 @@ var readability = {
         if(frames.length > 0)
         {
             var bestFrame = null;
-            var bestFrameSize = 0;
+            var bestFrameSize = 0;    /* The frame to try to run readability upon. Must be on same domain. */
+			var biggestFrameSize = 0; /* Used for the error message. Can be on any domain. */
             for(var frameIndex = 0; frameIndex < frames.length; frameIndex++)
             {
                 var frameSize = frames[frameIndex].offsetWidth + frames[frameIndex].offsetHeight;
@@ -307,9 +319,16 @@ var readability = {
                 catch(eFrames) {
                     dbg(eFrames);
                 }
+
+				if(frameSize > biggestFrameSize) {
+					biggestFrameSize         = frameSize;
+					readability.biggestFrame = frames[frameIndex];
+				}
                 
                 if(canAccessFrame && frameSize > bestFrameSize)
                 {
+                    readability.frameHack = true;
+    
                     bestFrame = frames[frameIndex];
                     bestFrameSize = frameSize;
                 }
@@ -325,8 +344,6 @@ var readability = {
                 var frameset = document.getElementsByTagName('frameset')[0];
                 if(frameset) {
                     frameset.parentNode.removeChild(frameset); }
-                    
-                readability.frameHack = true;
             }
         }
 
@@ -359,67 +376,67 @@ var readability = {
         document.body.innerHTML = document.body.innerHTML.replace(readability.regexps.replaceBrsRe, '</p><p>').replace(readability.regexps.replaceFontsRe, '<$1span>');
     },
 
-	/**
-	 * For easier reading, convert this document to have footnotes at the bottom rather than inline links.
-	 * @see http://www.roughtype.com/archives/2010/05/experiments_in.php
-	 *
-	 * @return void
-	**/
-	addFootnotes: function(articleContent) {
-		var footnotesWrapper = document.createElement('div');
-		footnotesWrapper.innerHTML = "<h3>References</h3>";
-		
-		var articleFootnotes = document.createElement('ol');
-		footnotesWrapper.appendChild(articleFootnotes);
-		
-		var articleLinks = articleContent.getElementsByTagName('a');
-		
-		var linkCount = 0;
-		for (var i = 0; i < articleLinks.length; i++)
-		{
-			var articleLink  = articleLinks[i],
-				footnoteLink = articleLink.cloneNode(true),
-				refLink      = document.createElement('a'),
-			    footnote     = document.createElement('li'),
-				linkDomain   = footnoteLink.host ? footnoteLink.host : document.location.host,
-				linkText     = readability.getInnerText(articleLink);
-			
-			if(articleLink.className && articleLink.className.indexOf('readability-DoNotFootnote') !== -1 || linkText.match(readability.regexps.skipFootnoteLinkRe)) {
-				continue;
-			}
-			
-			linkCount++;
+    /**
+     * For easier reading, convert this document to have footnotes at the bottom rather than inline links.
+     * @see http://www.roughtype.com/archives/2010/05/experiments_in.php
+     *
+     * @return void
+    **/
+    addFootnotes: function(articleContent) {
+        var footnotesWrapper = document.createElement('div');
+        footnotesWrapper.innerHTML = "<h3>References</h3>";
+        
+        var articleFootnotes = document.createElement('ol');
+        footnotesWrapper.appendChild(articleFootnotes);
+        
+        var articleLinks = articleContent.getElementsByTagName('a');
+        
+        var linkCount = 0;
+        for (var i = 0; i < articleLinks.length; i++)
+        {
+            var articleLink  = articleLinks[i],
+                footnoteLink = articleLink.cloneNode(true),
+                refLink      = document.createElement('a'),
+                footnote     = document.createElement('li'),
+                linkDomain   = footnoteLink.host ? footnoteLink.host : document.location.host,
+                linkText     = readability.getInnerText(articleLink);
+            
+            if(articleLink.className && articleLink.className.indexOf('readability-DoNotFootnote') !== -1 || linkText.match(readability.regexps.skipFootnoteLinkRe)) {
+                continue;
+            }
+            
+            linkCount++;
 
-			/** Add a superscript reference after the article link */
-			refLink.href      = '#readabilityFootnoteLink-' + linkCount;
-			refLink.innerHTML = '<small><sup>[' + linkCount + ']</sup></small>'
-			refLink.className = 'readability-DoNotFootnote';
-			refLink.style.color = 'inherit';
-			
-			if(articleLink.parentNode.lastChild == articleLink) {
-				articleLink.parentNode.appendChild(refLink);
-			} else {
-				articleLink.parentNode.insertBefore(refLink, articleLink.nextSibling);
-			}
+            /** Add a superscript reference after the article link */
+            refLink.href      = '#readabilityFootnoteLink-' + linkCount;
+            refLink.innerHTML = '<small><sup>[' + linkCount + ']</sup></small>'
+            refLink.className = 'readability-DoNotFootnote';
+            refLink.style.color = 'inherit';
+            
+            if(articleLink.parentNode.lastChild == articleLink) {
+                articleLink.parentNode.appendChild(refLink);
+            } else {
+                articleLink.parentNode.insertBefore(refLink, articleLink.nextSibling);
+            }
 
-			articleLink.style.color = 'inherit';
-			articleLink.name        = 'readabilityLink-' + linkCount;
+            articleLink.style.color = 'inherit';
+            articleLink.name        = 'readabilityLink-' + linkCount;
 
-			footnote.innerHTML      = "<small><sup><a href='#readabilityLink-" + linkCount + "' title='Jump to Link in Article'>^</a></sup></small> ";
+            footnote.innerHTML      = "<small><sup><a href='#readabilityLink-" + linkCount + "' title='Jump to Link in Article'>^</a></sup></small> ";
 
-			footnoteLink.innerHTML  = (footnoteLink.title ? footnoteLink.title : linkText);
-			footnoteLink.name       = 'readabilityFootnoteLink-' + linkCount;
-			
-			footnote.appendChild(footnoteLink);
-			footnote.innerHTML = footnote.innerHTML + "<small> (" + linkDomain + ")</small>";
-			
-			articleFootnotes.appendChild(footnote);
-		}
+            footnoteLink.innerHTML  = (footnoteLink.title ? footnoteLink.title : linkText);
+            footnoteLink.name       = 'readabilityFootnoteLink-' + linkCount;
+            
+            footnote.appendChild(footnoteLink);
+            footnote.innerHTML = footnote.innerHTML + "<small> (" + linkDomain + ")</small>";
+            
+            articleFootnotes.appendChild(footnote);
+        }
 
-		if(linkCount > 0) {
-			articleContent.appendChild(footnotesWrapper);			
-		}
-	},
+        if(linkCount > 0) {
+            articleContent.appendChild(footnotesWrapper);           
+        }
+    },
 
     useRdbTypekit: function () {
         var rdbHead      = document.getElementsByTagName('head')[0];
@@ -453,7 +470,7 @@ var readability = {
         **/
         rdbTKScript.setAttribute('type','text/javascript');
         rdbTKScript.setAttribute('src',"http://use.typekit.com/" + rdbTKCode + ".js");
-		rdbTKScript.setAttribute('charset','UTF-8');
+        rdbTKScript.setAttribute('charset','UTF-8');
         rdbHead.appendChild(rdbTKScript);
 
         /**
@@ -462,20 +479,20 @@ var readability = {
          * &
          * http://getsatisfaction.com/typekit/topics/support_a_pre_and_post_load_callback_function
         **/
-		var typekitLoader = function() {
-		    dbg("Looking for Typekit.");
-			if(typeof Typekit != "undefined") {
-				try {
-					dbg("Caught typekit");
-					Typekit.load();
-					clearInterval(window.typekitInterval);
-				} catch(e) {
-					dbg("Typekit error: " + e);
-				}
-			}
-		};
+        var typekitLoader = function() {
+            dbg("Looking for Typekit.");
+            if(typeof Typekit != "undefined") {
+                try {
+                    dbg("Caught typekit");
+                    Typekit.load();
+                    clearInterval(window.typekitInterval);
+                } catch(e) {
+                    dbg("Typekit error: " + e);
+                }
+            }
+        };
 
-		window.typekitInterval = window.setInterval(typekitLoader, 100);
+        window.typekitInterval = window.setInterval(typekitLoader, 100);
     },
 
     /**
@@ -490,9 +507,10 @@ var readability = {
         readability.killBreaks(articleContent);
 
         /* Clean out junk from the article content */
-        readability.clean(articleContent, "form");
+        readability.cleanConditionally(articleContent, "form");
         readability.clean(articleContent, "object");
         readability.clean(articleContent, "h1");
+
         /**
          * If there is only one h2, they are probably using it
          * as a header and not a subheader, so remove it since we already have a header.
@@ -572,7 +590,7 @@ var readability = {
                 node.readability.contentScore -= 5;
                 break;
         }
-
+       
         node.readability.contentScore += readability.getClassWeight(node);
     },
     
@@ -593,15 +611,17 @@ var readability = {
          * TODO: Shouldn't this be a reverse traversal?
         **/
         var node = null;
-		var nodesToScore = [];
+        var nodesToScore = [];
         for(var nodeIndex = 0; (node = document.getElementsByTagName('*')[nodeIndex]); nodeIndex++)
         {
             /* Remove unlikely candidates */
             if (stripUnlikelyCandidates) {
                 var unlikelyMatchString = node.className + node.id;
-                if (unlikelyMatchString.search(readability.regexps.unlikelyCandidatesRe) !== -1 &&
-                    unlikelyMatchString.search(readability.regexps.okMaybeItsACandidateRe) == -1 &&
-                    node.tagName !== "BODY")
+                if (
+					unlikelyMatchString.search(readability.regexps.unlikelyCandidatesRe) !== -1 &&
+                   	unlikelyMatchString.search(readability.regexps.okMaybeItsACandidateRe) == -1 &&
+                   	node.tagName !== "BODY"
+				)
                 {
                     dbg("Removing unlikely candidate - " + unlikelyMatchString);
                     node.parentNode.removeChild(node);
@@ -610,9 +630,9 @@ var readability = {
                 }               
             }
 
-			if (node.tagName === "P" || node.tagName === "TD") {
-				nodesToScore[nodesToScore.length] = node;
-			}
+            if (node.tagName === "P" || node.tagName === "TD" || node.tagName === "PRE") {
+                nodesToScore[nodesToScore.length] = node;
+            }
 
             /* Turn all divs that don't have children block level elements into p's */
             if (node.tagName === "DIV") {
@@ -623,6 +643,8 @@ var readability = {
                         newNode.innerHTML = node.innerHTML;             
                         node.parentNode.replaceChild(newNode, node);
                         nodeIndex--;
+
+                        nodesToScore[nodesToScore.length] = node;
                     }
                     catch(e) {
                         dbg("Could not alter div to p, probably an IE restriction, reverting back to div.: " + e);
@@ -652,11 +674,15 @@ var readability = {
          *
          * A score is determined by things like number of commas, class names, etc. Maybe eventually link density.
         **/
-		var candidates = [];
+        var candidates = [];
         for (var pt=0; pt < nodesToScore.length; pt++) {
             var parentNode      = nodesToScore[pt].parentNode;
-            var grandParentNode = parentNode.parentNode;
+            var grandParentNode = parentNode ? parentNode.parentNode : null;
             var innerText       = readability.getInnerText(nodesToScore[pt]);
+
+            if(!parentNode) {
+                continue;
+            }
 
             /* If this paragraph is less than 25 characters, don't even count it. */
             if(innerText.length < 25) {
@@ -670,7 +696,7 @@ var readability = {
             }
 
             /* Initialize readability data for the grandparent. */
-            if(typeof grandParentNode.readability == 'undefined')
+            if(grandParentNode && typeof grandParentNode.readability == 'undefined')
             {
                 readability.initializeNode(grandParentNode);
                 candidates.push(grandParentNode);
@@ -689,7 +715,10 @@ var readability = {
             
             /* Add the score to the parent. The grandparent gets half. */
             parentNode.readability.contentScore += contentScore;
-            grandParentNode.readability.contentScore += contentScore/2;
+
+            if(grandParentNode) {
+                grandParentNode.readability.contentScore += contentScore/2;             
+            }
         }
 
         /**
@@ -746,11 +775,11 @@ var readability = {
                 append = true;
             }
 
-			var contentBonus = 0;
-			/* Give a bonus if sibling nodes and top candidates have the example same classname */
-			if(siblingNode.className == topCandidate.className && topCandidate.className != "") {
-				contentBonus += topCandidate.readability.contentScore * 0.2;
-			}
+            var contentBonus = 0;
+            /* Give a bonus if sibling nodes and top candidates have the example same classname */
+            if(siblingNode.className == topCandidate.className && topCandidate.className != "") {
+                contentBonus += topCandidate.readability.contentScore * 0.2;
+            }
 
             if(typeof siblingNode.readability != 'undefined' && (siblingNode.readability.contentScore+contentBonus) >= siblingScoreThreshold)
             {
@@ -776,31 +805,31 @@ var readability = {
             {
                 dbg("Appending node: " + siblingNode);
 
-				var nodeToAppend = null;
-				if(siblingNode.nodeName != "DIV" && siblingNode.nodeName != "P") {
-					/* We have a node that isn't a common block level element, like a form or td tag. Turn it into a div so it doesn't get filtered out later by accident. */
-					
+                var nodeToAppend = null;
+                if(siblingNode.nodeName != "DIV" && siblingNode.nodeName != "P") {
+                    /* We have a node that isn't a common block level element, like a form or td tag. Turn it into a div so it doesn't get filtered out later by accident. */
+                    
                     dbg("Altering siblingNode of " + siblingNode.nodeName + ' to div.');
                     nodeToAppend = document.createElement('div');
                     try {
-						nodeToAppend.id = siblingNode.id;
+                        nodeToAppend.id = siblingNode.id;
                         nodeToAppend.innerHTML = siblingNode.innerHTML;
                     }
                     catch(e)
                     {
                         dbg("Could not alter siblingNode to div, probably an IE restriction, reverting back to original.");
-						nodeToAppend = siblingNode;
-		                s--;
-		                sl--;
+                        nodeToAppend = siblingNode;
+                        s--;
+                        sl--;
                     }
-				} else {
-					nodeToAppend = siblingNode;
-	                s--;
-	                sl--;
-				}
-				
-				/* To ensure a node does not interfere with readability styles, remove its classnames */
-				nodeToAppend.className = "";
+                } else {
+                    nodeToAppend = siblingNode;
+                    s--;
+                    sl--;
+                }
+                
+                /* To ensure a node does not interfere with readability styles, remove its classnames */
+                nodeToAppend.className = "";
 
                 /* Append sibling and subtract from our list because it removes the node when you append to another node */
                 articleContent.appendChild(nodeToAppend);
@@ -937,6 +966,10 @@ var readability = {
         return weight;
     },
 
+	nodeIsVisible: function (node) {
+		return (node.offsetWidth !== 0 || node.offsetHeight !== 0) && node.style.display.toLowerCase() !== 'none';
+	},
+
     /**
      * Remove extraneous break tags from a node.
      *
@@ -995,6 +1028,11 @@ var readability = {
      * @return void
      **/
     cleanConditionally: function (e, tag) {
+
+		if(!readability.flagIsActive(readability.FLAG_CLEAN_CONDITIONALLY)) {
+			return;
+		}
+
         var tagsList      = e.getElementsByTagName(tag);
         var curTagsLength = tagsList.length;
 
