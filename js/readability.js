@@ -36,7 +36,7 @@ var readability = {
      * Defined up here so we don't instantiate them repeatedly in loops.
      **/
     regexps: {
-        unlikelyCandidatesRe:   /combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor/i,
+        unlikelyCandidatesRe:   /combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor|ad-break/i,
         okMaybeItsACandidateRe: /and|article|body|column|main/i,
         positiveRe:             /article|body|content|entry|hentry|page|pagination|post|text|blog/i,
         negativeRe:             /combx|comment|contact|foot|footer|footnote|link|masthead|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget/i,
