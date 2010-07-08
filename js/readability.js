@@ -1,15 +1,15 @@
-var dbg = function(s) {
-    if(typeof console !== 'undefined') {
-        console.log("Readability: " + s);
-    }
-};
+var dbg = (typeof console !== 'undefined') ? function(s) {
+    console.log("Readability: " + s);
+} : function() {};
 
 /*
  * Readability. An Arc90 Lab Experiment. 
  * Website: http://lab.arc90.com/experiments/readability
  * Source:  http://code.google.com/p/arc90labs-readability
  *
- * Copyright (c) 2009 Arc90 Inc
+ * "Readability" is a trademark of Arc90 Inc and may not be used without explicit permission. 
+ *
+ * Copyright (c) 2010 Arc90 Inc
  * Readability is licensed under the Apache License, Version 2.0.
 **/
 var readability = {
@@ -25,7 +25,9 @@ var readability = {
     biggestFrame:            false,
     bodyCache:               null,   /* Cache the body HTML in case we need to re-use it later */
     flags:                   0x1 | 0x2 | 0x4,   /* Start with both flags set. */
-    
+    domCache: null,
+
+
     /* constants */
     FLAG_STRIP_UNLIKELYS: 0x1,
     FLAG_WEIGHT_CLASSES:  0x2,
@@ -36,10 +38,10 @@ var readability = {
      * Defined up here so we don't instantiate them repeatedly in loops.
      **/
     regexps: {
-        unlikelyCandidatesRe:   /combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor|ad-break/i,
+        unlikelyCandidatesRe:   /combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor|ad-break|agegate/i,
         okMaybeItsACandidateRe: /and|article|body|column|main/i,
-        positiveRe:             /article|body|content|entry|hentry|page|pagination|post|text|blog/i,
-        negativeRe:             /combx|comment|contact|foot|footer|footnote|link|masthead|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget/i,
+        positiveRe:             /article|body|content|entry|hentry|page|pagination|post|text|blog|story/i,
+        negativeRe:             /combx|comment|contact|foot|footer|footnote|masthead|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget/i,
         divToPElementsRe:       /<(a|blockquote|dl|div|img|ol|p|pre|table|ul)/i,
         replaceBrsRe:           /(<br[^>]*>[ \n\r\t]*){2,}/gi,
         replaceFontsRe:         /<(\/?)font[^>]*>/gi,
@@ -64,7 +66,30 @@ var readability = {
      **/
     init: function() {
         if(document.body && !readability.bodyCache) {
-            readability.bodyCache = document.body.innerHTML; }
+		readability.domCache  = document.documentElement.cloneNode(true);
+
+	        /* remove readability scripts from the cache */
+	        var scripts = readability.domCache.getElementsByTagName('script');
+	        for(var i = scripts.length-1; i >= 0; i--)
+	        {
+	            if(typeof(scripts[i].src) != "undefined" && scripts[i].src.indexOf('readability') !== -1)
+	            {
+	                scripts[i].parentNode.removeChild(scripts[i]);          
+	            }
+	        }
+
+	        /* remove readability stylesheets */
+	        var styles = readability.domCache.getElementsByTagName('link');
+	        for(var i = styles.length-1; i >= 0; i--)
+	        {
+	            if(typeof(styles[i].href) != "undefined" && styles[i].href.indexOf('readability') !== -1)
+	            {
+	                styles[i].parentNode.removeChild(styles[i]);          
+	            }
+	        }
+
+		readability.bodyCache = document.body.innerHTML;
+	}
         
         readability.prepDocument();
 
@@ -135,6 +160,7 @@ var readability = {
         /* Clear the old HTML, insert the new content. */
         document.body.innerHTML = "";
         document.body.insertBefore(overlay, document.body.firstChild);
+		document.body.removeAttribute('style');
 
         if(readability.frameHack)
         {
@@ -152,15 +178,16 @@ var readability = {
             var rootWarning = document.createElement('p');
                 rootWarning.id = "readability-warning";
                 rootWarning.innerHTML = "<em>Readability</em> was intended for use on individual articles and not home pages. " +
-                    "If you'd like to try rendering this page anyways, <a onClick='javascript:document.getElementById(\"readability-warning\").style.display=\"none\";document.getElementById(\"readability-content\").style.display=\"block\";'>click here</a> to continue.";
+                    "If you'd like to try rendering this page anyway, <a onClick='javascript:document.getElementById(\"readability-warning\").style.display=\"none\";document.getElementById(\"readability-content\").style.display=\"block\";'>click here</a> to continue.";
 
             innerDiv.insertBefore( rootWarning, articleContent );
         }
-//        document.body.style.display = "block";
 
         if(readability.convertLinksToFootnotes && !window.location.href.match(/wikipedia\.org/g)) {
             readability.addFootnotes(articleContent);
         }
+
+	readability.fixImageFloats(articleContent);
 
         window.scrollTo(0, 0);
 
@@ -169,6 +196,27 @@ var readability = {
             readability.useRdbTypekit();
         }
     },
+
+	/**
+	 * Some content ends up looking ugly if the image is too large to be floated.
+	 * If the image is wider than a threshold (currently 55%), no longer float it,
+	 * center it instead.
+	 *
+	 * @param Element
+	 * @return void
+	**/
+	fixImageFloats: function (articleContent) {
+		var imageWidthThreshold = Math.min(articleContent.offsetWidth, 800) * 0.55,
+			images              = articleContent.getElementsByTagName('img');
+
+		for(var i=0, il = images.length; i < il; i++) {
+			var image = images[i];
+			
+			if(image.offsetWidth > imageWidthThreshold) {
+				image.className += " blockImage";
+			}
+		}
+	},
 
     /**
      * Get the article tools Element that has buttons like reload, print, email.
@@ -180,12 +228,22 @@ var readability = {
 
         articleTools.id        = "readTools";
         articleTools.innerHTML = 
-            "<a href='#' onclick='return window.location.reload()' title='Reload original page' id='reload-page'>Reload Original Page</a>" +
+            "<a href='#' onclick='return readability.reloadDom()' title='Reload original page' id='reload-page'>Reload Original Page</a>" +
             "<a href='#' onclick='javascript:window.print();' title='Print page' id='print-page'>Print Page</a>" +
             "<a href='#' onclick='readability.emailBox(); return false;' title='Email page' id='email-page'>Email Page</a>";
 
         return articleTools;
     },
+
+	reloadDom: function () {
+		if(navigator.userAgent.toLowerCase().indexOf('webkit') === -1) {
+			document.replaceChild(readability.domCache, document.documentElement);
+		} else {
+			window.location.reload();
+		}
+
+		return false;
+	},
     
     /**
      * Get the article title as an H1.
@@ -257,24 +315,20 @@ var readability = {
         // var statsQueryParams = "?readStyle=" + encodeURIComponent(readStyle) + "&readMargin=" + encodeURIComponent(readMargin) + "&readSize=" + encodeURIComponent(readSize);
         /* TODO: attach this to an image */
 
-        var twitterLink = document.createElement('a');
-            twitterLink.setAttribute('href','http://lab.arc90.com/experiments/readability');
-            twitterLink.setAttribute('id','footer-twitterLink');
-            twitterLink.setAttribute('title','Follow Arc90 on Twitter');
-            twitterLink.innerHTML = "Follow us on Twitter &raquo;";
-
         articleFooter.id = "readFooter";
-        articleFooter.innerHTML = 
-            "<div id='rdb-footer-left'>" +
-                "<a href='http://lab.arc90.com/experiments/readability' id='readability-logo'>Readability &mdash; </a>" +
-                "<a href='http://www.arc90.com/' id='arc90-logo'>An Arc90 Laboratory Experiment</a>" +
-                "<span id='readability-url'> &mdash; http://lab.arc90.com/experiments/readability</span>" +
-                "<a href='http://www.twitter.com/arc90' class='footer-twitterLink'>Follow us on Twitter &raquo;</a>" +
-            "</div>" +
-            "<div id='rdb-footer-right'>" +
-                "<a href='http://www.twitter.com/arc90' class='footer-twitterLink'>Follow us on Twitter &raquo;</a>" +
-                "<span class='version'>Readability version " + readability.version + "</span>" +
-            "</div>";
+        articleFooter.innerHTML = [
+			"<div id='rdb-footer-print'>Excerpted from <cite>" + document.title + "</cite><br />" + window.location.href + "</div>",
+			"<div id='rdb-footer-wrapper'>",
+	            "<div id='rdb-footer-left'>",
+	                "<a href='http://lab.arc90.com/experiments/readability' id='readability-logo'>Readability &mdash;&nbsp;</a>",
+	                "<a href='http://www.arc90.com/' id='arc90-logo'> An Arc90 Laboratory Experiment&nbsp;</a>",
+	                " <span id='readability-url'> http://lab.arc90.com/experiments/readability</span>",
+	            "</div>",
+	            "<div id='rdb-footer-right'>",
+	                "<a href='http://www.twitter.com/arc90' class='footer-twitterLink'>Follow us on Twitter &raquo;</a>",
+	                "<span class='version'>Readability version " + readability.version + "</span>",
+	            "</div>",
+			"</div>"].join('');
 
         return articleFooter;
     },
@@ -590,7 +644,7 @@ var readability = {
                 node.readability.contentScore -= 5;
                 break;
         }
-       
+
         node.readability.contentScore += readability.getClassWeight(node);
     },
     
