@@ -13,7 +13,7 @@ var dbg = (typeof console !== 'undefined') ? function(s) {
  * Readability is licensed under the Apache License, Version 2.0.
 **/
 var readability = {
-    version:                '1.6.1',
+    version:                '1.6.2',
     emailSrc:               'http://lab.arc90.com/experiments/readability/email.php',
     iframeLoads:             0,
     convertLinksToFootnotes: false,
@@ -25,9 +25,7 @@ var readability = {
     biggestFrame:            false,
     bodyCache:               null,   /* Cache the body HTML in case we need to re-use it later */
     flags:                   0x1 | 0x2 | 0x4,   /* Start with both flags set. */
-    domCache: null,
-
-
+    
     /* constants */
     FLAG_STRIP_UNLIKELYS: 0x1,
     FLAG_WEIGHT_CLASSES:  0x2,
@@ -65,31 +63,22 @@ var readability = {
      * @return void
      **/
     init: function() {
+
+        /* Before we do anything, remove all scripts that are not readability. */
+		window.onload = window.onunload = function() {};
+		var scripts = document.getElementsByTagName('script');
+		for(var i = scripts.length-1; i >= 0; i--)
+		{
+			if(typeof(scripts[i].src) == "undefined" || (scripts[i].src.indexOf('readability') == -1 && scripts[i].src.indexOf('typekit') == -1))
+			{
+				scripts[i].nodeValue="";
+				scripts[i].removeAttribute('src');
+			    scripts[i].parentNode.removeChild(scripts[i]);          
+			}
+		}
+
         if(document.body && !readability.bodyCache) {
-		readability.domCache  = document.documentElement.cloneNode(true);
-
-	        /* remove readability scripts from the cache */
-	        var scripts = readability.domCache.getElementsByTagName('script');
-	        for(var i = scripts.length-1; i >= 0; i--)
-	        {
-	            if(typeof(scripts[i].src) != "undefined" && scripts[i].src.indexOf('readability') !== -1)
-	            {
-	                scripts[i].parentNode.removeChild(scripts[i]);          
-	            }
-	        }
-
-	        /* remove readability stylesheets */
-	        var styles = readability.domCache.getElementsByTagName('link');
-	        for(var i = styles.length-1; i >= 0; i--)
-	        {
-	            if(typeof(styles[i].href) != "undefined" && styles[i].href.indexOf('readability') !== -1)
-	            {
-	                styles[i].parentNode.removeChild(styles[i]);          
-	            }
-	        }
-
-		readability.bodyCache = document.body.innerHTML;
-	}
+            readability.bodyCache = document.body.innerHTML; }
         
         readability.prepDocument();
 
@@ -182,12 +171,13 @@ var readability = {
 
             innerDiv.insertBefore( rootWarning, articleContent );
         }
+//        document.body.style.display = "block";
 
         if(readability.convertLinksToFootnotes && !window.location.href.match(/wikipedia\.org/g)) {
             readability.addFootnotes(articleContent);
         }
 
-	readability.fixImageFloats(articleContent);
+        readability.fixImageFloats(articleContent);
 
         window.scrollTo(0, 0);
 
@@ -228,22 +218,12 @@ var readability = {
 
         articleTools.id        = "readTools";
         articleTools.innerHTML = 
-            "<a href='#' onclick='return readability.reloadDom()' title='Reload original page' id='reload-page'>Reload Original Page</a>" +
+            "<a href='#' onclick='return window.location.reload()' title='Reload original page' id='reload-page'>Reload Original Page</a>" +
             "<a href='#' onclick='javascript:window.print();' title='Print page' id='print-page'>Print Page</a>" +
             "<a href='#' onclick='readability.emailBox(); return false;' title='Email page' id='email-page'>Email Page</a>";
 
         return articleTools;
     },
-
-	reloadDom: function () {
-		if(navigator.userAgent.toLowerCase().indexOf('webkit') === -1) {
-			document.replaceChild(readability.domCache, document.documentElement);
-		} else {
-			window.location.reload();
-		}
-
-		return false;
-	},
     
     /**
      * Get the article title as an H1.
@@ -315,21 +295,21 @@ var readability = {
         // var statsQueryParams = "?readStyle=" + encodeURIComponent(readStyle) + "&readMargin=" + encodeURIComponent(readMargin) + "&readSize=" + encodeURIComponent(readSize);
         /* TODO: attach this to an image */
 
-        articleFooter.id = "readFooter";
-        articleFooter.innerHTML = [
-			"<div id='rdb-footer-print'>Excerpted from <cite>" + document.title + "</cite><br />" + window.location.href + "</div>",
-			"<div id='rdb-footer-wrapper'>",
-	            "<div id='rdb-footer-left'>",
-	                "<a href='http://lab.arc90.com/experiments/readability' id='readability-logo'>Readability &mdash;&nbsp;</a>",
-	                "<a href='http://www.arc90.com/' id='arc90-logo'> An Arc90 Laboratory Experiment&nbsp;</a>",
-	                " <span id='readability-url'> http://lab.arc90.com/experiments/readability</span>",
-	            "</div>",
-	            "<div id='rdb-footer-right'>",
-	                "<a href='http://www.twitter.com/arc90' class='footer-twitterLink'>Follow us on Twitter &raquo;</a>",
-	                "<span class='version'>Readability version " + readability.version + "</span>",
-	            "</div>",
-			"</div>"].join('');
-
+		articleFooter.id = "readFooter";
+		articleFooter.innerHTML = [
+		"<div id='rdb-footer-print'>Excerpted from <cite>" + document.title + "</cite><br />" + window.location.href + "</div>",
+		"<div id='rdb-footer-wrapper'>",
+		     "<div id='rdb-footer-left'>",
+		         "<a href='http://lab.arc90.com/experiments/readability' id='readability-logo'>Readability &mdash;&nbsp;</a>",
+		         "<a href='http://www.arc90.com/' id='arc90-logo'> An Arc90 Laboratory Experiment&nbsp;</a>",
+		         " <span id='readability-url'> http://lab.arc90.com/experiments/readability</span>",
+		     "</div>",
+		     "<div id='rdb-footer-right'>",
+		         "<a href='http://www.twitter.com/arc90' class='footer-twitterLink'>Follow us on Twitter &raquo;</a>",
+		         "<span class='version'>Readability version " + readability.version + "</span>",
+		     "</div>",
+		"</div>"].join('');
+				
         return articleFooter;
     },
     
@@ -398,16 +378,6 @@ var readability = {
                 var frameset = document.getElementsByTagName('frameset')[0];
                 if(frameset) {
                     frameset.parentNode.removeChild(frameset); }
-            }
-        }
-
-        /* remove all scripts that are not readability */
-        var scripts = document.getElementsByTagName('script');
-        for(var i = scripts.length-1; i >= 0; i--)
-        {
-            if(typeof(scripts[i].src) == "undefined" || (scripts[i].src.indexOf('readability') == -1 && scripts[i].src.indexOf('typekit') == -1))
-            {
-                scripts[i].parentNode.removeChild(scripts[i]);          
             }
         }
 
@@ -644,7 +614,7 @@ var readability = {
                 node.readability.contentScore -= 5;
                 break;
         }
-
+       
         node.readability.contentScore += readability.getClassWeight(node);
     },
     
@@ -734,7 +704,7 @@ var readability = {
             var grandParentNode = parentNode ? parentNode.parentNode : null;
             var innerText       = readability.getInnerText(nodesToScore[pt]);
 
-            if(!parentNode) {
+            if(!parentNode || typeof(parentNode.tagName) == 'undefined') {
                 continue;
             }
 
@@ -743,14 +713,14 @@ var readability = {
                 continue; }
 
             /* Initialize readability data for the parent. */
-            if(typeof parentNode.readability == 'undefined')
+            if(typeof parentNode.readability == 'undefined') 
             {
                 readability.initializeNode(parentNode);
                 candidates.push(parentNode);
             }
 
             /* Initialize readability data for the grandparent. */
-            if(grandParentNode && typeof grandParentNode.readability == 'undefined')
+            if(grandParentNode && typeof(grandParentNode.readability) == 'undefined' && typeof(grandParentNode.tagName) != 'undefined')
             {
                 readability.initializeNode(grandParentNode);
                 candidates.push(grandParentNode);
@@ -807,7 +777,6 @@ var readability = {
             readability.initializeNode(topCandidate);
         }
 
-
         /**
          * Now that we have the top candidate, look through its siblings for content that might also be related.
          * Things like preambles, content split by ads that we removed, etc.
@@ -816,6 +785,8 @@ var readability = {
             articleContent.id     = "readability-content";
         var siblingScoreThreshold = Math.max(10, topCandidate.readability.contentScore * 0.2);
         var siblingNodes          = topCandidate.parentNode.childNodes;
+
+
         for(var s=0, sl=siblingNodes.length; s < sl; s++)
         {
             var siblingNode = siblingNodes[s];
@@ -890,6 +861,7 @@ var readability = {
             }
         }
 
+
         /**
          * So we have all of the content that we need. Now we clean it up for presentation.
         **/
@@ -907,6 +879,10 @@ var readability = {
     **/
     getInnerText: function (e, normalizeSpaces) {
         var textContent    = "";
+
+		if(typeof(e.textContent) == "undefined" && typeof(e.innerText) == "undefined") {
+			return "";
+		}
 
         normalizeSpaces = (typeof normalizeSpaces == 'undefined') ? true : normalizeSpaces;
 
@@ -998,7 +974,7 @@ var readability = {
         var weight = 0;
 
         /* Look for a special classname */
-        if (e.className != "")
+        if (typeof(e.className) === 'string' && e.className != '')
         {
             if(e.className.search(readability.regexps.negativeRe) !== -1) {
                 weight -= 25; }
@@ -1008,7 +984,7 @@ var readability = {
         }
 
         /* Look for a special ID */
-        if (typeof(e.id) == 'string' && e.id != "")
+        if (typeof(e.id) === 'string' && e.id != '')
         {
             if(e.id.search(readability.regexps.negativeRe) !== -1) {
                 weight -= 25; }
@@ -1158,7 +1134,7 @@ var readability = {
      * @return void
     **/
     cleanHeaders: function (e) {
-        for (var headerIndex = 1; headerIndex < 7; headerIndex++) {
+        for (var headerIndex = 1; headerIndex < 3; headerIndex++) {
             var headers = e.getElementsByTagName('h' + headerIndex);
             for (var i=headers.length-1; i >=0; i--) {
                 if (readability.getClassWeight(headers[i]) < 0 || readability.getLinkDensity(headers[i]) > 0.33) {
