@@ -29,9 +29,9 @@ var readability = {
     /* constants */
     FLAG_STRIP_UNLIKELYS:     0x1,
     FLAG_WEIGHT_CLASSES:      0x2,
-	FLAG_CLEAN_CONDITIONALLY: 0x4,
+    FLAG_CLEAN_CONDITIONALLY: 0x4,
 
-	parsedPages: {}, /* The list of pages we've parsed in this call of readability, for autopaging. As a key store for easier searching. */
+    parsedPages: {}, /* The list of pages we've parsed in this call of readability, for autopaging. As a key store for easier searching. */
 
     /**
      * All of the regular expressions in use within readability.
@@ -66,20 +66,20 @@ var readability = {
      **/
     init: function() {
         /* Before we do anything, remove all scripts that are not readability. */
-		window.onload = window.onunload = function() {};
+        window.onload = window.onunload = function() {};
 
-		readability.removeScripts(document);
+        readability.removeScripts(document);
 
         if(document.body && !readability.bodyCache) {
             readability.bodyCache = document.body.innerHTML;
 
-		}
-		/* Make sure this document is added to the list of parsed pages first, so we don't double up on the first page */
-		readability.parsedPages[window.location.href.replace(/\/$/, '')] = true;
+        }
+        /* Make sure this document is added to the list of parsed pages first, so we don't double up on the first page */
+        readability.parsedPages[window.location.href.replace(/\/$/, '')] = true;
 
-		/* Pull out any possible next page link first */
+        /* Pull out any possible next page link first */
         var nextPageLink = readability.findNextPageLink(document.body);
-		
+        
         readability.prepDocument();
 
         /* Build readability's DOM tree */
@@ -90,17 +90,17 @@ var readability = {
         var articleContent = readability.grabArticle();
         var articleFooter  = readability.getArticleFooter();
 
-		if(!articleContent) {
-			articleContent    = document.createElement('div');
-			articleContent.id = "readability-content";
-			articleContent.innerHTML = [
+        if(!articleContent) {
+            articleContent    = document.createElement('div');
+            articleContent.id = "readability-content";
+            articleContent.innerHTML = [
                 "<p>Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>let us know by submitting an issue.</a></p>",
                 (readability.frameHack ? "<p><strong>It appears this page uses frames.</strong> Unfortunately, browser security properties often cause Readability to fail on pages that include frames. You may want to try running readability itself on this source page: <a href='" + readability.biggestFrame.src + "'>" + readability.biggestFrame.src + "</a></p>" : ""),
                 "<p>Also, please note that Readability does not play very nicely with front pages. Readability is intended to work on articles with a sizable chunk of text that you'd like to read comfortably. If you're using Readability on a landing page (like nytimes.com for example), please click into an article first before using Readability.</p>"
             ].join('');
 
-			nextPageLink = null;
-		}
+            nextPageLink = null;
+        }
 
         overlay.id              = "readOverlay";
         innerDiv.id             = "readInner";
@@ -129,7 +129,7 @@ var readability = {
         /* Clear the old HTML, insert the new content. */
         document.body.innerHTML = "";
         document.body.insertBefore(overlay, document.body.firstChild);
-		document.body.removeAttribute('style');
+        document.body.removeAttribute('style');
 
         if(readability.frameHack)
         {
@@ -152,7 +152,7 @@ var readability = {
             innerDiv.insertBefore( rootWarning, articleContent );
         }
 
-		readability.postProcessContent(articleContent);
+        readability.postProcessContent(articleContent);
 
         window.scrollTo(0, 0);
 
@@ -162,61 +162,61 @@ var readability = {
         }
 
         if (nextPageLink) {
-			/** 
-			 * Append any additional pages after a small timeout so that people
-			 * can start reading without having to wait for this to finish processing.
-			**/
-			window.setTimeout(function() {
-				readability.appendNextPage(nextPageLink);
-			}, 500);
+            /** 
+             * Append any additional pages after a small timeout so that people
+             * can start reading without having to wait for this to finish processing.
+            **/
+            window.setTimeout(function() {
+                readability.appendNextPage(nextPageLink);
+            }, 500);
         }
 
-		/** Smooth scrolling **/
-		document.onkeypress = function(e) {
-		  var code = (window.event) ? event.keyCode : e.keyCode;
-		  if (code === 32) {
-			readability.curScrollStep = 0;
-			var windowHeight = window.innerHeight ? window.innerHeight : (document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight);
-			readability.scrollTo(readability.scrollTop(), readability.scrollTop() + (windowHeight - 50), 20, 10);
-			return false;
-		  }
-		}
+        /** Smooth scrolling **/
+        document.onkeypress = function(e) {
+          var code = (window.event) ? event.keyCode : e.keyCode;
+          if (code === 32) {
+            readability.curScrollStep = 0;
+            var windowHeight = window.innerHeight ? window.innerHeight : (document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight);
+            readability.scrollTo(readability.scrollTop(), readability.scrollTop() + (windowHeight - 50), 20, 10);
+            return false;
+          }
+        }
     },
 
-	/**
-	 * Run any post-process modifications to article content as necessary.
-	 * 
-	 * @param Element
-	 * @return void
-	**/
-	postProcessContent: function(articleContent) {
-	    if(readability.convertLinksToFootnotes && !window.location.href.match(/wikipedia\.org/g)) {
+    /**
+     * Run any post-process modifications to article content as necessary.
+     * 
+     * @param Element
+     * @return void
+    **/
+    postProcessContent: function(articleContent) {
+        if(readability.convertLinksToFootnotes && !window.location.href.match(/wikipedia\.org/g)) {
             readability.addFootnotes(articleContent);
         }
 
         readability.fixImageFloats(articleContent);
-	},
+    },
 
-	/**
-	 * Some content ends up looking ugly if the image is too large to be floated.
-	 * If the image is wider than a threshold (currently 55%), no longer float it,
-	 * center it instead.
-	 *
-	 * @param Element
-	 * @return void
-	**/
-	fixImageFloats: function (articleContent) {
-		var imageWidthThreshold = Math.min(articleContent.offsetWidth, 800) * 0.55,
-			images              = articleContent.getElementsByTagName('img');
+    /**
+     * Some content ends up looking ugly if the image is too large to be floated.
+     * If the image is wider than a threshold (currently 55%), no longer float it,
+     * center it instead.
+     *
+     * @param Element
+     * @return void
+    **/
+    fixImageFloats: function (articleContent) {
+        var imageWidthThreshold = Math.min(articleContent.offsetWidth, 800) * 0.55,
+            images              = articleContent.getElementsByTagName('img');
 
-		for(var i=0, il = images.length; i < il; i++) {
-			var image = images[i];
-			
-			if(image.offsetWidth > imageWidthThreshold) {
-				image.className += " blockImage";
-			}
-		}
-	},
+        for(var i=0, il = images.length; i < il; i++) {
+            var image = images[i];
+            
+            if(image.offsetWidth > imageWidthThreshold) {
+                image.className += " blockImage";
+            }
+        }
+    },
 
     /**
      * Get the article tools Element that has buttons like reload, print, email.
@@ -305,21 +305,21 @@ var readability = {
         // var statsQueryParams = "?readStyle=" + encodeURIComponent(readStyle) + "&readMargin=" + encodeURIComponent(readMargin) + "&readSize=" + encodeURIComponent(readSize);
         /* TODO: attach this to an image */
 
-		articleFooter.id = "readFooter";
-		articleFooter.innerHTML = [
-		"<div id='rdb-footer-print'>Excerpted from <cite>" + document.title + "</cite><br />" + window.location.href + "</div>",
-		"<div id='rdb-footer-wrapper'>",
-		     "<div id='rdb-footer-left'>",
-		         "<a href='http://lab.arc90.com/experiments/readability' id='readability-logo'>Readability &mdash;&nbsp;</a>",
-		         "<a href='http://www.arc90.com/' id='arc90-logo'> An Arc90 Laboratory Experiment&nbsp;</a>",
-		         " <span id='readability-url'> http://lab.arc90.com/experiments/readability</span>",
-		     "</div>",
-		     "<div id='rdb-footer-right'>",
-		         "<a href='http://www.twitter.com/arc90' class='footer-twitterLink'>Follow us on Twitter &raquo;</a>",
-		         "<span class='version'>Readability version " + readability.version + "</span>",
-		     "</div>",
-		"</div>"].join('');
-				
+        articleFooter.id = "readFooter";
+        articleFooter.innerHTML = [
+        "<div id='rdb-footer-print'>Excerpted from <cite>" + document.title + "</cite><br />" + window.location.href + "</div>",
+        "<div id='rdb-footer-wrapper'>",
+             "<div id='rdb-footer-left'>",
+                 "<a href='http://lab.arc90.com/experiments/readability' id='readability-logo'>Readability &mdash;&nbsp;</a>",
+                 "<a href='http://www.arc90.com/' id='arc90-logo'> An Arc90 Laboratory Experiment&nbsp;</a>",
+                 " <span id='readability-url'> http://lab.arc90.com/experiments/readability</span>",
+             "</div>",
+             "<div id='rdb-footer-right'>",
+                 "<a href='http://www.twitter.com/arc90' class='footer-twitterLink'>Follow us on Twitter &raquo;</a>",
+                 "<span class='version'>Readability version " + readability.version + "</span>",
+             "</div>",
+        "</div>"].join('');
+                
         return articleFooter;
     },
     
@@ -346,14 +346,14 @@ var readability = {
             }
         }
 
-		document.body.id = "readabilityBody";
+        document.body.id = "readabilityBody";
 
         var frames = document.getElementsByTagName('frame');
         if(frames.length > 0)
         {
             var bestFrame = null;
             var bestFrameSize = 0;    /* The frame to try to run readability upon. Must be on same domain. */
-			var biggestFrameSize = 0; /* Used for the error message. Can be on any domain. */
+            var biggestFrameSize = 0; /* Used for the error message. Can be on any domain. */
             for(var frameIndex = 0; frameIndex < frames.length; frameIndex++)
             {
                 var frameSize = frames[frameIndex].offsetWidth + frames[frameIndex].offsetHeight;
@@ -366,10 +366,10 @@ var readability = {
                     dbg(eFrames);
                 }
 
-				if(frameSize > biggestFrameSize) {
-					biggestFrameSize         = frameSize;
-					readability.biggestFrame = frames[frameIndex];
-				}
+                if(frameSize > biggestFrameSize) {
+                    biggestFrameSize         = frameSize;
+                    readability.biggestFrame = frames[frameIndex];
+                }
                 
                 if(canAccessFrame && frameSize > bestFrameSize)
                 {
@@ -418,26 +418,26 @@ var readability = {
      * @return void
     **/
     addFootnotes: function(articleContent) {
-		var footnotesWrapper = document.getElementById('readability-footnotes'),
-		    articleFootnotes = document.getElementById('readability-footnotes-list');
-		
-		if(!footnotesWrapper) {
-	        footnotesWrapper               = document.createElement('div');
-			footnotesWrapper.id            = 'readability-footnotes';
-	        footnotesWrapper.innerHTML     = '<h3>References</h3>';
-			footnotesWrapper.style.display = 'none'; /* Until we know we have footnotes, don't show the references block. */
-			
-			articleFootnotes    = document.createElement('ol');
-			articleFootnotes.id = 'readability-footnotes-list';
-			
-	        footnotesWrapper.appendChild(articleFootnotes);
-	
-			var readFooter = document.getElementById('readFooter');
-			
-			if(readFooter) {
-				readFooter.parentNode.insertBefore(footnotesWrapper, readFooter);
-			}
-		}
+        var footnotesWrapper = document.getElementById('readability-footnotes'),
+            articleFootnotes = document.getElementById('readability-footnotes-list');
+        
+        if(!footnotesWrapper) {
+            footnotesWrapper               = document.createElement('div');
+            footnotesWrapper.id            = 'readability-footnotes';
+            footnotesWrapper.innerHTML     = '<h3>References</h3>';
+            footnotesWrapper.style.display = 'none'; /* Until we know we have footnotes, don't show the references block. */
+            
+            articleFootnotes    = document.createElement('ol');
+            articleFootnotes.id = 'readability-footnotes-list';
+            
+            footnotesWrapper.appendChild(articleFootnotes);
+    
+            var readFooter = document.getElementById('readFooter');
+            
+            if(readFooter) {
+                readFooter.parentNode.insertBefore(footnotesWrapper, readFooter);
+            }
+        }
 
         var articleLinks = articleContent.getElementsByTagName('a');
         var linkCount    = articleFootnotes.getElementsByTagName('li').length;
@@ -483,7 +483,7 @@ var readability = {
         }
 
         if(linkCount > 0) {
-			footnotesWrapper.style.display = 'block';
+            footnotesWrapper.style.display = 'block';
         }
     },
 
@@ -647,7 +647,7 @@ var readability = {
      * grabArticle - Using a variety of metrics (content score, classname, element types), find the content that is
      *               most likely to be the stuff a user wants to read. Then return it wrapped up in a div.
      *
-	 * @param page a document to run upon. Needs to be a full document, complete with body.
+     * @param page a document to run upon. Needs to be a full document, complete with body.
      * @return Element
     **/
     grabArticle: function (page) {
@@ -656,7 +656,7 @@ var readability = {
 
         page = page ? page : document.body;
 
-		var pageCacheHtml = page.innerHTML;
+        var pageCacheHtml = page.innerHTML;
 
         var allElements = page.getElementsByTagName('*');
 
@@ -675,12 +675,12 @@ var readability = {
             if (stripUnlikelyCandidates) {
                 var unlikelyMatchString = node.className + node.id;
                 if (
-					(
-                    	unlikelyMatchString.search(readability.regexps.unlikelyCandidates) !== -1 &&
-                    	unlikelyMatchString.search(readability.regexps.okMaybeItsACandidate) == -1 &&
-                    	node.tagName !== "BODY"
-					)
-				)
+                    (
+                        unlikelyMatchString.search(readability.regexps.unlikelyCandidates) !== -1 &&
+                        unlikelyMatchString.search(readability.regexps.okMaybeItsACandidate) == -1 &&
+                        node.tagName !== "BODY"
+                    )
+                )
                 {
                     dbg("Removing unlikely candidate - " + unlikelyMatchString);
                     node.parentNode.removeChild(node);
@@ -827,13 +827,13 @@ var readability = {
             var siblingNode = siblingNodes[s];
             var append      = false;
 
-			/**
-			 * Fix for odd IE7 Crash where siblingNode does not exist even though this should be a live nodeList.
-			 * Example of error visible here: http://www.esquire.com/features/honesty0707
-			**/
-			if(!siblingNode) {
-				continue;
-			}
+            /**
+             * Fix for odd IE7 Crash where siblingNode does not exist even though this should be a live nodeList.
+             * Example of error visible here: http://www.esquire.com/features/honesty0707
+            **/
+            if(!siblingNode) {
+                continue;
+            }
 
             dbg("Looking at sibling node: " + siblingNode + " (" + siblingNode.className + ":" + siblingNode.id + ")" + ((typeof siblingNode.readability != 'undefined') ? (" with score " + siblingNode.readability.contentScore) : ''));
             dbg("Sibling has score " + (siblingNode.readability ? siblingNode.readability.contentScore : 'Unknown'));
@@ -909,37 +909,37 @@ var readability = {
         **/
         readability.prepArticle(articleContent);
 
-		/**
-		 * Now that we've gone through the full algorithm, check to see if we got any meaningful content.
-		 * If we didn't, we may need to re-run grabArticle with different flags set. This gives us a higher
-		 * likelihood of finding the content, and the sieve approach gives us a higher likelihood of
-		 * finding the -right- content.
-		**/
+        /**
+         * Now that we've gone through the full algorithm, check to see if we got any meaningful content.
+         * If we didn't, we may need to re-run grabArticle with different flags set. This gives us a higher
+         * likelihood of finding the content, and the sieve approach gives us a higher likelihood of
+         * finding the -right- content.
+        **/
         if(readability.getInnerText(articleContent, false).length < 250)
         {
-			/**
-			 * Reset the list of parsedPages because we failed to parse the
-			 * content properly. The next page link logic needs to be re-run.
-			**/
-			readability.parsedPages = {};
+            /**
+             * Reset the list of parsedPages because we failed to parse the
+             * content properly. The next page link logic needs to be re-run.
+            **/
+            readability.parsedPages = {};
 
-			page.innerHTML = pageCacheHtml;
+            page.innerHTML = pageCacheHtml;
 
-	        if (readability.flagIsActive(readability.FLAG_STRIP_UNLIKELYS)) {
-	            readability.removeFlag(readability.FLAG_STRIP_UNLIKELYS);
-	            return readability.grabArticle(page);
-	        }
-	        else if (readability.flagIsActive(readability.FLAG_WEIGHT_CLASSES)) {
-	            readability.removeFlag(readability.FLAG_WEIGHT_CLASSES);
-	            return readability.grabArticle(page);
-	        }
-			else if (readability.flagIsActive(readability.FLAG_CLEAN_CONDITIONALLY)) {
-				readability.removeFlag(readability.FLAG_CLEAN_CONDITIONALLY);
-				return readability.grabArticle(page);
-			} else {
-				return null;
+            if (readability.flagIsActive(readability.FLAG_STRIP_UNLIKELYS)) {
+                readability.removeFlag(readability.FLAG_STRIP_UNLIKELYS);
+                return readability.grabArticle(page);
             }
-		}
+            else if (readability.flagIsActive(readability.FLAG_WEIGHT_CLASSES)) {
+                readability.removeFlag(readability.FLAG_WEIGHT_CLASSES);
+                return readability.grabArticle(page);
+            }
+            else if (readability.flagIsActive(readability.FLAG_CLEAN_CONDITIONALLY)) {
+                readability.removeFlag(readability.FLAG_CLEAN_CONDITIONALLY);
+                return readability.grabArticle(page);
+            } else {
+                return null;
+            }
+        }
         
         return articleContent;
     },
@@ -950,16 +950,16 @@ var readability = {
      * @param Element
     **/
     removeScripts: function (doc) {
-		var scripts = doc.getElementsByTagName('script');
-		for(var i = scripts.length-1; i >= 0; i--)
-		{
-			if(typeof(scripts[i].src) == "undefined" || (scripts[i].src.indexOf('readability') == -1 && scripts[i].src.indexOf('typekit') == -1))
-			{
-				scripts[i].nodeValue="";
-				scripts[i].removeAttribute('src');
-			    scripts[i].parentNode.removeChild(scripts[i]);          
-			}
-		}
+        var scripts = doc.getElementsByTagName('script');
+        for(var i = scripts.length-1; i >= 0; i--)
+        {
+            if(typeof(scripts[i].src) == "undefined" || (scripts[i].src.indexOf('readability') == -1 && scripts[i].src.indexOf('typekit') == -1))
+            {
+                scripts[i].nodeValue="";
+                scripts[i].removeAttribute('src');
+                scripts[i].parentNode.removeChild(scripts[i]);          
+            }
+        }
     },
     
     /**
@@ -972,9 +972,9 @@ var readability = {
     getInnerText: function (e, normalizeSpaces) {
         var textContent    = "";
 
-		if(typeof(e.textContent) == "undefined" && typeof(e.innerText) == "undefined") {
-			return "";
-		}
+        if(typeof(e.textContent) == "undefined" && typeof(e.innerText) == "undefined") {
+            return "";
+        }
 
         normalizeSpaces = (typeof normalizeSpaces == 'undefined') ? true : normalizeSpaces;
 
@@ -1051,52 +1051,52 @@ var readability = {
         return linkLength / textLength;
     },
     
-	/**
-	 * Find a cleaned up version of the current URL, to use for comparing links for possible next-pageyness.
-	 *
-	 * @author Dan Lacy
-	 * @return string the base url
-	**/
-	findBaseUrl: function () {
-		var noUrlParams		= window.location.pathname.split("?")[0],
-			urlSlashes		= noUrlParams.split("/").reverse(),
-			cleanedSegments = [],
-			possibleType	= "";
+    /**
+     * Find a cleaned up version of the current URL, to use for comparing links for possible next-pageyness.
+     *
+     * @author Dan Lacy
+     * @return string the base url
+    **/
+    findBaseUrl: function () {
+        var noUrlParams     = window.location.pathname.split("?")[0],
+            urlSlashes      = noUrlParams.split("/").reverse(),
+            cleanedSegments = [],
+            possibleType    = "";
 
-		for (var i = 0, slashLen = urlSlashes.length; i < slashLen; i++) {
-			var segment = urlSlashes[i];
+        for (var i = 0, slashLen = urlSlashes.length; i < slashLen; i++) {
+            var segment = urlSlashes[i];
 
-			// Split off and save anything that looks like a file type.
-			if (segment.indexOf(".") !== -1) {
-				possibleType = "." + segment.split(".")[1];
-				segment = segment.split(".")[0];
-			}
-			
-			/**
-			 * EW-CMS specific segment replacement. Ugly.
-			 * Example: http://www.ew.com/ew/article/0,,20313460_20369436,00.html
-			**/
-			if(segment.indexOf(',00') !== -1) {
-				segment = segment.replace(',00', '');
-			}
-			
-			// If our first or second segment has anything looking like a page number, remove it.
-			if (segment.match(/((_|-)?p[a-z]*|(_|-))[0-9]{1,2}$/i) && ((i === 1) || (i === 0))) {
-				segment = segment.replace(/((_|-)?p[a-z]*|(_|-))[0-9]{1,2}$/i, "");
-			}
+            // Split off and save anything that looks like a file type.
+            if (segment.indexOf(".") !== -1) {
+                possibleType = "." + segment.split(".")[1];
+                segment = segment.split(".")[0];
+            }
+            
+            /**
+             * EW-CMS specific segment replacement. Ugly.
+             * Example: http://www.ew.com/ew/article/0,,20313460_20369436,00.html
+            **/
+            if(segment.indexOf(',00') !== -1) {
+                segment = segment.replace(',00', '');
+            }
+            
+            // If our first or second segment has anything looking like a page number, remove it.
+            if (segment.match(/((_|-)?p[a-z]*|(_|-))[0-9]{1,2}$/i) && ((i === 1) || (i === 0))) {
+                segment = segment.replace(/((_|-)?p[a-z]*|(_|-))[0-9]{1,2}$/i, "");
+            }
 
-			// If our first segment doesn't contain any letters and/or our second segment is shorter than 3 characters, remove it.
-			var del = (segment.length < 3 && ((i === 1) || (i === 0)) && !urlSlashes[0].match(/[a-z]/i) || segment.toLowerCase() == "index") ? true : false;
+            // If our first segment doesn't contain any letters and/or our second segment is shorter than 3 characters, remove it.
+            var del = (segment.length < 3 && ((i === 1) || (i === 0)) && !urlSlashes[0].match(/[a-z]/i) || segment.toLowerCase() == "index") ? true : false;
 
-			// If it's not marked for deletion, push it to cleanedSegments.
-			if (!del) {
-				cleanedSegments.push(segment);
-			}
-		}
+            // If it's not marked for deletion, push it to cleanedSegments.
+            if (!del) {
+                cleanedSegments.push(segment);
+            }
+        }
 
-		// This is our final, cleaned, base article URL.
-		return window.location.protocol + "//" + window.location.host + cleanedSegments.reverse().join("/");
-	},
+        // This is our final, cleaned, base article URL.
+        return window.location.protocol + "//" + window.location.host + cleanedSegments.reverse().join("/");
+    },
 
     /**
      * Look for any paging links that may occur within the document.
@@ -1105,85 +1105,86 @@ var readability = {
      * @return object (array)
     **/
     findNextPageLink: function (elem) {
-		var possiblePages = {},
-		    allLinks = elem.getElementsByTagName('a'),
-			articleBaseUrl = readability.findBaseUrl();
+        var possiblePages = {},
+            allLinks = elem.getElementsByTagName('a'),
+            articleBaseUrl = readability.findBaseUrl();
 
-		/**
-		 * Loop through all links, looking for hints that they may be next-page links.
-		 * Things like having "page" in their textContent, className or id, or being a child
-		 * of a node with a page-y className or id.
-		 *
-		 * Also possible: levenshtein distance? longest common subsequence?
-		 *
-		 * After we do that, assign each page a score, and 
-		**/
-		for(i = 0, il = allLinks.length; i < il; i++) {
-			var link     = allLinks[i],
-			    linkHref = allLinks[i].href.replace(/#.*$/, '').replace(/\/$/, '');
+        /**
+         * Loop through all links, looking for hints that they may be next-page links.
+         * Things like having "page" in their textContent, className or id, or being a child
+         * of a node with a page-y className or id.
+         *
+         * Also possible: levenshtein distance? longest common subsequence?
+         *
+         * After we do that, assign each page a score, and pick the one that looks most like the next page link,
+		 * as long as its score is strong enough to have decent confidence.
+        **/
+        for(i = 0, il = allLinks.length; i < il; i++) {
+            var link     = allLinks[i],
+                linkHref = allLinks[i].href.replace(/#.*$/, '').replace(/\/$/, '');
 
-			/* If the article base URL is not a substring of this URL, ignore it */
-			if(linkHref == articleBaseUrl || linkHref == window.location.href || linkHref in readability.parsedPages || linkHref.indexOf(articleBaseUrl) !== 0) {
-				continue;
-			}
-			
-			var linkText = readability.getInnerText(link);
+            /* If the article base URL is not a substring of this URL, ignore it */
+            if(linkHref == articleBaseUrl || linkHref == window.location.href || linkHref in readability.parsedPages || linkHref.indexOf(articleBaseUrl) !== 0) {
+                continue;
+            }
+            
+            var linkText = readability.getInnerText(link);
 
-			/* If the linkText looks like it's not the next page, skip it. */
-			if(linkText.match(/(print|comment|discuss|e[\-]?mail|share|reply|view|login|sign|single)/i) || linkText.length > 25) {
-				continue;
-			}
+            /* If the linkText looks like it's not the next page, skip it. */
+            if(linkText.match(/(print|comment|discuss|e[\-]?mail|share|reply|view|login|sign|single)/i) || linkText.length > 25) {
+                continue;
+            }
 
-			/* If the leftovers of the URL after removing the base URL don't contain any digits, it's certainly not a next page link. */
-			var linkHrefLeftover = linkHref.replace(articleBaseUrl, '');
-			if(!linkHrefLeftover.match(/\d/)) {
-				continue;
-			}
-			
-			if(!(linkHref in possiblePages)) {
-				possiblePages[linkHref] = {"score": 0, "linkText": linkText, "href": linkHref};				
-			} else {
-				possiblePages[linkHref].linkText += ' | ' + linkText;
-			}
+            /* If the leftovers of the URL after removing the base URL don't contain any digits, it's certainly not a next page link. */
+            var linkHrefLeftover = linkHref.replace(articleBaseUrl, '');
+            if(!linkHrefLeftover.match(/\d/)) {
+                continue;
+            }
+            
+            if(!(linkHref in possiblePages)) {
+                possiblePages[linkHref] = {"score": 0, "linkText": linkText, "href": linkHref};             
+            } else {
+                possiblePages[linkHref].linkText += ' | ' + linkText;
+            }
 
-			linkObj = possiblePages[linkHref];
+            linkObj = possiblePages[linkHref];
 
-			var linkData = linkText + ' ' + link.className + ' ' + link.id;
-			if(linkData.match(/(next|continue|>|»)/i)) {
-				linkObj.score += 50;
-			}
-			if(linkData.match(/(first|last)/i)) { // -65 is enough to negate any bonuses gotten from a > or » in the text, 
-				linkObj.score -= 65;              // but not enough to destroy the odds of us being on the second to last page.
-			}
-			if(linkData.match(readability.regexps.negative)) {
-			    linkObj.score -= 50;
-			}
-			if(linkData.match(/(prev|<|«)/i)) {
-				linkObj.score -= 200;
-			}
+            var linkData = linkText + ' ' + link.className + ' ' + link.id;
+            if(linkData.match(/(next|continue|>|»)/i)) {
+                linkObj.score += 50;
+            }
+            if(linkData.match(/(first|last)/i)) { // -65 is enough to negate any bonuses gotten from a > or » in the text, 
+                linkObj.score -= 65;              // but not enough to destroy the odds of us being on the second to last page.
+            }
+            if(linkData.match(readability.regexps.negative)) {
+                linkObj.score -= 50;
+            }
+            if(linkData.match(/(prev|<|«)/i)) {
+                linkObj.score -= 200;
+            }
 
-			/* If a parentNode contains page or paging or paginat */
-			var parentNode = link.parentNode,
-			    positiveNodeMatch = false,
-			    negativeNodeMatch = false;
-			while(parentNode) {
-				var parentNodeClassAndId = parentNode.className + ' ' + parentNode.id;
-				if(!positiveNodeMatch && parentNodeClassAndId && parentNodeClassAndId.match(/pag(e|ing|inat)/i)) {
-					positiveNodeMatch = true;
-					linkObj.score += 25;
-				}
-				if(!negativeNodeMatch && parentNodeClassAndId && parentNodeClassAndId.match(readability.regexps.negative)) {
-					linkObj.score -= 25;
-					negativeNodeMatch = true;
-				}
-				
-				parentNode = parentNode.parentNode;
-			}
+            /* If a parentNode contains page or paging or paginat */
+            var parentNode = link.parentNode,
+                positiveNodeMatch = false,
+                negativeNodeMatch = false;
+            while(parentNode) {
+                var parentNodeClassAndId = parentNode.className + ' ' + parentNode.id;
+                if(!positiveNodeMatch && parentNodeClassAndId && parentNodeClassAndId.match(/pag(e|ing|inat)/i)) {
+                    positiveNodeMatch = true;
+                    linkObj.score += 25;
+                }
+                if(!negativeNodeMatch && parentNodeClassAndId && parentNodeClassAndId.match(readability.regexps.negative)) {
+                    linkObj.score -= 25;
+                    negativeNodeMatch = true;
+                }
+                
+                parentNode = parentNode.parentNode;
+            }
 
-			/**
-			 * If the URL looks like it has paging in it, add to the score.
-			 * Things like /page/2/, /pagenum/2, ?p=3, ?page=11, ?pagination=34
-			**/
+            /**
+             * If the URL looks like it has paging in it, add to the score.
+             * Things like /page/2/, /pagenum/2, ?p=3, ?page=11, ?pagination=34
+            **/
             if (linkHref.match(/p(a|g|ag)?(e|ing|ination)?(=|\/)[0-9]{1,2}/i) || linkHref.match(/(page|paging)/i)) {
                 linkObj.score += 25;
             }
@@ -1195,47 +1196,47 @@ var readability = {
                 linkObj.score -= 1;
             }
 
-			/**
-			 * If the link text can be parsed as a number, give it a minor bonus, with a slight
-			 * bias towards lower numbered pages. This is so that pages that might not have 'next'
-			 * in their text can still get scored, and sorted properly by score.
-			**/
-			linkTextAsNumber = parseInt(linkText, 10);
-			if(linkTextAsNumber) {
+            /**
+             * If the link text can be parsed as a number, give it a minor bonus, with a slight
+             * bias towards lower numbered pages. This is so that pages that might not have 'next'
+             * in their text can still get scored, and sorted properly by score.
+            **/
+            linkTextAsNumber = parseInt(linkText, 10);
+            if(linkTextAsNumber) {
                 // Punish 1 since we're either already there, or it's probably before what we want anyways.
-			    if (linkTextAsNumber === 1) {
-			        linkObj.score -= 10;
-			    }
-			    else {
-					// Todo: Describe this better
-    				linkObj.score += Math.max(0, 10 - linkTextAsNumber);
-			    }
-			}
-		}
+                if (linkTextAsNumber === 1) {
+                    linkObj.score -= 10;
+                }
+                else {
+                    // Todo: Describe this better
+                    linkObj.score += Math.max(0, 10 - linkTextAsNumber);
+                }
+            }
+        }
 
-		/**
-		 * Loop thrugh all of our possible pages from above and find our top candidate for the next page URL.
-		 * Require at least a score of 50, which is a relatively high confidence that this page is the next link.
-		**/
-		var topPage = null;
-		for(var page in possiblePages) {
-			if(possiblePages.hasOwnProperty(page)) {
-				if(possiblePages[page].score >= 50 && (!topPage || topPage.score < possiblePages[page].score)) {
-					topPage = possiblePages[page];
-				}
-			}
-		}
+        /**
+         * Loop thrugh all of our possible pages from above and find our top candidate for the next page URL.
+         * Require at least a score of 50, which is a relatively high confidence that this page is the next link.
+        **/
+        var topPage = null;
+        for(var page in possiblePages) {
+            if(possiblePages.hasOwnProperty(page)) {
+                if(possiblePages[page].score >= 50 && (!topPage || topPage.score < possiblePages[page].score)) {
+                    topPage = possiblePages[page];
+                }
+            }
+        }
 
-		if(topPage) {
-			var nextHref = topPage.href.replace(/\/$/,'');
+        if(topPage) {
+            var nextHref = topPage.href.replace(/\/$/,'');
 
-			dbg('NEXT PAGE IS ' + nextHref);
-			readability.parsedPages[nextHref] = true;
-			return nextHref;			
-		}
-		else {
-		    return null;
-		}
+            dbg('NEXT PAGE IS ' + nextHref);
+            readability.parsedPages[nextHref] = true;
+            return nextHref;            
+        }
+        else {
+            return null;
+        }
     },
 
     /**
@@ -1277,7 +1278,7 @@ var readability = {
         if (typeof options === 'undefined') { options = {}; }
 
         request.onreadystatechange = respondToReadyState;
-		
+        
         request.open('get', url, true);
         request.setRequestHeader('Accept', 'text/html');
 
@@ -1297,75 +1298,75 @@ var readability = {
      * Make an AJAX request for each page and append it to the document.
     **/
     appendNextPage: function (nextPageLink) {
-		readability.curPageNum++;
+        readability.curPageNum++;
 
-		var articlePage       = document.createElement("div");
-		articlePage.id        = 'readability-page-' + readability.curPageNum;
-		articlePage.innerHTML = '<p class="page-separator" title="Page ' + readability.curPageNum + '">&sect;</p>';
+        var articlePage       = document.createElement("div");
+        articlePage.id        = 'readability-page-' + readability.curPageNum;
+        articlePage.innerHTML = '<p class="page-separator" title="Page ' + readability.curPageNum + '">&sect;</p>';
 
         document.getElementById('readability-content').appendChild(articlePage);
 
-		/**
-		 * Now that we've built the article page DOM element, get the page content
-		 * asynchronously and load the cleaned content into the div we created for it.
-		 *
-		 * Todo: try using a self-calling function rather than with
-		 *
-		 * Yes, "with statement is considered harmful". But this is using with as a replacement for let which is in ecmascript 1.7, so it's okay.
-		 * See here: http://stackoverflow.com/questions/61552/are-there-legitimate-uses-for-javascripts-with-statement#answer-185283
-		**/
-		with({pageUrl: nextPageLink, thisPage: articlePage}) {
+        /**
+         * Now that we've built the article page DOM element, get the page content
+         * asynchronously and load the cleaned content into the div we created for it.
+         *
+         * Todo: try using a self-calling function rather than with
+         *
+         * Yes, "with statement is considered harmful". But this is using with as a replacement for let which is in ecmascript 1.7, so it's okay.
+         * See here: http://stackoverflow.com/questions/61552/are-there-legitimate-uses-for-javascripts-with-statement#answer-185283
+        **/
+        with({pageUrl: nextPageLink, thisPage: articlePage}) {
             readability.ajax(pageUrl, {
                 success: function(r) {
                     // TODO: this ends up doubling up page numbers on NYTimes articles. Need to generically parse those away.
-					var page = document.createElement('div');
+                    var page = document.createElement('div');
 
-					/**
-					 * Do some preprocessing to our HTML to make it ready for appending.
-					 * • Remove any script tags. Swap and reswap newlines with a unicode character because multiline regex doesn't work in javascript.
-					 * • Turn any noscript tags into divs so that we can parse them. This allows us to find any next page links hidden via javascript.
-					 * • Turn all double br's into p's - was handled by prepDocument in the original view.
-					 *   Maybe in the future abstract out prepDocument to work for both the original document and AJAX-added pages.
-					**/
-					var responseHtml = r.responseText.
-					                    replace(/\n/g,'\uffff').replace(/<script.*?>.*?<\/script>/gi, '').replace(/\uffff/g,'\n').
-										replace(/<(\/?)noscript/gi, '<$1div').
-										replace(readability.regexps.replaceBrs, '</p><p>').replace(readability.regexps.replaceFonts, '<$1span>');
-			        
-					page.innerHTML = responseHtml;
+                    /**
+                     * Do some preprocessing to our HTML to make it ready for appending.
+                     * • Remove any script tags. Swap and reswap newlines with a unicode character because multiline regex doesn't work in javascript.
+                     * • Turn any noscript tags into divs so that we can parse them. This allows us to find any next page links hidden via javascript.
+                     * • Turn all double br's into p's - was handled by prepDocument in the original view.
+                     *   Maybe in the future abstract out prepDocument to work for both the original document and AJAX-added pages.
+                    **/
+                    var responseHtml = r.responseText.
+                                        replace(/\n/g,'\uffff').replace(/<script.*?>.*?<\/script>/gi, '').replace(/\uffff/g,'\n').
+                                        replace(/<(\/?)noscript/gi, '<$1div').
+                                        replace(readability.regexps.replaceBrs, '</p><p>').replace(readability.regexps.replaceFonts, '<$1span>');
+                    
+                    page.innerHTML = responseHtml;
 
-					/**
-					 * Reset all flags for the next page, as they will search through it and disable as necessary at the end of grabArticle.
-					**/
-					readability.flags = 0x1 | 0x2 | 0x4;
+                    /**
+                     * Reset all flags for the next page, as they will search through it and disable as necessary at the end of grabArticle.
+                    **/
+                    readability.flags = 0x1 | 0x2 | 0x4;
 
-					var nextPageLink = readability.findNextPageLink(page),
-					    content      = readability.grabArticle(page);
+                    var nextPageLink = readability.findNextPageLink(page),
+                        content      = readability.grabArticle(page);
 
-					if(!content) {
-						return;
-					}
+                    if(!content) {
+                        return;
+                    }
 
                     readability.removeScripts(content);
 
                     thisPage.innerHTML = thisPage.innerHTML + content.innerHTML;
 
-					/**
-					 * After the page has rendered, post process the content. This delay is necessary because,
-					 * in webkit at least, offsetWidth is not set in time to determine image width. We have to
-					 * wait a little bit for reflow to finish before we can fix floating images.
-					**/
-					window.setTimeout(
-						function() { readability.postProcessContent(thisPage); },
-						500
-					);
+                    /**
+                     * After the page has rendered, post process the content. This delay is necessary because,
+                     * in webkit at least, offsetWidth is not set in time to determine image width. We have to
+                     * wait a little bit for reflow to finish before we can fix floating images.
+                    **/
+                    window.setTimeout(
+                        function() { readability.postProcessContent(thisPage); },
+                        500
+                    );
 
-					if(nextPageLink) {
-						readability.appendNextPage(nextPageLink);
-					}
+                    if(nextPageLink) {
+                        readability.appendNextPage(nextPageLink);
+                    }
                 }
             });
-		}
+        }
     },
     
     /**
@@ -1405,9 +1406,9 @@ var readability = {
         return weight;
     },
 
-	nodeIsVisible: function (node) {
-		return (node.offsetWidth !== 0 || node.offsetHeight !== 0) && node.style.display.toLowerCase() !== 'none';
-	},
+    nodeIsVisible: function (node) {
+        return (node.offsetWidth !== 0 || node.offsetHeight !== 0) && node.style.display.toLowerCase() !== 'none';
+    },
 
     /**
      * Remove extraneous break tags from a node.
@@ -1468,9 +1469,9 @@ var readability = {
      **/
     cleanConditionally: function (e, tag) {
 
-		if(!readability.flagIsActive(readability.FLAG_CLEAN_CONDITIONALLY)) {
-			return;
-		}
+        if(!readability.flagIsActive(readability.FLAG_CLEAN_CONDITIONALLY)) {
+            return;
+        }
 
         var tagsList      = e.getElementsByTagName(tag);
         var curTagsLength = tagsList.length;
@@ -1553,67 +1554,67 @@ var readability = {
         }
     },
 
-	/*** Smooth scrolling logic ***/
-	
-	/**
-	 * easeInOut animation algorithm - returns an integer that says how far to move at this point in the animation.
-	 * Borrowed from jQuery's easing library.
-	 * @return integer
-	**/
-	easeInOut: function(start,end,totalSteps,actualStep) { 
-	    var delta = end - start; 
+    /*** Smooth scrolling logic ***/
+    
+    /**
+     * easeInOut animation algorithm - returns an integer that says how far to move at this point in the animation.
+     * Borrowed from jQuery's easing library.
+     * @return integer
+    **/
+    easeInOut: function(start,end,totalSteps,actualStep) { 
+        var delta = end - start; 
 
-		if ((actualStep/=totalSteps/2) < 1) return delta/2*actualStep*actualStep + start;
-		return -delta/2 * ((--actualStep)*(actualStep-2) - 1) + start;
-	},
-	
-	/**
-	 * Helper function to, in a cross compatible way, get or set the current scroll offset of the document.
-	 * @return mixed integer on get, the result of window.scrollTo on set
-	**/
-	scrollTop: function(scroll){
-		var setScroll = typeof scroll != 'undefined';
+        if ((actualStep/=totalSteps/2) < 1) return delta/2*actualStep*actualStep + start;
+        return -delta/2 * ((--actualStep)*(actualStep-2) - 1) + start;
+    },
+    
+    /**
+     * Helper function to, in a cross compatible way, get or set the current scroll offset of the document.
+     * @return mixed integer on get, the result of window.scrollTo on set
+    **/
+    scrollTop: function(scroll){
+        var setScroll = typeof scroll != 'undefined';
 
-		if(setScroll) {
-			return window.scrollTo(0, scroll);
-		}
-		if(typeof window.pageYOffset != 'undefined') {
-			return window.pageYOffset;
-		}
-		else if(document.documentElement.clientHeight) {
-			return document.documentElement.scrollTop;
-		}
-		else {
-			return document.body.scrollTop;
-		}
-	},
-	
-	/**
-	 * scrollTo - Smooth scroll to the point of scrollEnd in the document.
-	 * @return void
-	**/
-	curScrollStep: 0,
-	scrollTo: function (scrollStart, scrollEnd, steps, interval) {
-		if(readability.scrollTop() < scrollEnd) {
-			readability.curScrollStep++;
-			if(readability.curScrollStep > steps) {
-				return;
-			}
+        if(setScroll) {
+            return window.scrollTo(0, scroll);
+        }
+        if(typeof window.pageYOffset != 'undefined') {
+            return window.pageYOffset;
+        }
+        else if(document.documentElement.clientHeight) {
+            return document.documentElement.scrollTop;
+        }
+        else {
+            return document.body.scrollTop;
+        }
+    },
+    
+    /**
+     * scrollTo - Smooth scroll to the point of scrollEnd in the document.
+     * @return void
+    **/
+    curScrollStep: 0,
+    scrollTo: function (scrollStart, scrollEnd, steps, interval) {
+        if(readability.scrollTop() < scrollEnd) {
+            readability.curScrollStep++;
+            if(readability.curScrollStep > steps) {
+                return;
+            }
 
-			var oldScrollTop = readability.scrollTop();
-			
-			readability.scrollTop(readability.easeInOut(scrollStart, scrollEnd, steps, readability.curScrollStep));
+            var oldScrollTop = readability.scrollTop();
+            
+            readability.scrollTop(readability.easeInOut(scrollStart, scrollEnd, steps, readability.curScrollStep));
 
-			// We're at the end of the window.
-			if(oldScrollTop == readability.scrollTop()) {
-				return;
-			}
+            // We're at the end of the window.
+            if(oldScrollTop == readability.scrollTop()) {
+                return;
+            }
 
-			window.setTimeout(function() {
-				readability.scrollTo(scrollStart, scrollEnd, steps, interval);
-			}, interval);
-		}
-	},
+            window.setTimeout(function() {
+                readability.scrollTo(scrollStart, scrollEnd, steps, interval);
+            }, interval);
+        }
+    },
 
     
     /**
