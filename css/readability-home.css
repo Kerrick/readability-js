@@ -330,7 +330,7 @@ em {
 .size-large { font-size: 22px; }
 .size-x-large { font-size: 28px; }
 /* Style options */
-.style-newspaper { font-family:"Times New Roman", Times, serif; background:#fbfbfb; color:#080000; }
+.style-newspaper { font-family:Georgia,"Times New Roman", Times, serif; background:#fbfbfb; color:#080000; }
 .style-newspaper h1 { text-transform:capitalize; font-family:Georgia, "Times New Roman", Times, serif; }
 .style-newspaper #readInner a { color:#0924e1; }
 .style-novel { font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif; background:#f4eed9; color:#1d1916; }
