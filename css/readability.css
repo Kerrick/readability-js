@@ -8,12 +8,14 @@
 #readInner img {float:left;clear:both;margin: 0 12px 12px 0;}
 #readInner img.blockImage {clear: both;float: none;display: block;margin-left: auto;margin-right: auto;}
 #readInner h1 {display:block;width:100%;border-bottom:1px solid #333;font-size:1.2em;padding-bottom:.5em;margin-bottom:.75em;}
+#readInner .page-separator {clear:both;display:block;font-size:.85em;filter:alpha(opacity=20);opacity:.20;text-align:center;}
 .style-apertura #readInner h1 {border-bottom-color:#ededed;}
 #readInner blockquote {margin-left:3em;margin-right:3em;}
 #readability-inner * {margin-bottom:16px;border:none;background:none;}
+#readability-footnotes {clear:both;}
 /* Footer */
 #rdb-footer-print { display: none; }
-#rdb-footer-wrapper {display:block;border-top:1px solid #333;clear:both;overflow:hidden;}
+#rdb-footer-wrapper {display:block;border-top:1px solid #333;clear:both;overflow:hidden;margin:2em 0;}
 .style-apertura #rdb-footer-wrapper {border-top-color:#ededed;}
 #rdb-footer-left {display:inline;float:left;margin-top:15px;width:285px;background-position:0 -36px;}
 .rdbTypekit #rdb-footer-left {width:475px;}
