@@ -40,6 +40,7 @@ ol,ul { list-style-type: none; padding: 0; margin: 0; }
 #readInner ol, #readInner ul {
 	margin: 1em 0px 1em 0px;
 }
+#readInner sup{line-height:.8em;}
 
 img { border: 0; outline: 0; }
 
@@ -202,6 +203,11 @@ em {
     width: 174px;
     cursor: move;
     }
+#bookmarkletText {
+    margin: 0 0 0 45px;
+    height: 3.6em;
+    width: 330px;
+    }
 #readabilityBadge {
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
@@ -255,16 +261,15 @@ em {
 /* @end footer */
 
 /* @group overlay */
-
 #fancy_outer a {
 	color: #036;
 	text-decoration: underline;
-}
-
-
+    }
 /* @end overlay */
 
 /* @group Readability Examples */
+#article {font-size:10px;line-height:1;}
+
 #article h2 { 
     display: block;
     margin: 0;

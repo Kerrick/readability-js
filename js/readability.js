@@ -13,10 +13,11 @@ var dbg = (typeof console !== 'undefined') ? function(s) {
  * Readability is licensed under the Apache License, Version 2.0.
 **/
 var readability = {
-    version:                '1.7.0',
+    version:                '1.7.1',
     emailSrc:               'http://lab.arc90.com/experiments/readability/email.php',
     iframeLoads:             0,
     convertLinksToFootnotes: false,
+    reversePageScroll:       false, /* If they hold shift and hit space, scroll up */
     frameHack:               false, /**
                                       * The frame hack is to workaround a firefox bug where if you
                                       * pull content out of a frame and stick it into the parent element, the scrollbar won't appear.
@@ -31,17 +32,20 @@ var readability = {
     FLAG_WEIGHT_CLASSES:      0x2,
     FLAG_CLEAN_CONDITIONALLY: 0x4,
 
+    maxPages:    30, /* The maximum number of pages to loop through before we call it quits and just show a link. */
     parsedPages: {}, /* The list of pages we've parsed in this call of readability, for autopaging. As a key store for easier searching. */
-
+    pageETags:   {}, /* A list of the ETag headers of pages we've parsed, in case they happen to match, we'll know it's a duplicate. */
+    
     /**
      * All of the regular expressions in use within readability.
      * Defined up here so we don't instantiate them repeatedly in loops.
      **/
     regexps: {
-        unlikelyCandidates:    /combx|comment|disqus|extra|foot|header|menu|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup/i,
+        unlikelyCandidates:    /combx|comment|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup/i,
         okMaybeItsACandidate:  /and|article|body|column|main|shadow/i,
         positive:              /article|body|content|entry|hentry|main|page|pagination|post|text|blog|story/i,
-        negative:              /combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|widget/i,
+        negative:              /combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget/i,
+        extraneous:            /print|archive|comment|discuss|e[\-]?mail|share|reply|all|login|sign|single/i,
         divToPElements:        /<(a|blockquote|dl|div|img|ol|p|pre|table|ul)/i,
         replaceBrs:            /(<br[^>]*>[ \n\r\t]*){2,}/gi,
         replaceFonts:          /<(\/?)font[^>]*>/gi,
@@ -49,7 +53,9 @@ var readability = {
         normalize:             /\s{2,}/g,
         killBreaks:            /(<br\s*\/?>(\s|&nbsp;?)*){1,}/g,
         videos:                /http:\/\/(www\.)?(youtube|vimeo)\.com/i,
-        skipFootnoteLink:      /^\s*(\[?[a-z0-9]{1,2}\]?|^|edit|citation needed)\s*$/i
+        skipFootnoteLink:      /^\s*(\[?[a-z0-9]{1,2}\]?|^|edit|citation needed)\s*$/i,
+        nextLink:              /(next|continue|>([^\|]|$)|»([^\|]|$))/i, // Match: next, continue, >, >>, » but not >|, »| as those usually mean last.
+        prevLink:              /(prev|earl|old|new|<|«)/i
     },
 
     /**
@@ -91,7 +97,7 @@ var readability = {
         var articleFooter  = readability.getArticleFooter();
 
         if(!articleContent) {
-            articleContent    = document.createElement('div');
+            articleContent    = document.createElement("DIV");
             articleContent.id = "readability-content";
             articleContent.innerHTML = [
                 "<p>Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>let us know by submitting an issue.</a></p>",
@@ -172,14 +178,34 @@ var readability = {
         }
 
         /** Smooth scrolling **/
-        document.onkeypress = function(e) {
-          var code = (window.event) ? event.keyCode : e.keyCode;
-          if (code === 32) {
-            readability.curScrollStep = 0;
-            var windowHeight = window.innerHeight ? window.innerHeight : (document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight);
-            readability.scrollTo(readability.scrollTop(), readability.scrollTop() + (windowHeight - 50), 20, 10);
-            return false;
-          }
+        document.onkeydown = function(e) {
+            var code = (window.event) ? event.keyCode : e.keyCode;
+            if (code === 16) {
+                readability.reversePageScroll = true;
+                return;
+            }
+
+            if (code === 32) {
+                readability.curScrollStep = 0;
+                var windowHeight = window.innerHeight ? window.innerHeight : (document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight);
+
+                if(readability.reversePageScroll) {
+                    readability.scrollTo(readability.scrollTop(), readability.scrollTop() - (windowHeight - 50), 20, 10);                   
+                }
+                else {
+                    readability.scrollTo(readability.scrollTop(), readability.scrollTop() + (windowHeight - 50), 20, 10);                   
+                }
+                
+                return false;
+            }
+        };
+        
+        document.onkeyup = function(e) {
+            var code = (window.event) ? event.keyCode : e.keyCode;
+            if (code === 16) {
+                readability.reversePageScroll = false;
+                return;
+            }
         }
     },
 
@@ -393,7 +419,7 @@ var readability = {
             }
         }
 
-        /* remove all stylesheets */
+        /* Remove all stylesheets */
         for (var k=0;k < document.styleSheets.length; k++) {
             if (document.styleSheets[k].href !== null && document.styleSheets[k].href.lastIndexOf("readability") == -1) {
                 document.styleSheets[k].disabled = true;
@@ -422,7 +448,7 @@ var readability = {
             articleFootnotes = document.getElementById('readability-footnotes-list');
         
         if(!footnotesWrapper) {
-            footnotesWrapper               = document.createElement('div');
+            footnotesWrapper               = document.createElement("DIV");
             footnotesWrapper.id            = 'readability-footnotes';
             footnotesWrapper.innerHTML     = '<h3>References</h3>';
             footnotesWrapper.style.display = 'none'; /* Until we know we have footnotes, don't show the references block. */
@@ -460,7 +486,7 @@ var readability = {
             refLink.href      = '#readabilityFootnoteLink-' + linkCount;
             refLink.innerHTML = '<small><sup>[' + linkCount + ']</sup></small>';
             refLink.className = 'readability-DoNotFootnote';
-            refLink.style.color = 'inherit';
+            try { refLink.style.color = 'inherit'; } catch(e) {} /* IE7 doesn't like inherit. */
             
             if(articleLink.parentNode.lastChild == articleLink) {
                 articleLink.parentNode.appendChild(refLink);
@@ -468,8 +494,8 @@ var readability = {
                 articleLink.parentNode.insertBefore(refLink, articleLink.nextSibling);
             }
 
-            articleLink.style.color = 'inherit';
             articleLink.name        = 'readabilityLink-' + linkCount;
+            try { articleLink.style.color = 'inherit'; } catch(e) {} /* IE7 doesn't like inherit. */
 
             footnote.innerHTML      = "<small><sup><a href='#readabilityLink-" + linkCount + "' title='Jump to Link in Article'>^</a></sup></small> ";
 
@@ -565,7 +591,8 @@ var readability = {
          * as a header and not a subheader, so remove it since we already have a header.
         ***/
         if(articleContent.getElementsByTagName('h2').length == 1) {
-            readability.clean(articleContent, "h2"); }
+            readability.clean(articleContent, "h2");
+        }
         readability.clean(articleContent, "iframe");
 
         readability.cleanHeaders(articleContent);
@@ -577,14 +604,12 @@ var readability = {
 
         /* Remove extra paragraphs */
         var articleParagraphs = articleContent.getElementsByTagName('p');
-        for(var i = articleParagraphs.length-1; i >= 0; i--)
-        {
+        for(var i = articleParagraphs.length-1; i >= 0; i--) {
             var imgCount    = articleParagraphs[i].getElementsByTagName('img').length;
             var embedCount  = articleParagraphs[i].getElementsByTagName('embed').length;
             var objectCount = articleParagraphs[i].getElementsByTagName('object').length;
             
-            if(imgCount === 0 && embedCount === 0 && objectCount === 0 && readability.getInnerText(articleParagraphs[i], false) == '')
-            {
+            if(imgCount === 0 && embedCount === 0 && objectCount === 0 && readability.getInnerText(articleParagraphs[i], false) == '') {
                 articleParagraphs[i].parentNode.removeChild(articleParagraphs[i]);
             }
         }
@@ -669,8 +694,7 @@ var readability = {
         **/
         var node = null;
         var nodesToScore = [];
-        for(var nodeIndex = 0; (node = allElements[nodeIndex]); nodeIndex++)
-        {
+        for(var nodeIndex = 0; (node = allElements[nodeIndex]); nodeIndex++) {
             /* Remove unlikely candidates */
             if (stripUnlikelyCandidates) {
                 var unlikelyMatchString = node.className + node.id;
@@ -746,15 +770,13 @@ var readability = {
                 continue; }
 
             /* Initialize readability data for the parent. */
-            if(typeof parentNode.readability == 'undefined') 
-            {
+            if(typeof parentNode.readability == 'undefined') {
                 readability.initializeNode(parentNode);
                 candidates.push(parentNode);
             }
 
             /* Initialize readability data for the grandparent. */
-            if(grandParentNode && typeof(grandParentNode.readability) == 'undefined' && typeof(grandParentNode.tagName) != 'undefined')
-            {
+            if(grandParentNode && typeof(grandParentNode.readability) == 'undefined' && typeof(grandParentNode.tagName) != 'undefined') {
                 readability.initializeNode(grandParentNode);
                 candidates.push(grandParentNode);
             }
@@ -822,8 +844,7 @@ var readability = {
         var siblingNodes          = topCandidate.parentNode.childNodes;
 
 
-        for(var s=0, sl=siblingNodes.length; s < sl; s++)
-        {
+        for(var s=0, sl=siblingNodes.length; s < sl; s++) {
             var siblingNode = siblingNodes[s];
             var append      = false;
 
@@ -869,8 +890,7 @@ var readability = {
                 }
             }
 
-            if(append)
-            {
+            if(append) {
                 dbg("Appending node: " + siblingNode);
 
                 var nodeToAppend = null;
@@ -878,7 +898,7 @@ var readability = {
                     /* We have a node that isn't a common block level element, like a form or td tag. Turn it into a div so it doesn't get filtered out later by accident. */
                     
                     dbg("Altering siblingNode of " + siblingNode.nodeName + ' to div.');
-                    nodeToAppend = document.createElement('div');
+                    nodeToAppend = document.createElement("DIV");
                     try {
                         nodeToAppend.id = siblingNode.id;
                         nodeToAppend.innerHTML = siblingNode.innerHTML;
@@ -903,11 +923,14 @@ var readability = {
             }
         }
 
-
         /**
          * So we have all of the content that we need. Now we clean it up for presentation.
         **/
         readability.prepArticle(articleContent);
+
+        if (readability.curPageNum === 1) {
+            articleContent.innerHTML = '<div id="readability-page-1" class="page">' + articleContent.innerHTML + '</div>';
+        }
 
         /**
          * Now that we've gone through the full algorithm, check to see if we got any meaningful content.
@@ -915,8 +938,7 @@ var readability = {
          * likelihood of finding the content, and the sieve approach gives us a higher likelihood of
          * finding the -right- content.
         **/
-        if(readability.getInnerText(articleContent, false).length < 250)
-        {
+        if(readability.getInnerText(articleContent, false).length < 250) {
             /**
              * Reset the list of parsedPages because we failed to parse the
              * content properly. The next page link logic needs to be re-run.
@@ -1068,8 +1090,12 @@ var readability = {
 
             // Split off and save anything that looks like a file type.
             if (segment.indexOf(".") !== -1) {
-                possibleType = "." + segment.split(".")[1];
-                segment = segment.split(".")[0];
+                possibleType = segment.split(".")[1];
+
+                /* If the type isn't alpha-only, it's probably not actually a file extension. */
+                if(!possibleType.match(/[^a-zA-Z]/)) {
+                    segment = segment.split(".")[0];                    
+                }
             }
             
             /**
@@ -1079,16 +1105,29 @@ var readability = {
             if(segment.indexOf(',00') !== -1) {
                 segment = segment.replace(',00', '');
             }
-            
+
             // If our first or second segment has anything looking like a page number, remove it.
             if (segment.match(/((_|-)?p[a-z]*|(_|-))[0-9]{1,2}$/i) && ((i === 1) || (i === 0))) {
                 segment = segment.replace(/((_|-)?p[a-z]*|(_|-))[0-9]{1,2}$/i, "");
             }
 
-            // If our first segment doesn't contain any letters and/or our second segment is shorter than 3 characters, remove it.
-            var del = (segment.length < 3 && ((i === 1) || (i === 0)) && !urlSlashes[0].match(/[a-z]/i) || segment.toLowerCase() == "index") ? true : false;
 
-            // If it's not marked for deletion, push it to cleanedSegments.
+            del = false;
+
+            /* If this is purely a number, and it's the first or second segment, it's probably a page number. Remove it. */
+            if (i < 2 && segment.match(/^\d{1,2}$/)) {
+                del = true;
+            }
+            
+            /* If this is the first segment and it's just "index", remove it. */
+            if(i === 0 && segment.toLowerCase() == "index")
+                del = true;
+
+            /* If our first or second segment is smaller than 3 characters, and the first segment was purely alphas, remove it. */
+            if(i < 2 && segment.length < 3 && !urlSlashes[0].match(/[a-z]/i))
+                del = true;
+
+            /* If it's not marked for deletion, push it to cleanedSegments. */
             if (!del) {
                 cleanedSegments.push(segment);
             }
@@ -1116,22 +1155,26 @@ var readability = {
          *
          * Also possible: levenshtein distance? longest common subsequence?
          *
-         * After we do that, assign each page a score, and pick the one that looks most like the next page link,
-		 * as long as its score is strong enough to have decent confidence.
+         * After we do that, assign each page a score, and 
         **/
         for(i = 0, il = allLinks.length; i < il; i++) {
             var link     = allLinks[i],
                 linkHref = allLinks[i].href.replace(/#.*$/, '').replace(/\/$/, '');
 
-            /* If the article base URL is not a substring of this URL, ignore it */
-            if(linkHref == articleBaseUrl || linkHref == window.location.href || linkHref in readability.parsedPages || linkHref.indexOf(articleBaseUrl) !== 0) {
+            /* If we've already seen this page, ignore it */
+            if(linkHref == "" || linkHref == articleBaseUrl || linkHref == window.location.href || linkHref in readability.parsedPages) {
+                continue;
+            }
+            
+            /* If it's on a different domain, skip it. */
+            if(window.location.host != linkHref.split(/\/+/g)[1]) {
                 continue;
             }
             
             var linkText = readability.getInnerText(link);
 
             /* If the linkText looks like it's not the next page, skip it. */
-            if(linkText.match(/(print|comment|discuss|e[\-]?mail|share|reply|view|login|sign|single)/i) || linkText.length > 25) {
+            if(linkText.match(readability.regexps.extraneous) || linkText.length > 25) {
                 continue;
             }
 
@@ -1149,17 +1192,30 @@ var readability = {
 
             linkObj = possiblePages[linkHref];
 
+            /**
+             * If the articleBaseUrl isn't part of this URL, penalize this link. It could still be the link, but the odds are lower.
+             * Example: http://www.actionscript.org/resources/articles/745/1/JavaScript-and-VBScript-Injection-in-ActionScript-3/Page1.html
+            **/
+            if(linkHref.indexOf(articleBaseUrl) !== 0) {
+                linkObj.score -= 25;
+            }
+
             var linkData = linkText + ' ' + link.className + ' ' + link.id;
-            if(linkData.match(/(next|continue|>|»)/i)) {
+            if(linkData.match(readability.regexps.nextLink)) {
                 linkObj.score += 50;
             }
-            if(linkData.match(/(first|last)/i)) { // -65 is enough to negate any bonuses gotten from a > or » in the text, 
-                linkObj.score -= 65;              // but not enough to destroy the odds of us being on the second to last page.
+            if(linkData.match(/pag(e|ing|inat)/i)) {
+                linkObj.score += 25;
             }
-            if(linkData.match(readability.regexps.negative)) {
+            if(linkData.match(/(first|last)/i)) { // -65 is enough to negate any bonuses gotten from a > or » in the text, 
+                /* If we already matched on "next", last is probably fine. If we didn't, then it's bad. Penalize. */
+                if(!linkObj.linkText.match(readability.regexps.nextLink)) 
+                    linkObj.score -= 65;              
+            }
+            if(linkData.match(readability.regexps.negative) || linkData.match(readability.regexps.extraneous)) {
                 linkObj.score -= 50;
             }
-            if(linkData.match(/(prev|<|«)/i)) {
+            if(linkData.match(readability.regexps.prevLink)) {
                 linkObj.score -= 200;
             }
 
@@ -1174,8 +1230,11 @@ var readability = {
                     linkObj.score += 25;
                 }
                 if(!negativeNodeMatch && parentNodeClassAndId && parentNodeClassAndId.match(readability.regexps.negative)) {
-                    linkObj.score -= 25;
-                    negativeNodeMatch = true;
+                    /* If this is just something like "footer", give it a negative. If it's something like "body-and-footer", leave it be. */
+                    if(!parentNodeClassAndId.match(readability.regexps.positive)) {
+                        linkObj.score -= 25;
+                        negativeNodeMatch = true;                       
+                    }
                 }
                 
                 parentNode = parentNode.parentNode;
@@ -1189,12 +1248,19 @@ var readability = {
                 linkObj.score += 25;
             }
 
+            /* If the URL contains negative values, give a slight decrease. */
+            if (linkHref.match(readability.regexps.extraneous)) {
+                linkObj.score -= 15;
+            }
+
             /**
              * Minor punishment to anything that doesn't match our current URL.
+             * NOTE: I'm finding this to cause more harm than good where something is exactly 50 points.
+             *       Dan, can you show me a counterexample where this is necessary?
+             * if (linkHref.indexOf(window.location.href) !== 0) {
+             *    linkObj.score -= 1;
+             * }
             **/
-            if (linkHref.indexOf(window.location.href) !== 0) {
-                linkObj.score -= 1;
-            }
 
             /**
              * If the link text can be parsed as a number, give it a minor bonus, with a slight
@@ -1292,20 +1358,28 @@ var readability = {
         return request;
     },
 
-    curPageNum: 1,
-
     /**
      * Make an AJAX request for each page and append it to the document.
     **/
+    curPageNum: 1,
+
     appendNextPage: function (nextPageLink) {
         readability.curPageNum++;
 
-        var articlePage       = document.createElement("div");
+        var articlePage       = document.createElement("DIV");
         articlePage.id        = 'readability-page-' + readability.curPageNum;
+        articlePage.className = 'page';
         articlePage.innerHTML = '<p class="page-separator" title="Page ' + readability.curPageNum + '">&sect;</p>';
 
-        document.getElementById('readability-content').appendChild(articlePage);
+        document.getElementById("readability-content").appendChild(articlePage);
 
+        if(readability.curPageNum > readability.maxPages) {
+            var nextPageLink = "<div style='text-align: center'><a href='" + nextPageLink + "'>View Next Page</a></div>";
+
+            articlePage.innerHTML = articlePage.innerHTML + nextPageLink;
+            return;
+        }
+        
         /**
          * Now that we've built the article page DOM element, get the page content
          * asynchronously and load the cleaned content into the div we created for it.
@@ -1318,8 +1392,21 @@ var readability = {
         with({pageUrl: nextPageLink, thisPage: articlePage}) {
             readability.ajax(pageUrl, {
                 success: function(r) {
+
+                    /* First, check to see if we have a matching ETag in headers - if we do, this is a duplicate page. */
+                    var eTag = r.getResponseHeader('ETag');
+                    if(eTag) {
+                        if(eTag in readability.pageETags) {
+                            dbg("Exact duplicate page found via ETag. Aborting.");
+                            articlePage.style.display = 'none';
+                            return;
+                        } else {
+                            readability.pageETags[eTag] = 1;
+                        }                       
+                    }
+
                     // TODO: this ends up doubling up page numbers on NYTimes articles. Need to generically parse those away.
-                    var page = document.createElement('div');
+                    var page = document.createElement("DIV");
 
                     /**
                      * Do some preprocessing to our HTML to make it ready for appending.
@@ -1329,9 +1416,11 @@ var readability = {
                      *   Maybe in the future abstract out prepDocument to work for both the original document and AJAX-added pages.
                     **/
                     var responseHtml = r.responseText.
-                                        replace(/\n/g,'\uffff').replace(/<script.*?>.*?<\/script>/gi, '').replace(/\uffff/g,'\n').
+                                        replace(/\n/g,'\uffff').replace(/<script.*?>.*?<\/script>/gi, '').
+                                        replace(/\uffff/g,'\n').
                                         replace(/<(\/?)noscript/gi, '<$1div').
-                                        replace(readability.regexps.replaceBrs, '</p><p>').replace(readability.regexps.replaceFonts, '<$1span>');
+                                        replace(readability.regexps.replaceBrs, '</p><p>').
+                                        replace(readability.regexps.replaceFonts, '<$1span>');
                     
                     page.innerHTML = responseHtml;
 
@@ -1341,12 +1430,34 @@ var readability = {
                     readability.flags = 0x1 | 0x2 | 0x4;
 
                     var nextPageLink = readability.findNextPageLink(page),
-                        content      = readability.grabArticle(page);
+                        content      =  readability.grabArticle(page);
 
                     if(!content) {
+                        dbg("No content found in page to append. Aborting.")
                         return;
                     }
 
+                    /**
+                     * Anti-duplicate mechanism. Essentially, get the first paragraph of our new page.
+                     * Compare it against all of the the previous document's we've gotten. If the previous
+                     * document contains exactly the innerHTML of this first paragraph, it's probably a duplicate.
+                    **/
+                    firstP = content.getElementsByTagName("P").length ? content.getElementsByTagName("P")[0] : null;
+                    if(firstP && firstP.innerHTML.length > 100) {
+                        for(var i=1; i <= readability.curPageNum; i++) {
+                            var rPage = document.getElementById('readability-page-' + i);
+                            if(rPage && rPage.innerHTML.indexOf(firstP.innerHTML) !== -1) {
+                                dbg('Duplicate of page ' + i + ' - skipping.');
+                                articlePage.style.display = 'none';
+                                if(nextPageLink) {
+                                    readability.parsedPages[pageUrl] = true;
+                                    readability.appendNextPage(nextPageLink);
+                                }
+                                return;
+                            }
+                        }
+                    }
+                    
                     readability.removeScripts(content);
 
                     thisPage.innerHTML = thisPage.innerHTML + content.innerHTML;
@@ -1564,7 +1675,7 @@ var readability = {
     easeInOut: function(start,end,totalSteps,actualStep) { 
         var delta = end - start; 
 
-        if ((actualStep/=totalSteps/2) < 1) return delta/2*actualStep*actualStep + start;
+        if ((actualStep/=totalSteps/2) < 1) { return delta/2*actualStep*actualStep + start; }
         return -delta/2 * ((--actualStep)*(actualStep-2) - 1) + start;
     },
     
@@ -1595,7 +1706,10 @@ var readability = {
     **/
     curScrollStep: 0,
     scrollTo: function (scrollStart, scrollEnd, steps, interval) {
-        if(readability.scrollTop() < scrollEnd) {
+        if(
+            (scrollStart < scrollEnd && readability.scrollTop() < scrollEnd) ||
+            (scrollStart > scrollEnd && readability.scrollTop() > scrollEnd)
+          ) {
             readability.curScrollStep++;
             if(readability.curScrollStep > steps) {
                 return;
@@ -1629,7 +1743,7 @@ var readability = {
             return;
         }
 
-        var emailContainer = document.createElement('div');
+        var emailContainer = document.createElement("DIV");
         emailContainer.setAttribute('id', 'email-container');
         emailContainer.innerHTML = '<iframe src="'+readability.emailSrc + '?pageUrl='+escape(window.location)+'&pageTitle='+escape(document.title)+'" scrolling="no" onload="readability.removeFrame()" style="width:500px; height: 490px; border: 0;"></iframe>';
 
