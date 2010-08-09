@@ -41,7 +41,7 @@ var readability = {
      * Defined up here so we don't instantiate them repeatedly in loops.
      **/
     regexps: {
-        unlikelyCandidates:    /combx|comment|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup/i,
+        unlikelyCandidates:    /combx|comment|community|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup/i,
         okMaybeItsACandidate:  /and|article|body|column|main|shadow/i,
         positive:              /article|body|content|entry|hentry|main|page|pagination|post|text|blog|story/i,
         negative:              /combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget/i,
@@ -54,7 +54,7 @@ var readability = {
         killBreaks:            /(<br\s*\/?>(\s|&nbsp;?)*){1,}/g,
         videos:                /http:\/\/(www\.)?(youtube|vimeo)\.com/i,
         skipFootnoteLink:      /^\s*(\[?[a-z0-9]{1,2}\]?|^|edit|citation needed)\s*$/i,
-        nextLink:              /(next|continue|>([^\|]|$)|»([^\|]|$))/i, // Match: next, continue, >, >>, » but not >|, »| as those usually mean last.
+        nextLink:              /(next|weiter|continue|>([^\|]|$)|»([^\|]|$))/i, // Match: next, continue, >, >>, » but not >|, »| as those usually mean last.
         prevLink:              /(prev|earl|old|new|<|«)/i
     },
 
@@ -939,13 +939,7 @@ var readability = {
          * finding the -right- content.
         **/
         if(readability.getInnerText(articleContent, false).length < 250) {
-            /**
-             * Reset the list of parsedPages because we failed to parse the
-             * content properly. The next page link logic needs to be re-run.
-            **/
-            readability.parsedPages = {};
-
-            page.innerHTML = pageCacheHtml;
+        page.innerHTML = pageCacheHtml;
 
             if (readability.flagIsActive(readability.FLAG_STRIP_UNLIKELYS)) {
                 readability.removeFlag(readability.FLAG_STRIP_UNLIKELYS);
@@ -1449,10 +1443,7 @@ var readability = {
                             if(rPage && rPage.innerHTML.indexOf(firstP.innerHTML) !== -1) {
                                 dbg('Duplicate of page ' + i + ' - skipping.');
                                 articlePage.style.display = 'none';
-                                if(nextPageLink) {
-                                    readability.parsedPages[pageUrl] = true;
-                                    readability.appendNextPage(nextPageLink);
-                                }
+                                readability.parsedPages[pageUrl] = true;
                                 return;
                             }
                         }
