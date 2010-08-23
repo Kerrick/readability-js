@@ -973,7 +973,9 @@ var readability = {
             {
                 scripts[i].nodeValue="";
                 scripts[i].removeAttribute('src');
-                scripts[i].parentNode.removeChild(scripts[i]);          
+		if (scripts[i].parentNode) {
+	                scripts[i].parentNode.removeChild(scripts[i]);          
+		}
             }
         }
     },
