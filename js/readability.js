@@ -41,7 +41,7 @@ var readability = {
      * Defined up here so we don't instantiate them repeatedly in loops.
      **/
     regexps: {
-        unlikelyCandidates:    /combx|comment|community|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup/i,
+        unlikelyCandidates:    /combx|comment|community|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup|tweet|twitter/i,
         okMaybeItsACandidate:  /and|article|body|column|main|shadow/i,
         positive:              /article|body|content|entry|hentry|main|page|pagination|post|text|blog|story/i,
         negative:              /combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget/i,
@@ -113,6 +113,8 @@ var readability = {
 
         /* Apply user-selected styling */
         document.body.className = readStyle;
+        document.dir            = readability.getSuggestedDirection(articleTitle.innerHTML);
+
         if (readStyle == "style-athelas" || readStyle == "style-apertura"){
             overlay.className = readStyle + " rdbTypekit";
         }
@@ -260,6 +262,34 @@ var readability = {
 
         return articleTools;
     },
+
+    /**
+     * retuns the suggested direction of the string
+     *
+     * @return "rtl" || "ltr"
+     **/
+    getSuggestedDirection: function(text) {
+        function sanitizeText() {
+            return text.replace(/@\w+/, "");
+        }
+        
+        function countMatches(match) {
+            var matches = text.match(new RegExp(match, "g"));
+            return matches != null ? matches.length : 0; 
+        }
+        
+        function isRTL() {            
+            var count_heb =  countMatches("[\\u05B0-\\u05F4\\uFB1D-\\uFBF4]");
+            var count_arb =  countMatches("[\\u060C-\\u06FE\\uFB50-\\uFEFC]");
+
+            // if 20% of chars are Hebrew or Arbic then direction is rtl
+            return  (count_heb + count_arb) * 100 / text.length > 20;
+        }
+
+        text  = sanitizeText(text);
+        return isRTL() ? "rtl" : "ltr";
+    },
+
     
     /**
      * Get the article title as an H1.
