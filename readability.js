@@ -17,7 +17,6 @@ var dbg = (typeof console !== 'undefined') ? function(s) {
 **/
 var readability = {
     version:                '1.7.1',
-    emailSrc:               'http://lab.arc90.com/experiments/readability/email.php',
     iframeLoads:             0,
     convertLinksToFootnotes: false,
     reversePageScroll:       false, /* If they hold shift and hit space, scroll up */
@@ -250,7 +249,7 @@ var readability = {
     },
 
     /**
-     * Get the article tools Element that has buttons like reload, print, email.
+     * Get the article tools Element that has buttons like reload, print.
      *
      * @return void
      **/
@@ -261,7 +260,6 @@ var readability = {
         articleTools.innerHTML = 
             "<a href='#' onclick='return window.location.reload()' title='Reload original page' id='reload-page'>Reload Original Page</a>" +
             "<a href='#' onclick='javascript:window.print();' title='Print page' id='print-page'>Print Page</a>" +
-            "<a href='#' onclick='readability.emailBox(); return false;' title='Email page' id='email-page'>Email Page</a>";
 
         return articleTools;
     },
@@ -356,29 +354,20 @@ var readability = {
      **/
     getArticleFooter: function () {
         var articleFooter = document.createElement("DIV");
-
-        /**
-         * For research purposes, generate an img src that contains the chosen readstyle etc,
-         * so we can generate aggregate stats and change styles based on them in the future
-         **/
-        // var statsQueryParams = "?readStyle=" + encodeURIComponent(readStyle) + "&readMargin=" + encodeURIComponent(readMargin) + "&readSize=" + encodeURIComponent(readSize);
-        /* TODO: attach this to an image */
-
         articleFooter.id = "readFooter";
         articleFooter.innerHTML = [
         "<div id='rdb-footer-print'>Excerpted from <cite>" + document.title + "</cite><br />" + window.location.href + "</div>",
         "<div id='rdb-footer-wrapper'>",
              "<div id='rdb-footer-left'>",
-                 "<a href='http://lab.arc90.com/experiments/readability' id='readability-logo'>Readability &mdash;&nbsp;</a>",
-                 "<a href='http://www.arc90.com/' id='arc90-logo'> An Arc90 Laboratory Experiment&nbsp;</a>",
-                 " <span id='readability-url'> http://lab.arc90.com/experiments/readability</span>",
+                 "<a href='http://kerrick.github.com/readability-js/' id='readability-logo'>Readability JS</a> &mdash;",
+                 " <a href='https://github.com/Kerrick/readability-js'>An open source project</a>",
+                 " <span id='readability-attribution'>based on <a href='http://lab.arc90.com/experiments/readability'>An Arc90 Laboratory Experiment</a></span>",
              "</div>",
              "<div id='rdb-footer-right'>",
-                 "<a href='http://www.twitter.com/arc90' class='footer-twitterLink'>Follow us on Twitter &raquo;</a>",
                  "<span class='version'>Readability version " + readability.version + "</span>",
              "</div>",
         "</div>"].join('');
-                
+
         return articleFooter;
     },
     
@@ -1756,46 +1745,6 @@ var readability = {
         }
     },
 
-    
-    /**
-     * Show the email popup.
-     *
-     * @return void
-     **/
-    emailBox: function () {
-        var emailContainerExists = document.getElementById('email-container');
-        if(null !== emailContainerExists)
-        {
-            return;
-        }
-
-        var emailContainer = document.createElement("DIV");
-        emailContainer.setAttribute('id', 'email-container');
-        emailContainer.innerHTML = '<iframe src="'+readability.emailSrc + '?pageUrl='+encodeURIComponent(window.location)+'&pageTitle='+encodeURIComponent(document.title)+'" scrolling="no" onload="readability.removeFrame()" style="width:500px; height: 490px; border: 0;"></iframe>';
-
-        document.body.appendChild(emailContainer);          
-    },
-    
-    /**
-     * Close the email popup. This is a hacktackular way to check if we're in a "close loop".
-     * Since we don't have crossdomain access to the frame, we can only know when it has
-     * loaded again. If it's loaded over 3 times, we know to close the frame.
-     *
-     * @return void
-     **/
-    removeFrame: function () {
-        readability.iframeLoads+=1;
-        if (readability.iframeLoads > 3)
-        {
-            var emailContainer = document.getElementById('email-container');
-            if (null !== emailContainer) {
-                emailContainer.parentNode.removeChild(emailContainer);
-            }
-
-            readability.iframeLoads = 0;
-        }           
-    },
-    
     htmlspecialchars: function (s) {
         if (typeof(s) === "string") {
             s = s.replace(/&/g, "&amp;");

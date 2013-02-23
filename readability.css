@@ -1,7 +1,7 @@
 @charset "utf-8";
 /* Document */
 body{font-size:10px;line-height:1;}
-#readability-logo,#arc90-logo,.footer-twitterLink,#readTools a,a.rdbTK-powered span{background-color:transparent!important;background-image:url(http://lab.arc90.com/experiments/readability/images/sprite-readability.png)!important;background-repeat:no-repeat!important;}
+#readTools a{background-color:transparent!important;background-image:url(http://kerrick.github.com/readability-js/sprite-readability.png)!important;background-repeat:no-repeat!important;}
 #readOverlay{text-rendering:optimizeLegibility;display:block;position:absolute;top:0;left:0;width:100%;}
 #readInner{max-width:800px;margin:1em auto;}
 #readInner a{color:#039;text-decoration:none;}
@@ -41,8 +41,6 @@ a.rdbTK-powered span{display:inline-block;height:22px;margin-left:2px;background
 #readTools a{overflow:hidden;margin-bottom:8px;display:block;opacity:.4;text-indent:-99999px;height:34px;width:34px;text-decoration:none;filter:alpha(opacity=40);}
 #reload-page{background-position:0 0;}
 #print-page{background-position:-36px 0;}
-#email-page{background-position:-72px 0;}
-#kindle-page{background-position:-108px 0;}
 #readTools a:hover,#readTools a:focus{opacity:1;filter:alpha(opacity=100);}
 /* @group User Styles */
 /* Size */
@@ -81,7 +79,5 @@ a.rdbTK-powered span{display:inline-block;height:22px;margin-left:2px;background
 .bug-red{background:red;}
 .bug-yellow{background:#ffff8e;}
 .bug-blue{background:#bfdfff;}
-/* -- EMAIL / KINDLE POP UP -- */
-#kindle-container,#email-container{position:fixed;top:60px;left:50%;width:500px;height:490px;border:solid 3px #666;background-color:#fff;z-index:100!important;overflow:hidden;margin:0 0 0 -240px;padding:0;}
 /* Override html styling attributes */
 table,tr,td{background-color:transparent!important;}

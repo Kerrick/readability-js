@@ -1,4 +1,0 @@
-<Files log.txt>
-Order deny,allow
-Deny from all
-</Files>
