@@ -259,7 +259,7 @@ var readability = {
         articleTools.id        = "readTools";
         articleTools.innerHTML = 
             "<a href='#' onclick='return window.location.reload()' title='Reload original page' id='reload-page'>Reload Original Page</a>" +
-            "<a href='#' onclick='javascript:window.print();' title='Print page' id='print-page'>Print Page</a>" +
+            "<a href='#' onclick='javascript:window.print();' title='Print page' id='print-page'>Print Page</a>";
 
         return articleTools;
     },
